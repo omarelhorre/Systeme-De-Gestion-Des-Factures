@@ -1,0 +1,9 @@
+.factures-main { margin-left: 380px; padding: 40px; }
+.factures-container { position: static; width: auto; padding: 24px; }
+.factures-content { width: auto; height: auto; max-height: 80vh; overflow: auto; }
+.factures-table { overflow-x: auto; }
+.factures-table td, .factures-table th { padding: 12px 8px; border-bottom: 1px solid #d9d9d9; }
+.factures-table td:last-child { text-align: center; }
+.factures-content select { padding: 8px; border: 1px solid #d0d0d0; border-radius: 18px; font: inherit; max-width: 100%; }
+.factures-message { padding: 12px; background: #f4f4f4; border-left: 4px solid #c8102e; }
+@media(max-width: 900px) { .factures-main { margin-left: 0; padding: 16px; } body:has(.factures-main) .menu { position: static; max-width: none; height: auto; } body:has(.factures-main) .menu-list { height: auto; gap: 20px; } }

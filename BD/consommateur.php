@@ -14,14 +14,12 @@
         $sql = "SELECT id,nom,prenom,adresse FROM consommateur NATURAL JOIN utilisateur";
         return mysqli_query($link,$sql);
     }
-    function insertConsommateur($lastUser,$idFournisseur,$adresse)
-    {
+    function insertConsommateur($lastUser,$idFournisseur,$adresse) {
         global $link;
-        $sql = "INSERT INTO consommateur(id,idFournisseur,adresse)
-                VALUES ('".$lastUser."','".$idFournisseur."','".$adresse."')";
-        return mysqli_query($link,$sql);
+        $stmt = mysqli_prepare($link, 'INSERT INTO consommateur(id,idFournisseur,adresse) VALUES(?,?,?)');
+        mysqli_stmt_bind_param($stmt, 'iis', $lastUser, $idFournisseur, $adresse);
+        return mysqli_stmt_execute($stmt);
     }
-
         function selectConsommateur($id)
         {
             global $link;

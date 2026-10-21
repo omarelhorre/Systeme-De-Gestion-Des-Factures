@@ -23,7 +23,7 @@
         </ul>
         </nav>
     </header>
-    <main class="main">
+    <main class="main"><a class="element" href="<?=dir?>consommateur/factures"><button class="connexion-btn">Consulter mes factures</button></a>
     </main>
 </body>
 </html>

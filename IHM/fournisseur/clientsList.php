@@ -19,7 +19,7 @@
                 <span class="title">Fatourti<span>
             </li>
             <li>
-                <div class="grid"> 
+                <div class="grid"><div class="border"><a class="section-txt" href="<?=dir?>fournisseur/factures"><i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i> Consulter les factures</a></div> 
                     <div class="border">
                         <a class="section-txt" href="../fournisseur/tableauDeBord"><i class="fa-solid fa-user-group"></i> Consulter le tableau de bord
                         </a>
@@ -54,7 +54,7 @@
         </nav>
     <main class="main">
         <div class="container">
-            <div class="centering">
+            <div class="centering"><?php if (!empty($_SESSION['clients_message'])) { ?><p role="status"><?=htmlspecialchars($_SESSION['clients_message'], ENT_QUOTES, 'UTF-8')?></p><?php unset($_SESSION['clients_message']); } ?>
                 <div class="flex-start">
                     <h3>Liste des clients</h3>
                     <a href="./ajouter" ><button class="add-btn"><i class="fa-solid fa-pen"></i> Ajouter un client</button></a>
@@ -74,7 +74,7 @@
                             <td><?=$V[1]?></td>
                             <td><?=$V[2]?></td>
                             <td><?=$V[3]?></td>
-                            <td><a href="./modifier/<?=$V[0]?>"><button  class="modify-btn"><i class="fa-solid fa-plus"></i> Modifier un client</button></a></td>
+                            <td><a href="<?=dir?>fournisseur/factures?client=<?=$V[0]?>"><button class="modify-btn">Voir les factures</button></a><a href="./modifier/<?=$V[0]?>"><button  class="modify-btn"><i class="fa-solid fa-plus"></i> Modifier un client</button></a></td>
                         </tr>
                         <?php } ?>
                     </table>

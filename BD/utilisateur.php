@@ -9,13 +9,11 @@
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
 
-    function insertUser($email,$nom,$prenom,$password)
-    {
+    function insertUser($email,$nom,$prenom,$password) {
         global $link;
-        $sql = "INSERT INTO utilisateur (nom,prenom,email,pass)  VALUES(
-        '".$nom."','".$prenom."','".$email."','".$password."'
-        )";
-        mysqli_query($link,$sql);
+        $stmt = mysqli_prepare($link, 'INSERT INTO utilisateur(nom,prenom,email,pass) VALUES(?,?,?,?)');
+        mysqli_stmt_bind_param($stmt, 'ssss', $nom, $prenom, $email, $password);
+        mysqli_stmt_execute($stmt);
         return mysqli_insert_id($link);
     }
     function modifyUtilisateur($id,$nom,$prenom,$email)

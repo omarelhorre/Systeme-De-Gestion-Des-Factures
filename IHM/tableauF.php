@@ -19,7 +19,7 @@
                 <span class="title">Fatourti<span>
             </li>
             <li>
-                <div class="grid"> 
+                <div class="grid"><div class="border"><a class="section-txt" href="<?=dir?>fournisseur/factures"><i class="fa-solid fa-file-invoice-dollar" aria-hidden="true"></i> Consulter les factures</a></div> 
                     <div class="border selected">
                         <a class="section-txt" href="" ><i class="fa-solid fa-user-group"></i> Consulter le tableau de bord
                         </a>
