@@ -32,5 +32,9 @@ jobs:
               env:
                 mysql_password_root: temppass
               run: php tests/connexionTest.php
+            - name: Docker Syntax Test
+              env:
+                mysql_password_root: temppass
+              run: Docker compose config --quiet
               
             
