@@ -19,6 +19,11 @@ jobs:
                   MYSQL_DATABASE: fatourti
                 ports:
                 - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ptemppass"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=10 
         steps:
             - name: Code clone
               uses: actions/checkout@v4
@@ -34,7 +39,11 @@ jobs:
               run: php tests/connexionTest.php
             - name: Docker Syntax Test
               env:
-                mysql_password_root: temppass
-              run: Docker compose config --quiet
+                mysql_root_password: temppass
+                mysql_database: fatourti
+                mysql_user: omarelhorre
+                mysql_password: root
+                smtp: test
+              run: docker compose config --quiet
               
             
