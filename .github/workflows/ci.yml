@@ -52,5 +52,19 @@ jobs:
                 MYSQL_PWD: temppass
               run:
                 mysql -h 127.0.0.1 -u root fatourti < database.sql
-              
+            - name: Database Insertion Test
+              env:
+                MYSQL_PWD: temppass
+              run:
+                mysql -h 127.0.0.1 -u root fatourti -e "
+                INSERT INTO utilisateur(nom,prenom,email,pass) VALUES('EL HORRE','OMAR','omarelhorreCI@gmail.com','temppass');
+
+                INSERT INTO utilisateur(nom,prenom,email,pass) VALUES('EL HORRE','FERAS','ferasselhorre@gmail.com','temppass');
+
+                INSERT INTO fournisseur(id)
+                VALUES(1);
+
+                INSERT INTO consommateur
+                VALUES(2,1,'Casablanca');
+                "
             
