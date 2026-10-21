@@ -1,5 +1,5 @@
 <?php
-    include_once(ROOT."BD/connexion.php");
+    include_once("BD/connexion.php");
     try
     {
         $connexion = connexion('127.0.0.1');
