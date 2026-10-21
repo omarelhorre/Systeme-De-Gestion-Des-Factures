@@ -8,17 +8,29 @@ on:
     pull_request:
 
 jobs:
-    test:
+    main:
         runs-on: ubuntu-latest
 
+        services:
+            mysql:
+                image: mysql:8.0
+                env:
+                  MYSQL_ROOT_PASSWORD: temppass
+                  MYSQL_DATABASE: fatourti
+                ports:
+                - 3306:3306
         steps:
             - name: Code clone
               uses: actions/checkout@v4
-
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                php-version: '8.2'
             - name: Syntax Check
               run: find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+            - name: Database connexion
+              env:
+                mysql_password_root: temppass
+              run: php tests/db_connecion.php
+              
             
