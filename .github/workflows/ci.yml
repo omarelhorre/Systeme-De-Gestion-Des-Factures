@@ -31,6 +31,6 @@ jobs:
             - name: Database connexion
               env:
                 mysql_password_root: temppass
-              run: php tests/db_connecion.php
+              run: php tests/db_connexion.php
               
             
