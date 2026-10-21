@@ -19,6 +19,16 @@ else if($URL[0] == "consommateur")
             {
                 redirectToIndexC();
             }
+        else if($URL[1] == "declaration")
+            {
+               include_once(ROOT."/Traitement/consommateur/declaration.php");
+               fatourtiDeclarationPage();
+            }
+        else if($URL[1] == "facture" && isset($URL[2]))
+            {
+               include_once(ROOT."/Traitement/consommateur/declaration.php");
+               fatourtiDownloadInvoice((int)$URL[2]);
+            }
         else if($URL[1] == "all")
             {
                afficherClients();
