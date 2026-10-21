@@ -45,5 +45,12 @@ jobs:
                 mysql_password: root
                 smtp: test
               run: docker compose config --quiet
+            - name: Docker Build
+              run: docker build -t omarelhorre/fatourti:testProduction .
+            - name: Database Migraton Test
+              env:
+                MYSQL_PWD: temppass
+              run:
+                mysql -h 127.0.0.1 -u root fatourti < database.sql
               
             
