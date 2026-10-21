@@ -33,8 +33,7 @@
             $email->Host = 'smtp.gmail.com';
             $email->Port = '587';
             $email->Username = 'farhan.othmane@etu.uae.ac.ma';
-            $email->Password = getenv('SMTP_PASSWORD');
-            var_dump($email->Password);
+            $email->Password = getenv('SMTP_PASS');
             $email-> SMTPSecure = 'tls';
             $email->setFrom('farhan.othmane@etu.uae.ac.ma','Fatourti');
             $email->AddAddress($_POST["email"],$_POST["nom"].' '.$_POST["prenom"]);

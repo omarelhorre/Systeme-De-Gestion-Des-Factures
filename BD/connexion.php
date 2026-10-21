@@ -1,7 +1,7 @@
 <?php 
-    function connexion($serv="localhost",$user="root",$bd="fatourti")
+    function connexion($serv="db",$user="root",$bd="fatourti")
     {
-        $pass = getenv('password_db');
+        $pass = getenv('mysql_password_root');
         return mysqli_connect($serv,$user,$pass,$bd);
     }
 ?>

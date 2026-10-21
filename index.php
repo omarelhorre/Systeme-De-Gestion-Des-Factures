@@ -1,7 +1,7 @@
 <?php 
 define('ROOT',str_replace('index.php','',$_SERVER["SCRIPT_FILENAME"]));
-define('link',"http://localhost/Fatourti/");
-define('dir',"/Fatourti/");
+define('link',"http://localhost:8080/");
+define('dir',"");
 include_once(ROOT."/Traitement/loginForm.php");
 include_once(ROOT."/Traitement/fournisseur/clientsManip.php");
 $URL = explode('/',$_GET["url"]);
