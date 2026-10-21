@@ -53,4 +53,12 @@ function authentification()
         include_once(ROOT."/IHM/tableauC.php");
     }
 
+
+    function deconnexion()
+    {
+        $_SESSION=[];
+        session_destroy();
+        header("Location:".link."utilisateur/authentification");
+        exit;
+    }
 ?>

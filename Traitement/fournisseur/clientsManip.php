@@ -61,7 +61,6 @@
             }
         else if ($_SERVER["REQUEST_METHOD"] == "POST")
             {
-                echo($id);
                 modifyUtilisateur($id,$_POST["nom"],$_POST["prenom"],$_POST["email"]);
                 modifyConsommateur($id,$_POST["adresse"]);
                 header("Location:".link."/consommateur/all");

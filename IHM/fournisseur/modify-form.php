@@ -45,7 +45,7 @@
                     <div class="login-creds">
                     <p class="identity"><?= $_SESSION["user"]["nom"]." ".$_SESSION["user"]["prenom"]?></p><p class="role-style">Fournisseur</p>
                     </div>
-                    <a class="element" href=<?=dir."utilisateur/authentification"?>>
+                    <a class="element" href=<?=dir."../utilisateur/deconnexion"?>>
                     <button class="connexion-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i>Déconnexion</button>
                     </a>
                 </div>

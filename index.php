@@ -11,6 +11,10 @@ if($URL[0] == "utilisateur" )
             {
                 authentification();
             }
+        else if($URL[1] == "deconnexion")
+            {
+                authentification();
+            }
     }
 
 else if($URL[0] == "consommateur")
