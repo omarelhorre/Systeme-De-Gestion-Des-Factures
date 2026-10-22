@@ -1,17 +1,13 @@
 <?php 
 define('ROOT',str_replace('index.php','',$_SERVER["SCRIPT_FILENAME"]));
-define('link',"http://localhost:8080/");
-define('dir',"");
+define('link',"http://localhost/Fatourti/");
+define('dir',"/Fatourti/");
 include_once(ROOT."/Traitement/loginForm.php");
 include_once(ROOT."/Traitement/fournisseur/clientsManip.php");
 $URL = explode('/',$_GET["url"]);
 if($URL[0] == "utilisateur" )
     {
         if($URL[1] == "authentification")
-            {
-                authentification();
-            }
-        else if($URL[1] == "deconnexion")
             {
                 authentification();
             }

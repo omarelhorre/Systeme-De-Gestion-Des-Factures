@@ -24,11 +24,6 @@
         </nav>
     </header>
     <main class="main">
-        <section style="max-width:900px;margin:0 auto;padding:32px;background:#fff;border-radius:20px;box-sizing:border-box">
-            <h1>Tableau de bord consommateur</h1>
-            <p>Déclarez vos index d'eau et d'électricité, puis consultez vos relevés et factures.</p>
-            <a class="acceder" style="display:inline-block;text-decoration:none" href="<?= htmlspecialchars(rtrim(dirname($_SERVER['SCRIPT_NAME']), '/').'/consommation.php', ENT_QUOTES, 'UTF-8') ?>">Mes relevés de consommation</a>
-        </section>
     </main>
 </body>
 </html>
