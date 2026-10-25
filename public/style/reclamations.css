@@ -1,0 +1,14 @@
+.reclamations-page select,
+.reclamations-page textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 12px;
+    background: #fff;
+    color: #262626;
+    font: inherit;
+}
+.reclamations-page textarea { resize: vertical; }
+.reclamations-page form button { margin-top: 20px; }
+.reclamations-page td.description { white-space: normal; overflow-wrap: anywhere; }
