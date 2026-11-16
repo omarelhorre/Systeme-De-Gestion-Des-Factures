@@ -28,6 +28,9 @@ foreach ($declarations as $ligne) if ((int)$ligne['idAdresseCompteur'] === $idAd
                 <div class="border selected">
                     <a class="section-txt" href="<?= link ?>declaration/all" aria-current="page"><i class="fa-solid fa-pen"></i> Déclarer consommation</a>
                 </div>
+                <div class="border">
+                    <a class="section-txt" href="<?= link ?>reclamations.php"><i class="fa-solid fa-circle-exclamation"></i> Mes réclamations</a>
+                </div>
             </div>
         </li>
         <li>

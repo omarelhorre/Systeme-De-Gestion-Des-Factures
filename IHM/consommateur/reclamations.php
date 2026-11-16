@@ -24,7 +24,7 @@ $libellesTypes = [
 <body class="reclamations-page">
 <header><strong>Fatourti</strong><nav>
     <a href="<?= link ?>consommateur/tableauDeBord">Tableau de bord</a> ·
-    <a href="<?= link ?>consommation.php">Mes relevés</a>
+    <a href="<?= link ?>declaration/all">Mes relevés</a>
 </nav></header>
 <main>
     <h1>Mes réclamations</h1>
