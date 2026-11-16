@@ -3,6 +3,7 @@ define('ROOT',str_replace('index.php','',$_SERVER["SCRIPT_FILENAME"]));
 define('link',"http://localhost:8080/");
 define('dir',"");
 include_once(ROOT."/Traitement/loginForm.php");
+include_once(ROOT."/Traitement/profil.php");
 include_once(ROOT."/Traitement/fournisseur/clientsManip.php");
 include_once(ROOT."/Traitement/fournisseur/facturesManip.php");
 include_once(ROOT."/Traitement/fournisseur/anomaliesManip.php");
@@ -34,6 +35,10 @@ if($URL[0] == "utilisateur" )
         else if($URL[1] == "deconnexion")
             {
                 deconnexion();
+            }
+        else if(in_array($URL[1], ["profil", "modifierEmail", "modifierMotDePasse"], true))
+            {
+                profil($URL[1]);
             }
     }
 

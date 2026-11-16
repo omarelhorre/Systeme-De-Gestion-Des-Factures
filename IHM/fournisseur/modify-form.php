@@ -39,6 +39,12 @@ $statutContrat = $contrat["statut"] ?? "resilié";
                 <label class="champ entier"><span class="libelle">Email</span>
                     <input type="email" name="email" value="<?= $e($result["email"]) ?>">
                 </label>
+                <label class="champ"><span class="libelle">Numéro d'identité</span>
+                    <input type="text" name="cin" placeholder="BL175578" maxlength="10" pattern="[A-Za-z]{1,2}[0-9]{4,8}" value="<?= $e($result["cin"] ?? '') ?>">
+                </label>
+                <label class="champ"><span class="libelle">Téléphone</span>
+                    <input type="tel" name="telephone" placeholder="0612345678" maxlength="16" pattern="(\+212|0)[5-7][0-9 ]{8,12}" value="<?= $e($result["telephone"] ?? '') ?>">
+                </label>
                 <div class="entier actions fin">
                     <?php if ($contrat): ?>
                         <a class="bouton danger" href="<?= link ?>contrat/resilier/<?= (int)$contrat[0] ?>"><i class="fa-solid fa-xmark"></i> Résilier le contrat</a>

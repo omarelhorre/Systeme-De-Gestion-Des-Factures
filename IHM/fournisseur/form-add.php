@@ -35,6 +35,12 @@ $coqueActif = 'clients';
                     <option value="agent">Agent</option>
                 </select>
             </label>
+            <label class="champ client-field"><span class="libelle">Numéro d'identité</span>
+                <input type="text" name="cin" placeholder="BL175578" maxlength="10" pattern="[A-Za-z]{1,2}[0-9]{4,8}" required>
+            </label>
+            <label class="champ client-field"><span class="libelle">Téléphone</span>
+                <input type="tel" name="telephone" placeholder="0612345678" maxlength="16" pattern="(\+212|0)[5-7][0-9 ]{8,12}" required>
+            </label>
 
             <!-- Une ou plusieurs adresses, chacune avec ses compteurs (seulement pour un consommateur) -->
             <div class="client-field entier pile" id="adresses">

@@ -5,6 +5,18 @@
     include_once(ROOT."/BD/agent.php");
     include_once(ROOT."/BD/contrat.php");
     $link = connexion();
+
+    // Numéro d'identité : 1 ou 2 lettres puis 4 à 8 chiffres (ex. BL175578)
+    function cinValide($cin)
+    {
+        return preg_match('/^[A-Z]{1,2}\d{4,8}$/', $cin) === 1;
+    }
+    // Téléphone marocain : 0 ou +212, puis 9 chiffres commençant par 5, 6 ou 7
+    function telephoneValide($telephone)
+    {
+        return preg_match('/^(\+212|0)[5-7]\d{8}$/', $telephone) === 1;
+    }
+
     function afficherClients()
     {
         $result = selectAll();
@@ -50,6 +62,12 @@
                     }
                     $points[] = [$adresse, $categories[$i], (float)$idxEau, (float)$idxElec];
                 }
+                // Numéro d'identité (ex. BL175578) et téléphone (ex. 0612345678 ou +212612345678)
+                $cin = strtoupper(trim($_POST['cin'] ?? ''));
+                $telephone = str_replace(' ', '', trim($_POST['telephone'] ?? ''));
+                if (!cinValide($cin) || !telephoneValide($telephone)) {
+                    http_response_code(400); echo 'Numéro d\'identité ou téléphone invalide.'; return;
+                }
             }
 
             $password = bin2hex(random_bytes(8));
@@ -59,7 +77,7 @@
                 $lastUser = insertUser($_POST["email"],$_POST["nom"],$_POST["prenom"],$passwordHashed);
                 if ($role === 'agent') insertAgent($lastUser);
                 else {
-                    insertConsommateur($lastUser,$_SESSION["user"]["id"],$points[0][0]);
+                    insertConsommateur($lastUser,$_SESSION["user"]["id"],$points[0][0],$cin,$telephone);
                     foreach ($points as $point) {
                         insertAdresseCompteur($lastUser,$_SESSION["user"]["id"],$point[0],$point[1],$point[2],$point[3]);
                     }
@@ -119,8 +137,14 @@
             }
         else if ($_SERVER["REQUEST_METHOD"] == "POST")
             {
+                // Les anciens clients n'ont pas encore ces deux champs : vides acceptés, sinon format vérifié.
+                $cin = strtoupper(trim($_POST['cin'] ?? ''));
+                $telephone = str_replace(' ', '', trim($_POST['telephone'] ?? ''));
+                if (($cin !== '' && !cinValide($cin)) || ($telephone !== '' && !telephoneValide($telephone))) {
+                    http_response_code(400); echo 'Numéro d\'identité ou téléphone invalide.'; return;
+                }
                 modifyUtilisateur($id,$_POST["nom"],$_POST["prenom"],$_POST["email"]);
-                modifyConsommateur($id,$_POST["adresse"]);
+                modifyConsommateur($id,$_POST["adresse"],$cin,$telephone);
                 header("Location:".link."consommateur/all");
                 exit;
             }

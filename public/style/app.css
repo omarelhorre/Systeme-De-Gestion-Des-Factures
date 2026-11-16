@@ -665,3 +665,55 @@ button.bouton.accent { background: var(--vert); }
     .details dd { margin-bottom: 0.625rem; }
     .tableau td, .tableau th { padding-left: 0.625rem; padding-right: 0.625rem; }
 }
+
+/* =========================================================
+   Mon compte
+   ========================================================= */
+
+/* nom + rôle + avatar par défaut, en haut à droite */
+a.compte { align-items: center; }
+.compte-avatar { font-size: 1.75rem; color: var(--gris); }
+a.compte:hover .compte-avatar { color: var(--texte); }
+
+/* avatar par défaut (Font Awesome) à côté du nom, sur la page du compte */
+.identite { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.avatar-defaut { flex-shrink: 0; font-size: 3.5rem; color: var(--gris); }
+
+/* champs non modifiables : grisés */
+.champ input:disabled {
+    border-color: transparent;
+    background: var(--carte);
+    color: var(--attenue);
+    -webkit-text-fill-color: var(--attenue);
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* sur mobile, le lien "Mon compte" et la déconnexion restent à droite du menu */
+@media (max-width: 640px) {
+    .menu-liens { flex: 1; }
+    .compte-avatar { font-size: 1.5rem; }
+}
+
+/* identité à gauche, champs grisés à droite, sur une seule ligne qui se replie si besoin */
+.compte-ligne {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.25rem 2rem;
+}
+
+.compte-champs {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.875rem 1rem;
+    min-width: min(100%, 20rem);
+}
+
+/* même règle que plus haut, assez précise pour passer devant le style normal des champs */
+.champ input:disabled:not([type="checkbox"]):not([type="radio"]) {
+    border-color: transparent;
+    background: var(--carte);
+    color: var(--attenue);
+}

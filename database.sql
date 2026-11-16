@@ -23,6 +23,8 @@ CREATE TABLE consommateur
     id int primary key,
     idFournisseur int NOT NULL,
     adresse varchar(255) NOT NULL,
+    cin varchar(20),
+    telephone varchar(20),
     FOREIGN KEY (idFournisseur) REFERENCES fournisseur(id),
     FOREIGN KEY (id) REFERENCES utilisateur(id)
 );

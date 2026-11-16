@@ -9,10 +9,12 @@ $coqueNom = trim(($_SESSION['user']['prenom'] ?? '').' '.($_SESSION['user']['nom
 ?>
 <header class="barre">
     <a class="marque" href="<?= link.$coqueAccueil ?>">Fatourti</a>
-    <p class="compte">
+    <!-- Le nom mène à la page "Mon compte" ; l'avatar est l'icône par défaut de Font Awesome -->
+    <a class="compte" href="<?= link ?>utilisateur/profil" title="Mon compte">
         <span class="compte-nom"><?= htmlspecialchars($coqueNom, ENT_QUOTES, 'UTF-8') ?></span>
         <span class="compte-role"><?= $coqueRole ?></span>
-    </p>
+        <i class="fa-solid fa-circle-user compte-avatar" aria-hidden="true"></i>
+    </a>
 </header>
 
 <nav class="menu" aria-label="Menu <?= strtolower($coqueRole) ?>">
@@ -24,6 +26,10 @@ $coqueNom = trim(($_SESSION['user']['prenom'] ?? '').' '.($_SESSION['user']['nom
             </a>
         <?php } ?>
     </div>
+    <!-- Mon compte, juste au-dessus de la déconnexion -->
+    <a class="<?= ($coqueActif ?? '') === 'profil' ? 'actif' : '' ?>" href="<?= link ?>utilisateur/profil" title="Mon compte" aria-label="Mon compte">
+        <i class="fa-solid fa-user-gear"></i>
+    </a>
     <a class="sortie" href="<?= link ?>utilisateur/deconnexion" title="Déconnexion" aria-label="Déconnexion">
         <i class="fa-solid fa-door-open"></i>
     </a>

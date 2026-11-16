@@ -14,11 +14,11 @@
         $sql = "SELECT id,nom,prenom,adresse FROM consommateur NATURAL JOIN utilisateur";
         return mysqli_query($link,$sql);
     }
-    function insertConsommateur($lastUser,$idFournisseur,$adresse)
+    function insertConsommateur($lastUser,$idFournisseur,$adresse,$cin='',$telephone='')
     {
         global $link;
-        $sql = "INSERT INTO consommateur(id,idFournisseur,adresse)
-                VALUES ('".$lastUser."','".$idFournisseur."','".$adresse."')";
+        $sql = "INSERT INTO consommateur(id,idFournisseur,adresse,cin,telephone)
+                VALUES ('".$lastUser."','".$idFournisseur."','".$adresse."','".mysqli_real_escape_string($link,$cin)."','".mysqli_real_escape_string($link,$telephone)."')";
         mysqli_query($link,$sql);
     }
     function insertAdresseCompteur($idConsommateur,$idFournisseur,$adresse,$categorie,$idxEau,$idxElec)
@@ -47,11 +47,13 @@
            $sql = "SELECT * FROM adresseCompteur WHERE idConsommateur=".$id." ORDER BY id";
            return mysqli_query($link,$sql);
        }
-       function modifyConsommateur($id,$adresse)
+       function modifyConsommateur($id,$adresse,$cin='',$telephone='')
         {
             global $link;
             $sql = "UPDATE consommateur
-                    SET adresse='".$adresse."'
+                    SET adresse='".$adresse."',
+                        cin='".mysqli_real_escape_string($link,$cin)."',
+                        telephone='".mysqli_real_escape_string($link,$telephone)."'
                     WHERE id=".$id;
             mysqli_query($link,$sql);
             $sql = "UPDATE adresseCompteur SET adresse='".$adresse."'
