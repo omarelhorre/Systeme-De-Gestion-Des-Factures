@@ -41,7 +41,10 @@ $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UT
                             </td>
                             <td class="secondaire"><div class="tronque" title="<?= $e($V[3]) ?>"><?= $e($V[3]) ?></div></td>
                             <td class="fin">
-                                <a class="bouton contour petit" href="<?= link ?>consommateur/modifier/<?= (int)$V[0] ?>"><i class="fa-solid fa-pen"></i> Modifier</a>
+                                <div class="actions fin">
+                                    <a class="bouton contour petit" href="<?= link ?>consommateur/modifier/<?= (int)$V[0] ?>"><i class="fa-solid fa-pen"></i> Modifier</a>
+                                    <a class="bouton danger petit" href="<?= link ?>consommateur/supprimer/<?= (int)$V[0] ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
+                                </div>
                             </td>
                         </tr>
                     <?php } ?>

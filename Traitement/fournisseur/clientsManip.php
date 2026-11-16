@@ -159,4 +159,32 @@
             }
         include_once(ROOT."IHM/validerModal.php");
     }
+
+    // Supprimer un client : GET affiche la confirmation, POST supprime.
+    function supprimer($id)
+    {
+        if (!ctype_digit((string)$id)) {
+            http_response_code(404); echo 'Client introuvable.'; return;
+        }
+        $client = selectConsommateur($id);
+        if (!$client || (int)$client['idFournisseur'] !== (int)($_SESSION['user']['id'] ?? 0)) {
+            http_response_code(403); echo 'Client non autorisé.'; return;
+        }
+        if (empty($_SESSION['csrf_suppression_client'])) {
+            $_SESSION['csrf_suppression_client'] = bin2hex(random_bytes(32));
+        }
+        if ($_SERVER["REQUEST_METHOD"] == "POST")
+            {
+                if (!hash_equals($_SESSION['csrf_suppression_client'], (string)($_POST['csrf'] ?? ''))) {
+                    http_response_code(400); echo 'Session expirée : rechargez la page.'; return;
+                }
+                supprimerConsommateur($id);
+                unset($_SESSION['csrf_suppression_client']);
+                header("Location:".link."consommateur/all");
+                exit;
+            }
+        $historique = historiqueConsommateur($id);
+        $contrat = selectContractByConsommateur($id);
+        include_once(ROOT."IHM/fournisseur/supprimerClient.php");
+    }
 ?>

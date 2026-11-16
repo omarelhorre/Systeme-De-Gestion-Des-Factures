@@ -5,7 +5,8 @@
     {
         global $link;
         $sql = "SELECT * FROM contrat JOIN consommateur ON 
-        contrat.idConsommateur = consommateur.id WHERE statut = 'actif' ";
+        contrat.idConsommateur = consommateur.id WHERE statut = 'actif'
+        AND contrat.idConsommateur = ".(int)$id;
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
     function ajouterContrat($id,$cheminGeneration)

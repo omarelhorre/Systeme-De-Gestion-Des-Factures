@@ -59,6 +59,10 @@ else if($URL[0] == "consommateur")
             {
                 modify($URL[2]);
             }
+         else if($URL[1] == "supprimer" && isset($URL[2]))
+            {
+                supprimer($URL[2]);
+            }
     }
 else if($URL[0] == "fournisseur")
     {
