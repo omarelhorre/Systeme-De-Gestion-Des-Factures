@@ -1,275 +1,304 @@
 /* Page de connexion Fatourti.
-   Les couleurs et polices viennent de tokens.css. */
+   Structure et espacements identiques à la page d'auth de tp3parking,
+   couleurs depuis tokens.css. */
 
-/* ---------- Bandeau institutionnel ---------- */
-.band {
-    height: 0.375rem;
-    background: var(--red);
-    border-bottom: 0.125rem solid var(--green);
-}
-.notice {
-    margin: 0;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--hairline);
-    background: var(--surface);
-    color: var(--muted);
-    font-size: 0.75rem;
-    text-align: center;
-}
-
-.page {
-    max-width: 72rem;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
-
-/* ---------- En-tête : sceau + nom trilingue ---------- */
-.masthead {
+.page-auth {
+    min-height: 100vh;
+    padding: 1.5rem;
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem 0;
-    border-bottom: 2px solid var(--ink);
-}
-.seal { width: 4rem; height: 4rem; flex: none; }
-.seal-line { fill: none; stroke: var(--red); stroke-width: 1.6; }
-.seal-line.thin { stroke-width: 0.6; }
-.seal-text {
-    fill: var(--red);
-    font-family: var(--font-latin);
-    font-size: 6.4px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-}
-.rosette path { fill: none; stroke: var(--red); stroke-width: 0.35; opacity: 0.55; }
-.seal-letter {
-    fill: var(--red);
-    font-family: var(--font-latin);
-    font-size: 24px;
-    font-weight: 700;
-    text-anchor: middle;
 }
 
-.identity p { margin: 0; }
-.wordmark {
-    font-size: 1.75rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+.auth-cadre {
+    width: 100%;
+    max-width: 80rem;
+    min-height: calc(100vh - 3rem);
+    margin: 0 auto;
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: var(--cadre);
+    border: 1px solid var(--trait);
+    border-radius: 1.75rem;
+}
+
+/* ---------- En-tête : marque | noms ar/tifinagh | vide ---------- */
+.auth-entete {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+
+.marque {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    justify-self: start;
+    font-family: var(--marque);
+    font-weight: 800;
+    font-size: clamp(1.25rem, 2.4vw, 2.5rem);
+    letter-spacing: -0.05em;
     line-height: 1.05;
 }
-.names {
-    display: flex;
+
+.sceau { width: 1.15em; height: 1.15em; flex-shrink: 0; }
+.sceau circle { fill: none; stroke: var(--rouge); stroke-width: 3; }
+.sceau-texte { fill: var(--rouge); font-family: var(--corps); font-size: 7px; font-weight: 600; letter-spacing: 0; }
+.rosace path { fill: none; stroke: var(--rouge); stroke-width: 0.5; opacity: 0.5; }
+.sceau-lettre { fill: var(--rouge); font-family: var(--marque); font-size: 26px; font-weight: 800; text-anchor: middle; letter-spacing: 0; }
+
+.noms {
+    display: inline-flex;
     gap: 0.75rem;
     align-items: baseline;
-    color: var(--ink);
-    font-size: 1rem;
-    line-height: 1.3;
-}
-.names [lang="zgh"] { color: var(--muted); font-size: 0.875rem; }
-.service { color: var(--muted); font-size: 0.8125rem; }
-
-/* ---------- Contenu ---------- */
-.main {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    grid-template-areas:
-        "intro card"
-        "plate card";
-    grid-template-rows: auto 1fr;
-    column-gap: 4rem;
-    align-items: start;
-    padding: 3rem 0 4rem;
-}
-.intro { grid-area: intro; }
-.card  { grid-area: card; }
-.plate { grid-area: plate; }
-
-.intro h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.08;
-    max-width: 18ch;
-}
-.lead {
-    margin: 1rem 0 0;
-    max-width: 42ch;
-    color: var(--muted);
-    font-size: 1rem;
+    color: var(--attenue);
+    font-size: 0.875rem;
 }
 
-/* ---------- Plaque des compteurs ---------- */
-.plate {
-    position: relative;
-    overflow: hidden;
+/* ---------- Corps : visuel | formulaire ---------- */
+.auth-corps {
+    flex: 1;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin-top: 2.5rem;
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    background: var(--surface);
+    gap: 3rem;
 }
-.plate-guilloche {
+
+.auth-visuel {
+    position: relative;
+    min-height: 28rem;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: var(--carte);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.guilloche {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
 }
-.plate-guilloche path { fill: none; stroke: var(--guilloche); stroke-width: 0.5; }
+.guilloche path { fill: none; stroke: #DCD6C8; stroke-width: 0.6; }
 
-.meter {
-    position: relative;   /* au-dessus de la guilloche */
-    padding: 1.25rem 1.5rem 1.5rem;
+.compteur {
+    position: relative;         /* au-dessus de la guilloche */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
 }
-.meter + .meter { border-left: 1px solid var(--hairline); }
-.meter-name { margin: 0 0 0.75rem; font-weight: 600; }
-.meter-unit { margin: 0.5rem 0 0; color: var(--muted); font-family: var(--font-mono); font-size: 0.75rem; }
-.meter-elec .meter-name { color: var(--elec); }
-.meter-water .meter-name { color: var(--water); }
+
+.compteur-nom {
+    font-family: var(--titre);
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+}
+.compteur-nom.elec { color: var(--elec); }
+.compteur-nom.eau { color: var(--eau); }
+
+.compteur-unite {
+    color: var(--attenue);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+}
 
 /* Électricité : écran à segments, angles droits */
 .lcd {
     position: relative;
-    display: inline-block;
-    padding: 0.5rem 0.75rem;
-    background: var(--ink);
-    font-family: var(--font-segment);
-    font-size: 2.25rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--texte);
+    font-family: var(--segments);
+    font-size: 2.75rem;
     line-height: 1;
 }
-.lcd-ghost { color: #24282F; }                        /* segments éteints */
-.lcd-value {
+.lcd-eteint { color: #23272E; }
+.lcd-valeur {
     position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-    color: var(--elec-fill);
+    top: 0.625rem;
+    right: 0.875rem;
+    color: var(--elec-vif);
 }
 
 /* Eau : tambours ronds qui défilent */
-.drums { display: inline-flex; gap: 0.25rem; }
-.drum {
-    width: 1.875rem;
-    height: 3.25rem;
+.tambours { display: flex; align-items: flex-end; gap: 0.3rem; }
+.tambour {
+    width: 2.25rem;
+    height: 3.5rem;
     overflow: hidden;
-    border: 1px solid var(--ink);
-    border-radius: 0.9375rem;
-    background: var(--surface);
-    font-family: var(--font-mono);
-    font-size: 1.5rem;
-    line-height: 3.25rem;
+    border-radius: 999px;
+    background: var(--cadre);
+    font-family: var(--mono);
+    font-feature-settings: "zero" 0;
+    font-size: 1.625rem;
+    line-height: 3.5rem;
     text-align: center;
 }
-.drum.decimal { background: var(--water); border-color: var(--water); color: var(--surface); }
-.drum-strip { display: block; transition: transform 0.4s cubic-bezier(.4, 0, .2, 1); }
-.drum-strip span { display: block; height: 3.25rem; }
-.drum-comma { align-self: flex-end; font-family: var(--font-mono); font-size: 1.5rem; }
+.tambour.decimal { background: var(--eau); color: var(--cadre); }
+.bande { display: block; transition: transform 0.4s cubic-bezier(.4, 0, .2, 1); }
+.bande span { display: block; height: 3.5rem; }
+.virgule { font-family: var(--mono); font-size: 1.625rem; line-height: 1; }
 
-/* ---------- Carte de connexion ---------- */
-.card {
-    padding: 2rem;
-    border: 1px solid var(--hairline);
-    border-top: 0.25rem solid var(--green);
-    border-radius: var(--radius);
-    background: var(--surface);
-}
-.card h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-}
-.card-hint { margin: 0.375rem 0 0; color: var(--muted); }
-
-.form { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.75rem; }
-.field { display: flex; flex-direction: column; gap: 0.375rem; }
-.field label { font-weight: 600; }
-.field input {
-    box-sizing: border-box;
-    height: var(--control-h);
-    padding: 0 0.75rem;
-    border: 2px solid var(--ink);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--ink);
-    font: inherit;
-    font-size: 1rem;
+/* ---------- Formulaire (copie de tp3parking) ---------- */
+.auth-cote {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-main {
-    display: inline-flex;
+.auth-formulaire {
+    width: 100%;
+    max-width: 22rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.auth-titre {
+    font-family: var(--marque);
+    font-weight: 600;
+    font-size: 2.25rem;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+}
+.auth-titre span { display: block; }
+.auth-titre .gris { color: var(--gris); }
+
+.auth-accroche {
+    margin-top: 0.75rem;
+    color: var(--attenue);
+    line-height: 1.5;
+}
+
+.auth-sous-titre {
+    margin: 0 0 1rem;
+    color: var(--attenue);
+    font-size: 0.8125rem;
+}
+
+.auth-champ {
+    position: relative;
+    display: block;
+}
+
+.auth-icone {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    width: 1rem;
+    height: 1rem;
+    transform: translateY(-50%);
+    color: var(--gris);
+    pointer-events: none;
+}
+
+.auth-icone,
+.auth-oeil svg,
+.auth-valider svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.auth-champ input {
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 2.75rem 0 2.625rem;
+    border: 1px solid var(--bordure);
+    border-radius: 999px;
+    background: transparent;
+    font-size: 0.875rem;
+}
+.auth-champ input::placeholder { color: var(--gris); }
+.auth-champ input:focus { outline: none; border-color: var(--vert); }
+
+/* Remplissage automatique du navigateur : garder le fond du cadre (pas de bleu) */
+.auth-champ input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 2rem var(--cadre) inset;
+    -webkit-text-fill-color: var(--texte);
+}
+
+.auth-oeil {
+    position: absolute;
+    top: 50%;
+    right: 0.375rem;
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--gris);
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+.auth-oeil:hover,
+.auth-oeil.visible { color: var(--texte); }
+
+.auth-oeil svg,
+.auth-valider svg { width: 1rem; height: 1rem; }
+
+.auth-valider {
+    height: 2.75rem;
+    margin-top: 0.5rem;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    height: var(--control-h);
-    margin-top: 0.25rem;
     border: 0;
-    border-bottom: 2px solid var(--green-press);   /* léger relief, sans ombre */
-    border-radius: var(--radius);
-    background: var(--green);
-    color: var(--surface);
-    font: inherit;
-    font-size: 1rem;
+    border-radius: 999px;
+    background: var(--vert);
+    color: #FFFFFF;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
 }
-.btn-main:hover { background: var(--green-press); }
-.btn-main:active { transform: translateY(1px); }
-.btn-main svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.auth-valider svg { stroke-width: 2.2; }
+.auth-valider:hover { opacity: 0.85; }
 
-.card-foot {
-    margin: 1.5rem 0 0;
-    padding-top: 1rem;
-    border-top: 1px solid var(--hairline);
-    color: var(--muted);
+.aide {
+    margin-top: 0.5rem;
+    color: var(--gris);
     font-size: 0.75rem;
+    text-align: center;
 }
 
-/* ---------- Pied de page ---------- */
-.footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.25rem 0 2rem;
-    border-top: 1px solid var(--hairline);
-    color: var(--muted);
-    font-size: 0.75rem;
-}
+/* ---------- Entrée en flou ---------- */
+.entree { animation: apparition 0.4s ease both; }
 
-/* ---------- Entrée en flou (courte) ---------- */
-@keyframes blur-in {
+@keyframes apparition {
     from { opacity: 0; filter: blur(8px); }
     to   { opacity: 1; filter: blur(0); }
 }
-.intro, .plate { animation: blur-in 0.35s ease-out both; }
-.card  { animation: blur-in 0.4s ease-out 0.1s both; }
 
 @media (prefers-reduced-motion: reduce) {
-    .intro, .plate, .card { animation: none; }
-    .drum-strip { transition: none; }
+    .entree { animation: none; }
+    .bande { transition: none; }
 }
 
-/* ---------- Tablette et mobile ---------- */
+/* ---------- Mobile (comme tp3parking) ---------- */
 @media (max-width: 900px) {
-    /* Sur petit écran : le formulaire passe avant la plaque des compteurs */
-    .main {
-        grid-template-columns: 1fr;
-        grid-template-areas: "intro" "card" "plate";
-        grid-template-rows: auto;
-        row-gap: 2rem;
-        padding-top: 2rem;
+    .page-auth { padding: 0; }
+
+    .auth-cadre {
+        min-height: 100vh;
+        padding: 1.25rem 1rem;
+        border: 0;
+        border-radius: 0;
     }
-    .plate { margin-top: 0; }
-    .intro h1 { font-size: 2rem; }
-}
-@media (max-width: 560px) {
-    .page { padding: 0 1rem; }
-    .masthead { padding: 1rem 0; }
-    .seal { width: 3rem; height: 3rem; }
-    .wordmark { font-size: 1.5rem; }
-    .card { padding: 1.5rem 1.25rem; }
-    .plate { grid-template-columns: 1fr; }
-    .meter + .meter { border-left: 0; border-top: 1px solid var(--hairline); }
-    .footer { flex-direction: column; gap: 0.25rem; }
+
+    .auth-entete { grid-template-columns: 1fr auto; }
+    .auth-entete > span:last-child { display: none; }
+
+    .auth-corps { grid-template-columns: minmax(0, 1fr); }
+    .auth-visuel { display: none; }
 }
