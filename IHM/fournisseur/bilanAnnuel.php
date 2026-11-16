@@ -47,7 +47,7 @@ $iconeElec = '<i class="fa-solid fa-bolt" style="color: var(--elec)"></i>';
                     <tr>
                         <td>
                             <div class="cellule-nom">
-                                <span class="avatar" data-avatar="<?=(int)$ligne['idConsommateur']?>"></span>
+                                <i class="fa-solid fa-circle-user avatar-liste" aria-hidden="true"></i>
                                 <div class="tronque"><span class="fort"><?=texteBilan($ligne['prenom'].' '.$ligne['nom'])?></span><small>N° <?=texteBilan($ligne['idConsommateur'])?></small></div>
                             </div>
                         </td>

@@ -32,7 +32,7 @@ $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UT
                         <tr>
                             <td>
                                 <div class="cellule-nom">
-                                    <span class="avatar" data-avatar="<?= (int)$V[0] ?>"></span>
+                                    <i class="fa-solid fa-circle-user avatar-liste" aria-hidden="true"></i>
                                     <div class="tronque">
                                         <span class="fort"><?= $e($V[2].' '.$V[1]) ?></span>
                                         <small>N° <?= (int)$V[0] ?></small>
