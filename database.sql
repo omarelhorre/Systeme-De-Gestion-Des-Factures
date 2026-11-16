@@ -44,8 +44,10 @@ CREATE TABLE contrat
     dateDebut DATE DEFAULT (CURRENT_DATE()) NOT NULL,
     cheminGeneration varchar(255) NOT NULL,
     idConsommateur int NOT NULL,
+    idAdresseCompteur int,
     statut varchar(20) DEFAULT 'actif' NOT NULL,
-    FOREIGN KEY (idConsommateur) REFERENCES consommateur(id)
+    FOREIGN KEY (idConsommateur) REFERENCES consommateur(id),
+    FOREIGN KEY (idAdresseCompteur) REFERENCES adresseCompteur(id)
 );
 
 CREATE TABLE fichierAnuelle

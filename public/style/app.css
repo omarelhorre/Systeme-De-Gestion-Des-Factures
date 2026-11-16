@@ -904,3 +904,8 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 
 /* un élément marqué hidden reste caché, même si une classe lui donne un display */
 [hidden] { display: none !important; }
+
+/* ligne à cocher (choix des contrats à résilier) : toute la ligne est cliquable */
+.choix { cursor: pointer; }
+.choix input { width: 1.125rem; height: 1.125rem; flex-shrink: 0; accent-color: var(--rouge); }
+.choix:has(input:checked) { background: var(--carte); }

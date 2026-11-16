@@ -78,8 +78,9 @@
                 if ($role === 'agent') insertAgent($lastUser);
                 else {
                     insertConsommateur($lastUser,$_SESSION["user"]["id"],$points[0][0],$cin,$telephone);
+                    $idsAdresses = [];
                     foreach ($points as $point) {
-                        insertAdresseCompteur($lastUser,$_SESSION["user"]["id"],$point[0],$point[1],$point[2],$point[3]);
+                        $idsAdresses[] = insertAdresseCompteur($lastUser,$_SESSION["user"]["id"],$point[0],$point[1],$point[2],$point[3]);
                     }
                 }
                 mysqli_commit($link);
@@ -102,16 +103,20 @@
                 : 'Votre mot de passe de connexion à votre espace client';
             $email->Body = "Votre mot de passe est: ". $password . ". Ne le partager avec personne";
             if ($role === 'consommateur') {
-            $Client = ["nom" => $_POST["nom"],
-                        "prenom" => $_POST["prenom"],
-                        "adresse" => $points[0][0],
-                        ];
+            // Un contrat par adresse de compteur : un PDF chacun, tous joints au même email.
             include_once(ROOT."/Traitement/domPDFTraitement.php");
-            $pdf = genererPdfContrat($Client);
-            $email->addStringAttachment($pdf,'contrat-'.$lastUser.'.pdf');
-            $cheminGeneration = ROOT.'stockageContrats/contrat-'.$lastUser.'.pdf';
-            file_put_contents($cheminGeneration,$pdf);
-            ajouterContrat($lastUser,$cheminGeneration);
+            foreach ($points as $i => $point) {
+                $Client = ["nom" => $_POST["nom"],
+                            "prenom" => $_POST["prenom"],
+                            "adresse" => $point[0],
+                            ];
+                $pdf = genererPdfContrat($Client);
+                $nomFichier = 'contrat-'.$lastUser.'-'.$idsAdresses[$i].'.pdf';
+                $email->addStringAttachment($pdf,$nomFichier);
+                $cheminGeneration = ROOT.'stockageContrats/'.$nomFichier;
+                file_put_contents($cheminGeneration,$pdf);
+                ajouterContrat($lastUser,$cheminGeneration,$idsAdresses[$i]);
+            }
             }
             if(!$email->send())
                 {
@@ -131,6 +136,7 @@
         if($_SERVER["REQUEST_METHOD"] == "GET")
             {
                 $contrat = selectContractByConsommateur($id);
+                $contrats = contratsDuConsommateur($id);
                 $result = selectConsommateur($id);
                 $adressesCompteur = mysqli_fetch_all(adressesCompteurDuClient($id), MYSQLI_ASSOC);
                 include_once(ROOT."/IHM/fournisseur/modify-form.php");
@@ -170,16 +176,53 @@
             || !preg_match('/^\d{1,11}(?:\.\d{1,4})?$/', $electricite)) {
             http_response_code(400); echo 'Adresse, catégorie ou index invalide.'; return;
         }
-        insertAdresseCompteur($id, $_SESSION['user']['id'], $adresse, $categorie, (float)$eau, (float)$electricite);
+        $idAdresse = insertAdresseCompteur($id, $_SESSION['user']['id'], $adresse, $categorie, (float)$eau, (float)$electricite);
+        // La nouvelle adresse reçoit son propre contrat (PDF enregistré comme les autres).
+        include_once(ROOT."/Traitement/domPDFTraitement.php");
+        $pdf = genererPdfContrat(["nom" => $client["nom"], "prenom" => $client["prenom"], "adresse" => $adresse]);
+        $cheminGeneration = ROOT.'stockageContrats/contrat-'.(int)$id.'-'.$idAdresse.'.pdf';
+        file_put_contents($cheminGeneration,$pdf);
+        ajouterContrat($id,$cheminGeneration,$idAdresse);
         header('Location:'.link.'consommateur/modifier/'.$id); exit;
     }
 
+    // Résilier des contrats d'un client. $id est l'identifiant du CLIENT :
+    // GET affiche la liste de ses contrats actifs, POST résilie ceux qui sont cochés.
     function resilier($id)
     {
+        if (!ctype_digit((string)$id)) {
+            http_response_code(404); echo 'Client introuvable.'; return;
+        }
+        $client = selectConsommateur($id);
+        if (!$client || (int)$client['idFournisseur'] !== (int)($_SESSION['user']['id'] ?? 0)) {
+            http_response_code(403); echo 'Client non autorisé.'; return;
+        }
+        if (empty($_SESSION['csrf_resiliation'])) {
+            $_SESSION['csrf_resiliation'] = bin2hex(random_bytes(32));
+        }
+        // Seuls les contrats encore actifs peuvent être résiliés
+        $contratsActifs = array_values(array_filter(contratsDuConsommateur($id), function ($c) { return $c['statut'] === 'actif'; }));
+        $erreur = '';
         if($_SERVER["REQUEST_METHOD"] =="POST")
             {
-                resilier_BDD($id);
-                header("Location:".link."consommateur/all");
+                $choisis = is_array($_POST['contrats'] ?? null) ? array_map('intval', $_POST['contrats']) : [];
+                $permis = array_map('intval', array_column($contratsActifs, 'id'));
+                if (!hash_equals($_SESSION['csrf_resiliation'], (string)($_POST['csrf'] ?? ''))) {
+                    $erreur = 'Session expirée : rechargez la page.';
+                } else if (!$choisis) {
+                    $erreur = 'Cochez au moins un contrat à résilier.';
+                } else if (array_diff($choisis, $permis)) {
+                    // un identifiant qui n'est pas un contrat actif de ce client
+                    $erreur = 'Sélection invalide : rechargez la page.';
+                } else {
+                    foreach ($choisis as $idContrat) {
+                        resilier_BDD($idContrat);
+                    }
+                    unset($_SESSION['csrf_resiliation']);
+                    notifier((int)$id, 'contrat_resilie', count($choisis) > 1 ? count($choisis).' contrats résiliés' : 'Contrat résilié', 'Votre fournisseur a mis fin à '.(count($choisis) > 1 ? 'ces contrats' : 'ce contrat').'.', 'consommateur/tableauDeBord');
+                    header("Location:".link."consommateur/modifier/".$id);
+                    exit;
+                }
             }
         include_once(ROOT."IHM/validerModal.php");
     }

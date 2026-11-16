@@ -30,7 +30,9 @@
         $idAdresseCompteur = mysqli_insert_id($link);
         $sql = "INSERT INTO declaration(idConsommateur,idFournisseur,idAdresseCompteur,indexEau,indexElectricite,statut)
                 VALUES (".$idConsommateur.",".$idFournisseur.",".$idAdresseCompteur.",".$idxEau.",".$idxElec.",'Référence initiale')";
-        return mysqli_query($link,$sql);
+        mysqli_query($link,$sql);
+        // Renvoie l'identifiant de la nouvelle adresse : le contrat de ce compteur y est rattaché.
+        return $idAdresseCompteur;
     }
 
         function selectConsommateur($id)

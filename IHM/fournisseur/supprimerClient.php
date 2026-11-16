@@ -36,7 +36,7 @@ $contratActif = $contrat && ($contrat['statut'] ?? '') === 'actif';
             <div class="actions fin" style="margin-top: 0.75rem">
                 <a class="bouton contour" href="<?= link ?>consommateur/all">Retour</a>
                 <?php if ($aHistorique && $contratActif) { ?>
-                    <a class="bouton plein" href="<?= link ?>contrat/resilier/<?= (int)$contrat[0] ?>">Résilier le contrat</a>
+                    <a class="bouton plein" href="<?= link ?>contrat/resilier/<?= (int)$client['id'] ?>">Résilier le contrat</a>
                 <?php } ?>
                 <button class="bouton danger" type="submit"><i class="fa-solid fa-trash"></i> Supprimer définitivement</button>
             </div>

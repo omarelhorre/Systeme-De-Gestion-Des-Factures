@@ -1,9 +1,18 @@
 <?php
-// Modification d'un client. Variables fournies par modify() : $result, $contrat, $adressesCompteur.
+// Modification d'un client. Variables fournies par modify() : $result, $contrat, $contrats, $adressesCompteur.
 $coqueTitre = 'Modifier un client';
 $coqueActif = 'clients';
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
-$statutContrat = $contrat["statut"] ?? "resilié";
+
+// Un contrat par adresse de compteur : on range les contrats par adresse pour les afficher à côté.
+$contratParAdresse = array();
+$nbActifs = 0;
+foreach ($contrats as $ligneContrat) {
+    if ($ligneContrat['statut'] === 'actif') $nbActifs++;
+    // si une adresse a plusieurs contrats, on garde l'actif, sinon le plus récent
+    $cle = (int)$ligneContrat['idAdresseCompteur'];
+    if (!isset($contratParAdresse[$cle]) || $ligneContrat['statut'] === 'actif') $contratParAdresse[$cle] = $ligneContrat;
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -20,7 +29,7 @@ $statutContrat = $contrat["statut"] ?? "resilié";
             <h1 class="titre"><?= $e($result["prenom"].' '.$result["nom"]) ?></h1>
             <p class="sous-titre">Client N° <?= (int)$result["id"] ?></p>
         </div>
-        <span class="pill <?= $statutContrat === 'actif' ? 'ok' : '' ?>">Contrat <?= $e($statutContrat) ?></span>
+        <span class="pill <?= $nbActifs > 0 ? 'ok' : '' ?>"><?= $nbActifs > 0 ? $nbActifs.' contrat'.($nbActifs > 1 ? 's' : '').' actif'.($nbActifs > 1 ? 's' : '') : 'Aucun contrat actif' ?></span>
     </header>
 
     <div class="grille">
@@ -46,8 +55,8 @@ $statutContrat = $contrat["statut"] ?? "resilié";
                     <input type="tel" name="telephone" placeholder="0612345678" maxlength="16" pattern="(\+212|0)[5-7][0-9 ]{8,12}" value="<?= $e($result["telephone"] ?? '') ?>">
                 </label>
                 <div class="entier actions fin">
-                    <?php if ($contrat): ?>
-                        <a class="bouton danger" href="<?= link ?>contrat/resilier/<?= (int)$contrat[0] ?>"><i class="fa-solid fa-xmark"></i> Résilier le contrat</a>
+                    <?php if ($nbActifs > 0): ?>
+                        <a class="bouton danger" href="<?= link ?>contrat/resilier/<?= (int)$result["id"] ?>"><i class="fa-solid fa-xmark"></i> Résilier <?= $nbActifs > 1 ? 'des contrats' : 'le contrat' ?></a>
                     <?php endif; ?>
                     <button class="bouton accent" type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
                 </div>
@@ -61,8 +70,14 @@ $statutContrat = $contrat["statut"] ?? "resilié";
                     <li class="ligne">
                         <div class="ligne-texte">
                             <p class="ligne-nom"><?= $e($point['adresse']) ?></p>
-                            <p class="ligne-detail"><?= $e($point['categorie']) ?></p>
+                            <p class="ligne-detail">Compteur N° <?= (int)$point['id'] ?> · <?= $e($point['categorie']) ?></p>
                         </div>
+                        <?php $contratAdresse = $contratParAdresse[(int)$point['id']] ?? null; ?>
+                        <?php if ($contratAdresse === null) { ?>
+                            <span class="pill">Sans contrat</span>
+                        <?php } else { ?>
+                            <span class="pill <?= $contratAdresse['statut'] === 'actif' ? 'ok' : '' ?>">Contrat N° <?= (int)$contratAdresse['id'] ?> <?= $e($contratAdresse['statut']) ?></span>
+                        <?php } ?>
                     </li>
                 <?php endforeach; ?>
             </ul>

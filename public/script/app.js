@@ -68,6 +68,7 @@ document.querySelectorAll("[data-pagine]").forEach((liste) => {
         reclamation_nouvelle:{ icone: "fa-comment-dots",         action: "Répondre" },
         reclamation_reponse: { icone: "fa-comment-dots",         action: "Voir la réponse" },
         annuel:              { icone: "fa-calendar-check",       action: "Ouvrir le bilan" },
+        contrat_resilie:     { icone: "fa-file-circle-xmark",    action: "Ouvrir" },
     };
 
     // Petits outils pour créer des éléments sans jamais insérer de HTML venant des données
