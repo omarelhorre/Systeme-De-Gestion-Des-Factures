@@ -1,0 +1,86 @@
+/* =========================================================
+   FATOURTI — identité "service public"
+   Toutes les couleurs, polices et tailles de base sont ici.
+   Changer une valeur ici la change dans toute l'application.
+   Chaque couleur a UN seul sens (voir les commentaires).
+   ========================================================= */
+
+/* Chiffres 7 segments, utilisés UNIQUEMENT pour les index d'électricité */
+@font-face {
+    font-family: "DSEG7";
+    src: url("https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+}
+
+:root {
+    /* Papier et encre */
+    --paper: #F6F4EF;          /* fond de page, comme un papier officiel */
+    --surface: #FFFFFF;        /* formulaires, documents */
+    --ink: #0E1116;            /* texte principal */
+    --muted: #5A6270;          /* texte secondaire */
+    --hairline: #D9D6CE;       /* filets et bordures */
+    --guilloche: #CFC9BA;      /* lignes de sécurité décoratives */
+
+    /* Couleurs institutionnelles (drapeau) */
+    --green: #006233;          /* L'action principale, validé, payé */
+    --green-press: #004D28;    /* état appuyé du bouton vert */
+    --red: #C1272D;            /* bandeau institutionnel, sceau, erreurs */
+
+    /* Couleurs des services : uniquement pour les données */
+    --elec: #9A5B00;           /* électricité : texte */
+    --elec-fill: #F2B33D;      /* électricité : aplats */
+    --water: #1F4E8C;          /* eau : texte */
+    --water-fill: #CFE0F2;     /* eau : aplats */
+
+    /* Focus clavier : très visible, comme sur les services publics */
+    --focus: #FFD23F;
+
+    /* Polices */
+    --font-latin: "Public Sans", sans-serif;
+    --font-arabic: "IBM Plex Sans Arabic", sans-serif;
+    --font-tifinagh: "Noto Sans Tifinagh", sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;   /* références, montants, index d'eau */
+    --font-segment: "DSEG7", var(--font-mono); /* index d'électricité */
+
+    /* Formes : angles presque droits = institutionnel */
+    --radius: 0.25rem;
+    --control-h: 2.75rem;      /* hauteur des champs et boutons */
+}
+
+/* Tailles en rem : la page garde les mêmes proportions sur tous les écrans */
+html { font-size: clamp(16px, 1.04vw, 20px); }
+
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-latin);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Le texte arabe utilise sa propre police, partout */
+:lang(ar) { font-family: var(--font-arabic); }
+:lang(zgh) { font-family: var(--font-tifinagh); }
+
+/* Focus clavier commun à toute l'application */
+:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 0;
+    box-shadow: 0 0 0 5px var(--ink);
+}
+
+/* Lien d'évitement (accessibilité) */
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--focus);
+    color: var(--ink);
+    font-weight: 600;
+    z-index: 10;
+}
+.skip-link:focus { top: 1rem; }
