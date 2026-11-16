@@ -83,7 +83,7 @@
 /* Le "é" d'électricité clignote comme un voyant : allumé / éteint, sans fondu */
 .lettre-elec {
     color: var(--elec-vif);
-    animation: clignote 3.2s steps(1) infinite;
+    animation: clignote 1.6s steps(1) infinite;
 }
 
 @keyframes clignote {
