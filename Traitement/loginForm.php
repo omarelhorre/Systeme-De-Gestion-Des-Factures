@@ -51,6 +51,9 @@ function authentification()
         }
     function redirectToIndexF()
     {
+    // Charger les chiffres du tableau de bord (lecture seule) avant d'afficher la page.
+    require_once ROOT."BD/tableauFournisseur.php";
+    $tableau = tableauFournisseur(connexion(), (int)$_SESSION["user"]["id"]);
     include_once(ROOT."/IHM/tableauF.php");
     }
 

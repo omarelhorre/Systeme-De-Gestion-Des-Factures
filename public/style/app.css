@@ -1,0 +1,368 @@
+/* =========================================================
+   FATOURTI — coque de l'application et widgets
+   (barre du haut, menu d'icônes, cartes, pills, listes, boutons)
+   Structure reprise de Jamy / tp3parking, couleurs depuis tokens.css.
+   Partagé par toutes les pages connectées.
+   ========================================================= */
+
+/* ---------- Barre du haut ---------- */
+.barre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 4.5rem;
+    padding: 0 1.5rem;
+}
+
+.marque {
+    font-family: var(--marque);
+    font-weight: 800;
+    font-size: clamp(1.25rem, 2.4vw, 2.5rem);
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+}
+
+.compte {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.compte-nom {
+    max-width: 14rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.compte-role { color: var(--attenue); }
+
+/* ---------- Menu d'icônes (à gauche) ---------- */
+.menu {
+    position: fixed;
+    top: 4.5rem;
+    bottom: 0;
+    left: 0;
+    width: 4.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0 1.5rem;
+}
+
+.menu-liens {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;   /* icônes centrées verticalement */
+    gap: 0.5rem;
+}
+
+.menu a {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    color: var(--gris);
+    font-size: 1.125rem;
+    transition: color 0.2s;
+}
+
+.menu a:hover { color: var(--texte); }
+.menu a.actif { color: var(--vert); }          /* l'icône active est verte, sans fond */
+.menu a.sortie { color: var(--rouge); }        /* déconnexion : porte rouge, en bas */
+
+/* ---------- Contenu ---------- */
+.contenu {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 2rem 6rem;
+}
+
+.entete { margin-bottom: 1.5rem; }
+
+.titre {
+    font-family: var(--titre);
+    font-weight: 700;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sous-titre {
+    color: var(--attenue);
+    margin-top: 0.375rem;
+}
+
+/* ---------- Grille de widgets ---------- */
+.grille {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.carte {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 1.5rem;
+    border-radius: 1.75rem;
+    background: var(--cadre);
+}
+
+.carte.large { grid-column: span 2; }
+.carte.haute { grid-row: span 2; }
+
+.carte-entete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.titre-carte {
+    font-family: var(--titre);
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Grands chiffres : Barlow Condensed, serré */
+.chiffre {
+    font-family: var(--titre);
+    font-weight: 700;
+    font-size: 3.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.chiffre.geant { font-size: 5rem; }
+.chiffre.alerte { color: var(--rouge); }
+.chiffre .unite {
+    margin-left: 0.25rem;
+    color: var(--gris);
+    font-size: 0.4em;
+    letter-spacing: 0.02em;
+}
+
+.legende { color: var(--attenue); margin-top: 0.375rem; }
+.legende strong { color: var(--texte); font-weight: 600; }
+
+.carte-pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+}
+
+/* ---------- Boutons ---------- */
+.bouton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: opacity 0.2s, border-color 0.2s;
+}
+
+.bouton.accent { background: var(--vert); color: #FFFFFF; }   /* UNE seule action verte par écran */
+.bouton.accent:hover { opacity: 0.85; }
+
+.bouton-rond {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 1px solid var(--bordure);
+    font-size: 0.8125rem;
+    transition: border-color 0.2s;
+}
+
+.bouton-rond:hover { border-color: var(--gris); }
+
+/* ---------- Pills d'état ---------- */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    height: 1.625rem;
+    padding: 0 0.75rem;
+    border-radius: 999px;
+    background: var(--carte);          /* neutre : en attente, impayée, en cours */
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pill.ok { background: var(--vert); color: #FFFFFF; }       /* payée, traitée */
+
+/* ---------- Listes dans une carte ---------- */
+.lignes {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ligne {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.625rem 0.875rem;
+    border-radius: 1.25rem;
+    background: var(--page);
+}
+
+.ligne-texte { flex: 1; min-width: 0; }
+
+.ligne-nom,
+.ligne-detail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ligne-nom { font-weight: 600; }
+.ligne-detail { color: var(--attenue); font-size: 0.8125rem; }
+
+.ligne-montant {
+    flex-shrink: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Liste vide : une seule ligne grise, centrée */
+.vide {
+    margin: auto 0;
+    color: var(--attenue);
+    text-align: center;
+}
+
+/* ---------- Courbes de consommation ---------- */
+.courbes {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* chaque courbe prend la moitié de la hauteur de la carte */
+.courbe {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.courbe-entete {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.courbe-nom { font-weight: 600; }
+.courbe-nom.elec { color: var(--elec); }
+.courbe-nom.eau { color: var(--eau); }
+
+.courbe-valeur {
+    font-family: var(--titre);
+    font-weight: 700;
+    font-size: 1.75rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.courbe-valeur .unite { color: var(--gris); font-size: 0.55em; margin-left: 0.2rem; }
+
+.courbe svg {
+    display: block;
+    flex: 1;
+    width: 100%;
+    min-height: 5.5rem;
+    margin-top: 0.5rem;
+    overflow: visible;
+}
+
+.courbe path { vector-effect: non-scaling-stroke; }
+.courbe .trait { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.courbe .elec .trait { stroke: var(--elec-vif); }
+.courbe .elec .aplat { fill: var(--elec-clair); }
+.courbe .eau .trait { stroke: var(--eau); }
+.courbe .eau .aplat { fill: var(--eau-clair); }
+
+.mois {
+    display: flex;
+    justify-content: space-between;
+    color: var(--gris);
+    font-size: 0.75rem;
+}
+
+/* ---------- Entrée en flou ---------- */
+.entree { animation: apparition 0.4s ease both; }
+
+@keyframes apparition {
+    from { opacity: 0; filter: blur(8px); }
+    to   { opacity: 1; filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .entree { animation: none; }
+}
+
+/* ---------- Tablette ---------- */
+@media (max-width: 1024px) {
+    .grille { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .carte.haute { grid-row: auto; }
+}
+
+/* ---------- Mobile : le menu passe en ligne sous la barre ---------- */
+@media (max-width: 640px) {
+    .barre { height: 4rem; padding: 0 1rem; }
+    .compte-role { display: none; }
+
+    .menu {
+        position: static;
+        width: auto;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0 0.5rem 0.5rem;
+    }
+
+    .menu-liens { flex-direction: row; justify-content: flex-start; gap: 0; }
+
+    .contenu { padding: 0.5rem 1rem 3rem; }
+    .grille { grid-template-columns: minmax(0, 1fr); }
+    .carte.large { grid-column: auto; }
+    .carte { padding: 1.25rem; border-radius: 1.5rem; }
+    .chiffre.geant { font-size: 3.5rem; }
+}
