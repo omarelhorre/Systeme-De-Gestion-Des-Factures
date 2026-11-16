@@ -94,39 +94,48 @@
     70%  { color: var(--elec-vif); }
 }
 
-/* Le "u" d'Eau se remplit : une copie bleue de la lettre, découpée par une vague qui monte */
+/* Le "u" d'Eau est un récipient : l'eau monte dans son creux, avec une vague en surface.
+   Le bloc bleu est placé derrière la lettre ; ses bords sont cachés sous les traits du "u".
+   Les valeurs en em viennent de la mesure du "u" d'Outfit 600 :
+   traits de 0.13em, creux de 0.175em à 0.35em, haut du "u" à 0.4125em du haut de la ligne. */
 @property --vague-x { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @property --niveau  { syntax: "<length>"; inherits: false; initial-value: 100px; }
 
 .lettre-eau {
     position: relative;
     display: inline-block;
-    color: var(--gris);
+    isolation: isolate;          /* pour que le bloc bleu passe derrière la lettre seulement */
 }
 
-.lettre-eau::after {
-    content: attr(data-lettre);
+.lettre-eau::before {
+    content: "";
     position: absolute;
-    inset: 0;
-    color: var(--eau);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Cpath d='M0 5 Q10 0 20 5 T40 5 V200 H0Z'/%3E%3C/svg%3E") repeat-x;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Cpath d='M0 5 Q10 0 20 5 T40 5 V200 H0Z'/%3E%3C/svg%3E") repeat-x;
-    -webkit-mask-size: 0.5em 3em;
-            mask-size: 0.5em 3em;
+    z-index: -1;
+    left: 0.11em;
+    top: 0.4125em;
+    width: 0.305em;
+    height: 0.435em;
+    border-radius: 0 0 0.1525em 0.1525em;
+    background: var(--eau);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Cpath d='M0 10 Q10 0 20 10 T40 10 V200 H0Z'/%3E%3C/svg%3E") repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 200' preserveAspectRatio='none'%3E%3Cpath d='M0 10 Q10 0 20 10 T40 10 V200 H0Z'/%3E%3C/svg%3E") repeat-x;
+    -webkit-mask-size: 0.25em 1em;
+            mask-size: 0.25em 1em;
     -webkit-mask-position: var(--vague-x) var(--niveau);
             mask-position: var(--vague-x) var(--niveau);
     animation: vague 1.4s linear infinite, remplir 6s ease-in-out infinite;
 }
 
+/* la vague glisse d'une période, en boucle */
 @keyframes vague {
-    to { --vague-x: 0.5em; }
+    to { --vague-x: 0.25em; }
 }
 
-/* vide -> plein -> reste plein -> se vide */
+/* vide -> plein (juste sous le bord) -> reste plein -> se vide */
 @keyframes remplir {
-    0%, 8%   { --niveau: 1em; }
-    55%, 85% { --niveau: 0.3em; }
-    100%     { --niveau: 1em; }
+    0%, 8%   { --niveau: 0.45em; }
+    55%, 85% { --niveau: 0.02em; }
+    100%     { --niveau: 0.45em; }
 }
 
 .auth-accroche {
@@ -241,7 +250,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .entree, .lettre-elec { animation: none; }
-    .lettre-eau::after { animation: none; --niveau: 0em; }
+    .lettre-eau::before { animation: none; --niveau: 0em; }
 }
 
 /* ---------- Mobile (comme tp3parking) ---------- */
