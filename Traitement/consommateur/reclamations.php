@@ -69,6 +69,9 @@ function traiterReclamationsConsommateur(): void
                 }
                 [$type, $description, $idFacture] = validerReclamationConsommateur($_POST);
                 enregistrerReclamationConsommateur($db, $idConsommateur, $type, $description, $idFacture);
+                // Notification : le fournisseur du client est prévenu de la nouvelle réclamation.
+                $idNouvelle = notificationDerniereReclamation($idConsommateur);
+                notifier(notificationFournisseurDe($idConsommateur), 'reclamation_nouvelle', 'Nouvelle réclamation n° '.$idNouvelle, mb_substr($description, 0, 200), 'reclamation/detail/'.$idNouvelle, array('aTraiter' => true, 'idObjet' => $idNouvelle));
                 $_SESSION['csrf_reclamations'] = bin2hex(random_bytes(32));
                 $_SESSION['message_reclamations'] = 'Réclamation enregistrée. Son statut est « En attente ».';
                 header('Location: ' . link . 'reclamations.php', true, 303);

@@ -78,6 +78,15 @@ function traiterImportAnnuel()
                 throw $e;
             }
             $envoyes = envoyerRappelsAnnuels($db);
+            // Notification : chaque fournisseur concerné est prévenu, une seule fois.
+            $fournisseursPrevenus = array();
+            foreach ($lignes as $ligneAnnuelle) {
+                $idFournisseurAnnuel = notificationFournisseurDe((int)$ligneAnnuelle[0]);
+                if ($idFournisseurAnnuel && !in_array($idFournisseurAnnuel, $fournisseursPrevenus, true)) {
+                    $fournisseursPrevenus[] = $idFournisseurAnnuel;
+                    notifier($idFournisseurAnnuel, 'annuel', 'Relevé annuel '.$annee.' importé', 'Le bilan annuel de vos clients est prêt à être vérifié.', 'annuelle/all/'.$annee);
+                }
+            }
             $_SESSION['message_annuel'] = 'Fichier importé pour '.$annee.' ('.count($lignes).' client(s)). '.$envoyes.' notification(s) envoyée(s).';
             header('Location:'.link.'agent/tableauDeBord', true, 303);
             exit;

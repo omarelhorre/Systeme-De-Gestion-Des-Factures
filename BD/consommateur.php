@@ -100,6 +100,7 @@
                 // contrat, adresses, puis le client et son compte utilisateur
                 "DELETE FROM contrat WHERE idConsommateur=".$id,
                 "DELETE FROM adresseCompteur WHERE idConsommateur=".$id,
+                "DELETE FROM notification WHERE idUtilisateur=".$id,
                 "DELETE FROM consommateur WHERE id=".$id,
                 "DELETE FROM utilisateur WHERE id=".$id." AND id NOT IN (SELECT id FROM agent) AND id NOT IN (SELECT id FROM fournisseur)",
             );

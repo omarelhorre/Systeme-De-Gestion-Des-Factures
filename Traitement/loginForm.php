@@ -21,6 +21,8 @@ function authentification()
                     if(password_verify($password,$passwordHashed))
                     {
                         $_SESSION["user"] = $user;
+                        // Notification de bienvenue, envoyée une seule fois (première connexion).
+                        accueillirUtilisateur($user[0]);
                         $fournisseur = checkFournisseur($user[0]);
                         $consommateur = checkConsommateur($user[0]);
                         $agent = checkAgent($user[0]);

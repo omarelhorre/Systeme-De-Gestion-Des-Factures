@@ -111,6 +111,13 @@ function traiterConsommation($action, $id = null)
                         creerPdfFacture(ROOT.$pdfRelatif, $idFacture, $client, $precedente, $courante, $calcul, ROOT.$photoEau, ROOT.$photoElectricite);
                     }
                     mysqli_commit($db);
+                    // Notifications : facture disponible, ou anomalie signalée au client et à son fournisseur.
+                    if ($calcul['statut'] === 'Validée') {
+                        notifier($idClient, 'facture', 'Votre facture n° '.$idFacture.' est disponible', 'Montant : '.number_format((float)$calcul['ttc'], 2, ',', ' ').' DH TTC.', 'declaration/all/'.$idAdresseCompteur, array('idObjet' => $idFacture, 'email' => true));
+                    } elseif ($calcul['statut'] === 'Anomalie') {
+                        notifier($idClient, 'anomalie', 'Votre relevé présente une anomalie', 'Votre fournisseur va le vérifier. Aucune facture n\'est créée pour le moment.', 'declaration/all/'.$idAdresseCompteur, array('idObjet' => $idDeclaration, 'email' => true));
+                        notifier((int)$client['idFournisseur'], 'anomalie_a_corriger', 'Relevé anormal à corriger', $client['prenom'].' '.$client['nom'].', déclaration n° '.$idDeclaration.'.', 'declaration/corriger/'.$idDeclaration, array('aTraiter' => true, 'idObjet' => $idDeclaration));
+                    }
                     $_SESSION['message_consommation'] = $calcul['statut'] === 'Validée' ? 'Déclaration enregistrée et facture créée.' : ($calcul['statut'] === 'Anomalie' ? $statut.' — aucune facture créée.' : 'Premier relevé de référence enregistré. Aucune facture créée.');
                     header('Location: '.link.'declaration/all/'.$idAdresseCompteur, true, 303); exit;
                 } catch (Throwable $e) {

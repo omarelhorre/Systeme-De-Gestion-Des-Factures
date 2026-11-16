@@ -56,6 +56,8 @@
                             modifierMotDePasseUtilisateur($id, $hache);
                             $_SESSION['user']['pass'] = $hache;
                             $_SESSION['message_profil'] = 'Votre mot de passe a été modifié.';
+                            // La demande "changez votre mot de passe" du message de bienvenue est traitée.
+                            resoudreNotification($id, 'bienvenue');
                         }
                     }
                 // Réussite : nouveau jeton, puis retour sur la page (évite de renvoyer le formulaire)

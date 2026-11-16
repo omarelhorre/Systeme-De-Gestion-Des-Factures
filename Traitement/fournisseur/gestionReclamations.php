@@ -116,6 +116,9 @@ function gestionReclamationsAfficher($route)
                 $message = 'Aucun changement : ce traitement est déjà enregistré. Aucun nouvel e-mail envoyé.';
                 $avertissement = false;
                 if ($modifie) {
+                    // Notifications : le client voit la réponse dans sa cloche (l'email part juste après, comme avant).
+                    notifier((int)$reclamation['id'], 'reclamation_reponse', 'Réclamation n° '.$id.' : '.$statut, mb_substr($reponse, 0, 200), 'reclamations.php', array('idObjet' => $id));
+                    if ($statut === 'Traitée') resoudreNotification($fournisseur, 'reclamation_nouvelle', $id);
                     $envoye = gestionReclamationsNotifier($reclamation, $statut, $reponse);
                     $message = $envoye
                         ? 'Traitement enregistré. Notification transmise au serveur de messagerie.'

@@ -709,3 +709,198 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 
 /* avatar par défaut (Font Awesome) dans les listes */
 .avatar-liste { flex-shrink: 0; font-size: 2.25rem; color: var(--gris); }
+
+/* =========================================================
+   Notifications (cloche + fenêtre)
+   ========================================================= */
+
+.barre { position: relative; }
+
+.barre-droite {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+}
+
+/* la cloche, avec le nombre de notifications non lues */
+.cloche {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--bordure);
+    border-radius: 50%;
+    background: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.cloche:hover,
+.cloche[aria-expanded="true"] { border-color: var(--gris); }
+
+.cloche-nombre {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    min-width: 1.125rem;
+    height: 1.125rem;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background: var(--rouge);
+    color: #FFFFFF;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.125rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* la fenêtre, sous la barre, alignée à droite */
+.notifs {
+    position: absolute;
+    top: 4rem;
+    right: 1.5rem;
+    z-index: 20;
+    width: 26rem;
+    max-width: calc(100vw - 2rem);
+    padding: 1.25rem;
+    border: 1px solid var(--bordure);
+    border-radius: 1.75rem;
+    background: var(--cadre);
+    animation: apparition 0.2s ease both;
+}
+
+.notifs .filtres { display: flex; }
+.notifs .filtres button {
+    flex: 1;
+    display: inline-flex;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--attenue);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.notifs .filtres button.actif { background: var(--texte); color: #FFFFFF; }
+.notifs .filtres button span { opacity: 0.6; font-variant-numeric: tabular-nums; }
+
+.notifs-lien {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 0;
+    background: none;
+    color: var(--attenue);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.notifs-lien:hover { color: var(--texte); }
+
+.notifs-liste {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.notifs-liste .vide { padding: 1.5rem 0; }
+
+/* une notification : icône | texte et bouton | heure et "vu" */
+.notif {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 1.25rem;
+    background: var(--page);
+}
+
+/* point devant les notifications pas encore vues */
+.notif.non-lue::before {
+    content: "";
+    position: absolute;
+    top: 1.5rem;
+    left: 0.25rem;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--rouge);
+}
+
+.notif-icone {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--cadre);
+    font-size: 0.8125rem;
+}
+.notif-icone.traitee { background: var(--vert); color: #FFFFFF; }
+
+.notif-texte { flex: 1; min-width: 0; }
+.notif-titre { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notif-detail {
+    margin-top: 0.125rem;
+    color: var(--attenue);
+    font-size: 0.8125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.notif-texte .bouton { margin-top: 0.5rem; background: var(--cadre); }
+
+.notif-cote {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.375rem;
+    flex-shrink: 0;
+    color: var(--gris);
+    font-size: 0.75rem;
+}
+.notif-heure { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.notifs-pied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+    color: var(--gris);
+    font-size: 0.75rem;
+}
+.notifs-pied a { color: var(--texte); font-size: 0.8125rem; font-weight: 500; white-space: nowrap; }
+
+/* vue "répondre à une réclamation" */
+#notifs-reponse { display: flex; flex-direction: column; gap: 0.875rem; }
+#notifs-reponse[hidden] { display: none; }
+#notifs-reponse .notifs-lien { align-self: flex-start; }
+#notifs-reponse-detail { overflow-wrap: anywhere; line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+    .notifs { animation: none; }
+}
+
+@media (max-width: 640px) {
+    .barre-droite { gap: 0.5rem; }
+    .notifs { right: 1rem; top: 3.75rem; }
+    .notifs-pied span { display: none; }
+}
+
+/* un élément marqué hidden reste caché, même si une classe lui donne un display */
+[hidden] { display: none !important; }

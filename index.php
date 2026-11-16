@@ -4,6 +4,7 @@ define('link',"http://localhost:8080/");
 define('dir',"");
 include_once(ROOT."/Traitement/loginForm.php");
 include_once(ROOT."/Traitement/profil.php");
+include_once(ROOT."/Traitement/notification.php");
 include_once(ROOT."/Traitement/fournisseur/clientsManip.php");
 include_once(ROOT."/Traitement/fournisseur/facturesManip.php");
 include_once(ROOT."/Traitement/fournisseur/anomaliesManip.php");
@@ -116,6 +117,12 @@ else if($URL[0] == "reclamation")
     {
         require_once ROOT.'Traitement/fournisseur/gestionReclamations.php';
         gestionReclamationsAfficher($URL);
+    }
+
+else if($URL[0] == "notification")
+    {
+        // Routes AJAX de la cloche : notification/all, notification/lire/{id}, notification/toutLire
+        notifications($URL[1] ?? '', $URL[2] ?? null);
     }
 
 else if($URL[0] == "contrat")
