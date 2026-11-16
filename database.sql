@@ -27,6 +27,25 @@ CREATE TABLE consommateur
     FOREIGN KEY (id) REFERENCES utilisateur(id)
 );
 
+CREATE TABLE adresseCompteur
+(
+    id int primary key AUTO_INCREMENT,
+    idConsommateur int NOT NULL,
+    adresse varchar(255) NOT NULL,
+    categorie varchar(50) NOT NULL,
+    FOREIGN KEY (idConsommateur) REFERENCES consommateur(id)
+);
+
+CREATE TABLE contrat
+(
+    id int primary key AUTO_INCREMENT,
+    dateDebut DATE DEFAULT (CURRENT_DATE()) NOT NULL,
+    cheminGeneration varchar(255) NOT NULL,
+    idConsommateur int NOT NULL,
+    statut varchar(20) DEFAULT 'actif' NOT NULL,
+    FOREIGN KEY (idConsommateur) REFERENCES consommateur(id)
+);
+
 CREATE TABLE fichierAnuelle
 (
     fichierChemin varchar(255) primary key NOT NULL
@@ -48,23 +67,40 @@ CREATE TABLE ConsommationAnuelle
     UNIQUE(annee,idConsommateur)
 );
 
+CREATE TABLE regularisationAnnuelle
+(
+    id int primary key AUTO_INCREMENT,
+    idConsommationAnuelle int UNIQUE NOT NULL,
+    differenceEau decimal(15,4) NOT NULL,
+    differenceElectricite decimal(15,4) NOT NULL,
+    montantEstime decimal(15,2) NOT NULL,
+    dateLimite DATE NOT NULL,
+    dateDernierEnvoi DATE,
+    nombreEnvois int DEFAULT 0 NOT NULL,
+    dateReglement DATE,
+    FOREIGN KEY (idConsommationAnuelle) REFERENCES ConsommationAnuelle(id)
+);
+
 CREATE TABLE declaration(
     id int primary key AUTO_INCREMENT,
     idFournisseur int NOT NULL,
     idConsommateur int NOT NULL,
-    cheminCompteurEauImg varchar(255) NOT NULL,
-    cheminCompteurElectriciteImg varchar(255) NOT NULL,
+    idAdresseCompteur int NOT NULL,
+    cheminCompteurEauImg varchar(255) ,
+    cheminCompteurElectriciteImg varchar(255),
     indexEau decimal(15,4) NOT NULL,
     indexElectricite decimal(15,4) NOT NULL,
     dateSaisie DATE DEFAULT (CURRENT_DATE()) NOT NULL,
-    statut varchar(100) DEFAULT 'En attente de verification' NOT NULL,
+    statut varchar(100) DEFAULT 'Référence initiale' NOT NULL,
     dateDebut DATE DEFAULT (CURRENT_DATE()) NOT NULL,
     dateFin DATE,
     prixHT decimal(15,4),
     prixTTC decimal(15,2),
+    INDEX idx_declaration_consommateur (idConsommateur),
     FOREIGN KEY (idFournisseur) REFERENCES fournisseur(id),
     FOREIGN KEY (idConsommateur) REFERENCES consommateur(id),
-    UNIQUE(idConsommateur,dateDebut,dateFin)
+    FOREIGN KEY (idAdresseCompteur) REFERENCES adresseCompteur(id),
+    UNIQUE(idAdresseCompteur,dateDebut,dateFin)
 );
 
 CREATE TABLE facture(

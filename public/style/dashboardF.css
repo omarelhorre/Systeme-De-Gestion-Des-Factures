@@ -33,6 +33,12 @@ ul
     justify-content: space-between;
 
 }
+.align-btn
+{
+    display: flex;
+    gap: 6px;
+
+}
 .connexion-btn, .add-btn,.modify-btn
 {
     font-size: 18px;
@@ -44,12 +50,33 @@ ul
     cursor: pointer;
     transition-duration: 0.6s;
     font-weight: bold;
+    width: 200px;
 }
 .connexion-btn:hover, .add-btn:hover,.modify-btn:hover
 {
     background-color: #a50d26;
     transition-duration: 0.6s;
 }
+.cancel-btn
+{
+    font-size: 18px;
+    border: none;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background-color: #b1a4a6;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    transition-duration: 0.6s;
+    font-weight: bold;
+    width: 200px;
+
+}
+.cancel-btn:hover
+{
+    background-color: #949192;
+    transition-duration: 0.6s;
+}
+
 .title
 {
     font-weight: 900;
@@ -138,29 +165,10 @@ a
     justify-content: space-between ;
     align-items: center;
 }
-.add-btn,.modify-btn
-{
-    margin: 4px 9px;
-    padding: 10px;
-    font-size: 12px;
-    background-color: #d9d9d9;
-    color: black;
-    width: 180px;
-}
+
 .add-btn:hover
 {
     background-color: #9f9d9d;
-    transition-duration: 0.6s;
-}
-.modify-btn
-{
-    background-color: #c8102e;
-    color: white;
-    margin: 4px 0px;
-}
-.modify-btn:hover
-{
-    background-color:#a50d26;
     transition-duration: 0.6s;
 }
 
@@ -214,4 +222,18 @@ input:focus
 {
     display: flex;
     justify-content: flex-end;
+}
+
+.confirm
+{
+    display: flex;
+    flex-direction: row;
+}
+.center-vertically
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 800px;
 }

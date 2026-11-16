@@ -30,10 +30,13 @@
                         
                     </div>
                     <div class="border">
-                        <a class="section-txt" href=""><i class="fa-solid fa-list"></i>Consulter Les Declaration</a>
+                        <a class="section-txt" href="<?=link?>facture/all"><i class="fa-solid fa-list"></i>Consulter les factures</a>
                     </div >
                     <div class="border">
-                        <a class="section-txt" href=""><i class="fa-solid fa-check"></i>Verifier Consommation Anuelle</a>
+                        <a class="section-txt" href="<?=link?>declaration/anomalies"><i class="fa-solid fa-triangle-exclamation"></i> Corriger les anomalies</a>
+                    </div>
+                    <div class="border">
+                        <a class="section-txt" href="<?=link?>annuelle/all"><i class="fa-solid fa-check"></i>Verifier Consommation Anuelle</a>
                     </div>
                     <div class="border">
                         <a class="section-txt" href=""><i class="fa-solid fa-exclamation"></i>Consulter La liste des reclamations</a>
@@ -45,7 +48,7 @@
                     <div class="login-creds">
                     <p class="identity"><?= $_SESSION["user"]["nom"]." ".$_SESSION["user"]["prenom"]?></p><p class="role-style">Fournisseur</p>
                     </div>
-                    <a class="element" href=<?=dir."../utilisateur/deconnexion"?>>
+                    <a class="element" href=<?=link."utilisateur/deconnexion"?>>
                     <button class="connexion-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i>Déconnexion</button>
                     </a>
                 </div>

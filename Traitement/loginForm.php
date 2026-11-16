@@ -2,6 +2,7 @@
 include_once(ROOT."/BD/utilisateur.php");
 include_once(ROOT."/BD/fournisseur.php");
 include_once(ROOT."/BD/consommateur.php");
+include_once(ROOT."/BD/agent.php");
 session_start();
 function authentification()
     {
@@ -22,6 +23,7 @@ function authentification()
                         $_SESSION["user"] = $user;
                         $fournisseur = checkFournisseur($user[0]);
                         $consommateur = checkConsommateur($user[0]);
+                        $agent = checkAgent($user[0]);
                         if(isset($consommateur))
                             {
                             header("Location:".link."consommateur/tableauDeBord");
@@ -29,6 +31,10 @@ function authentification()
                         if(isset($fournisseur))
                             {
                             header("Location:".link."fournisseur/tableauDeBord");
+                            }
+                        if(isset($agent))
+                            {
+                            header("Location:".link."agent/tableauDeBord");
                             }
                     }
                     else
@@ -51,6 +57,11 @@ function authentification()
     function redirectToIndexC()
     {
         include_once(ROOT."/IHM/tableauC.php");
+    }
+
+    function redirectToIndexA()
+    {
+        include_once(ROOT."/IHM/tableauA.php");
     }
 
 

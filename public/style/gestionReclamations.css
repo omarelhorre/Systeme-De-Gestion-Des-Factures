@@ -1,0 +1,32 @@
+.reclamations-module .menu { height: 100vh; overflow-y: auto; }
+.reclamations-module .menu-list { min-height: calc(100vh - 40px); height: auto; gap: 40px; }
+.reclamations-module .connexion-btn { font-size: 15px; }
+.reclamations-module .statistiques { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 24px 0; }
+.reclamations-module .statistique { border: 1px solid #e5e5e5; border-radius: 16px; padding: 18px; }
+.reclamations-module .statistique strong { display: block; font-size: 28px; }
+.reclamations-module .statistique span { font-size: 13px; color: #666; }
+.reclamations-module .attente strong { color: #a45a00; }
+.reclamations-module .encours strong { color: #245c96; }
+.reclamations-module .traitee strong { color: #215b36; }
+.reclamations-module .recherche-form { display: grid; gap: 16px; margin: 24px 0; }
+.reclamations-module .recherche-ligne { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.reclamations-module .champ-recherche { flex: 1; min-width: 200px; }
+.reclamations-module label { display: grid; gap: 6px; font-size: 14px; }
+.reclamations-module input[type=search], .reclamations-module select, .reclamations-module textarea { box-sizing: border-box; width: 100%; padding: 12px; font: inherit; color: #282828; background: #fff; border: 1px solid #ccc; border-radius: 12px; }
+.reclamations-module fieldset { display: flex; flex-wrap: wrap; gap: 20px; border: 0; padding: 0; margin: 0; }
+.reclamations-module legend { margin-bottom: 10px; font-size: 14px; }
+.reclamations-module fieldset label { display: flex; align-items: center; gap: 6px; }
+.reclamations-module input[type=radio] { accent-color: #c8102e; }
+.reclamations-module small { display: block; color: #666; margin-top: 5px; }
+.reclamations-module .badge.encours { color: #245c96; background: #e8f0ff; }
+.reclamations-module .badge.traitee { color: #215b36; background: #e0f1e6; }
+.reclamations-module .texte-long { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.reclamations-module .traitement-form { display: grid; gap: 18px; max-width: 700px; border-top: 1px solid #ddd; margin-top: 28px; padding-top: 16px; }
+.reclamations-module .traitement-form button { justify-self: start; }
+.reclamations-module .avertissement { background: #fff0d5; color: #704200; }
+.reclamations-module .retour { color: #a50d26; display: inline-block; margin-bottom: 20px; }
+.reclamations-module .resultats { color: #666; font-size: 13px; }
+.reclamations-module .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.reclamations-module td.client { white-space: normal; min-width: 160px; }
+@media (max-width: 1100px) { .reclamations-module .statistiques { grid-template-columns: repeat(2, minmax(0, 1fr)); } .reclamations-module .main { padding: 20px; } }
+@media (max-width: 700px) { .reclamations-module .menu { height: auto; } .reclamations-module .menu-list { min-height: 0; gap: 24px; } .reclamations-module .container { padding: 20px; } .reclamations-module .title { font-size: 48px; } }

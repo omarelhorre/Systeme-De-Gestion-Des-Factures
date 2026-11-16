@@ -1,7 +1,8 @@
+name: fatourti_v2_live
 services:
   db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: mysql_db_v2
     environment:
       MYSQL_ROOT_PASSWORD: ${mysql_root_password}
       MYSQL_DATABASE: ${mysql_database}
@@ -10,14 +11,14 @@ services:
 
 
     ports:
-      - "3307:3306"
+      - "3308:3306"
 
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database.sql:/docker-entrypoint-initdb.d/init.sql
   backend:
     build: .
-    container_name: php_backend
+    container_name: php_backend_v2
     environment:
       mysql_password_root: ${mysql_root_password}
       SMTP_PASS: ${smtp}
@@ -25,5 +26,16 @@ services:
       - "8080:80"
     volumes:
         - .:/var/www/html
+  scheduler:
+    build: .
+    command: sh -c 'while true; do php /var/www/html/bin/rappelsAnnuels.php; sleep 3600; done'
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      mysql_password_root: ${mysql_root_password}
+      SMTP_PASS: ${smtp}
+    volumes:
+      - .:/var/www/html
 volumes:
   mysql_data:
