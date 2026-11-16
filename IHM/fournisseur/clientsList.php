@@ -1,89 +1,56 @@
+<?php
+// Liste des clients du fournisseur. $data vient de afficherClients() : [id, nom, prénom, adresse].
+$coqueTitre = 'Clients';
+$coqueActif = 'clients';
+$e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Se Connecter</title>
-    <link href=<?=dir."/public/style/dashboardF.css"?> rel="stylesheet"/>
-    <script src=<?= dir."/public/script/dashboardF.js"?>></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/eab6c3ad6c.js" crossorigin="anonymous"></script>
-
+<?php include ROOT.'IHM/commun/tete.php'; ?>
 </head>
 <body>
-        <nav class="menu">
-        <ul class="menu-list">
-            <li>
-                <span class="title">Fatourti<span>
-            </li>
-            <li>
-                <div class="grid"> 
-                    <div class="border">
-                        <a class="section-txt" href="../fournisseur/tableauDeBord"><i class="fa-solid fa-user-group"></i> Consulter le tableau de bord
-                        </a>
-                    </div>
-                    <div class="border selected">
-                        <a class="section-txt" href="../consommateur/all" ><i class="fa-solid fa-user-group"></i> Consulter Vos Clients
-                        </a>
-                        
-                    </div>
-                    <div class="border">
-                        <a class="section-txt" href="<?=link?>facture/all"><i class="fa-solid fa-list"></i>Consulter les factures</a>
-                    </div >
-                    <div class="border">
-                        <a class="section-txt" href="<?=link?>declaration/anomalies"><i class="fa-solid fa-triangle-exclamation"></i> Corriger les anomalies</a>
-                    </div>
-                    <div class="border">
-                        <a class="section-txt" href="<?=link?>annuelle/all"><i class="fa-solid fa-check"></i>Verifier Consommation Anuelle</a>
-                    </div>
-                    <div class="border">
-                        <a class="section-txt" href=""><i class="fa-solid fa-exclamation"></i>Consulter La liste des reclamations</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="connexion-section">
-                    <div class="login-creds">
-                    <p class="identity"><?= $_SESSION["user"]["nom"]." ".$_SESSION["user"]["prenom"]?></p><p class="role-style">Fournisseur</p>
-                    </div>
-                    <a class="element" href=<?=link."utilisateur/deconnexion"?>>
-                    <button class="connexion-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i>Déconnexion</button>
-                    </a>
-                </div>
-            </li>
-        </ul>
-        </nav>
-    <main class="main">
-        <div class="container">
-            <div class="centering">
-                <div class="flex-start">
-                    <h3>Liste des clients</h3>
-                    <a href="./ajouter" ><button class="add-btn"><i class="fa-solid fa-pen"></i> Ajouter un client</button></a>
-                </div>
-                <div>
-                    <table>
-                        <tr>
-                            <th>ID</th>
-                            <th>NOM</th>
-                            <th>PRENOM</th>
-                            <th>Adresse</th>
-                            <th>ACTION</th>
-                        </tr>
-                        <?php foreach($data as $V){ ?>
-                        <tr>
-                            <td><?=$V[0]?></td>
-                            <td><?=$V[1]?></td>
-                            <td><?=$V[2]?></td>
-                            <td><?=$V[3]?></td>
-                            <td><a href="./modifier/<?=$V[0]?>"><button  class="modify-btn"><i class="fa-solid fa-plus"></i> Modifier un client</button></a></td>
-                        </tr>
-                        <?php } ?>
-                    </table>
-                </div>
-            </div>
+<?php include ROOT.'IHM/fournisseur/menu.php'; ?>
+
+<main class="contenu entree">
+    <header class="entete ligne">
+        <div>
+            <h1 class="titre">Clients</h1>
+            <p class="sous-titre"><?= count($data) ?> client<?= count($data) > 1 ? 's' : '' ?></p>
         </div>
-        </main>
+        <a class="bouton accent" href="<?= link ?>consommateur/ajouter"><i class="fa-solid fa-plus"></i> Ajouter un client</a>
+    </header>
+
+    <section class="carte">
+        <?php if ($data) { ?>
+            <table class="tableau">
+                <thead>
+                    <tr><th>Client</th><th class="secondaire">Adresse</th><th></th></tr>
+                </thead>
+                <tbody data-pagine="8">
+                    <?php foreach ($data as $V) { ?>
+                        <tr>
+                            <td>
+                                <div class="cellule-nom">
+                                    <span class="avatar" data-avatar="<?= (int)$V[0] ?>"></span>
+                                    <div class="tronque">
+                                        <span class="fort"><?= $e($V[2].' '.$V[1]) ?></span>
+                                        <small>N° <?= (int)$V[0] ?></small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="secondaire"><div class="tronque" title="<?= $e($V[3]) ?>"><?= $e($V[3]) ?></div></td>
+                            <td class="fin">
+                                <a class="bouton contour petit" href="<?= link ?>consommateur/modifier/<?= (int)$V[0] ?>"><i class="fa-solid fa-pen"></i> Modifier</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        <?php } else { ?>
+            <p class="vide">Aucun client pour le moment. Ajoutez le premier avec le bouton ci-dessus.</p>
+        <?php } ?>
+    </section>
+</main>
 </body>
 </html>

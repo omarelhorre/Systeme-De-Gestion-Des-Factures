@@ -1,78 +1,27 @@
-
-
+<?php
+// Confirmation avant de résilier un contrat. Le formulaire renvoie en POST sur la même adresse (resilier()).
+$coqueTitre = 'Résilier le contrat';
+$coqueActif = 'clients';
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Se Connecter</title>
-    <link href=<?=dir."/public/style/dashboardF.css"?> rel="stylesheet"/>
-    <script src=<?= dir."/public/script/dashboardF.js"?>></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/eab6c3ad6c.js" crossorigin="anonymous"></script>
-
+<?php include ROOT.'IHM/commun/tete.php'; ?>
 </head>
 <body>
-        <nav class="menu">
-        <ul class="menu-list">
-            <li>
-                <span class="title">Fatourti<span>
-            </li>
-            <li>
-                <div class="grid"> 
-                    <div class="border">
-                        <a class="section-txt" href="../../fournisseur/tableauDeBord"><i class="fa-solid fa-user-group"></i> Consulter le tableau de bord
-                        </a>
-                    </div>
-                    <div class="border selected">
-                        <a class="section-txt" href="../../all" ><i class="fa-solid fa-user-group"></i> Consulter Vos Clients
-                        </a>
-                        
-                    </div>
-                    <div class="border">
-                        <a class="section-txt" href="<?=link?>../facture/all"><i class="fa-solid fa-list"></i>Consulter les factures</a>
-                    </div >
-                    <div class="border">
-                        <a class="section-txt" href="<?=link?>../declaration/anomalies"><i class="fa-solid fa-triangle-exclamation"></i> Corriger les anomalies</a>
-                    </div>
-                    <div class="border">
-                        <a class="section-txt" href="<?=link?>annuelle/all"><i class="fa-solid fa-check"></i>Verifier Consommation Anuelle</a>
-                    </div>
-                    <div class="border">
-                        <a class="section-txt" href=""><i class="fa-solid fa-exclamation"></i>Consulter La liste des reclamations</a>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="connexion-section">
-                    <div class="login-creds">
-                    <p class="identity"><?= $_SESSION["user"]["nom"]." ".$_SESSION["user"]["prenom"]?></p><p class="role-style">Fournisseur</p>
-                    </div>
-                    <a class="element" href=<?=link."utilisateur/deconnexion"?>>
-                    <button class="connexion-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i>Déconnexion</button>
-                    </a>
-                </div>
-            </li>
-        </ul>
-        </nav>
-    <main class="main">
-        <div class="container">
-            <div class="centering">
-                    <div class="center-vertically">
-                        <form method="post">
-                        <h2>etes vous sur que vous voulez resilier le contrat?</h2>
-                        <h3>cette operation ne peut pas etre annulé dès que vous confirmez.</h3>
-                        <div class="align-btn">
-                            <div class="champ center-btn"> <button type="submit" class="modify-btn"><i class="fa-solid fa-floppy-disk"></i>Enregistrer</button></div>
-                            <div class="champ center-btn"> <a href="..consommateur/all"><div class="cancel-btn"><i class="fa-solid fa-xmark"></i>Retour</div></a>
-                            </div>
-                        </div>
-                        </form>
-                    </div>
+<?php include ROOT.'IHM/fournisseur/menu.php'; ?>
+
+<main class="contenu entree">
+    <div class="centre">
+        <form class="carte" method="post">
+            <h1 class="titre-carte">Résilier ce contrat ?</h1>
+            <p class="legende">Cette opération ne peut pas être annulée une fois confirmée.</p>
+            <div class="actions fin" style="margin-top: 0.75rem">
+                <a class="bouton contour" href="<?= link ?>consommateur/all">Retour</a>
+                <button class="bouton danger" type="submit"><i class="fa-solid fa-xmark"></i> Résilier le contrat</button>
             </div>
-        </div>
-    </main>
+        </form>
+    </div>
+</main>
 </body>
 </html>

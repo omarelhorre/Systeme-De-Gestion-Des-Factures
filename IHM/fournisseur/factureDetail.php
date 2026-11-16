@@ -1,22 +1,49 @@
 <?php if (!isset($facture) || !$facture) { http_response_code(404); exit; } ?>
-<a href="<?= link ?>facture/all">← Retour aux factures</a>
-<h1>Facture #<?= (int)$facture['id'] ?></h1>
-<dl>
-<dt>Client</dt><dd><?= texteFacture($facture['nom'].' '.$facture['prenom']) ?></dd>
-<dt>Email</dt><dd><?= texteFacture($facture['email']) ?></dd>
-<dt>Adresse</dt><dd><?= texteFacture($facture['adresse']) ?></dd>
-<dt>Date de génération</dt><dd><?= texteFacture($facture['dateGeneration']) ?></dd>
-<dt>Période de facturation</dt><dd><?= texteFacture($facture['dateDebut']) ?> — <?= texteFacture($facture['dateFin'] ?? 'Non renseignée') ?></dd>
-<dt>Montant TTC</dt><dd><?= $facture['prixTTC'] === null ? 'Non renseigné' : texteFacture(number_format((float)$facture['prixTTC'], 2, ',', ' ')).' DH' ?></dd>
-<dt>État</dt><dd><?= texteFacture($facture['etat']) ?></dd>
-<dt>Date de paiement</dt><dd><?= texteFacture($facture['datePaiement'] ?? 'Aucun paiement enregistré') ?></dd>
-</dl>
-<div class="filters"><a class="filter" target="_blank" rel="noopener" href="<?= link ?>facture/pdf/<?= (int)$facture['id'] ?>">Ouvrir le PDF</a><a class="filter" href="<?= link ?>facture/pdf/<?= (int)$facture['id'] ?>?telecharger=1">Télécharger le PDF</a></div>
-<?php if ($facture['etat'] === 'Impayée' && $facture['datePaiement'] === null) { ?>
-<form method="post" action="<?= link ?>facture/payer/<?= (int)$facture['id'] ?>" class="payment">
-<input type="hidden" name="csrf" value="<?= texteFacture($_SESSION['csrf_factures']) ?>">
-<label><input type="checkbox" name="confirmation" value="oui" required> Je confirme avoir reçu le montant de cette facture en espèces.</label>
-<p>La date du paiement sera enregistrée aujourd’hui. Cette confirmation est définitive.</p>
-<button class="connexion-btn" type="submit">Marquer comme payée</button>
-</form>
-<?php } ?>
+<?php // Détail d'une facture, inclus par facturesList.php. ?>
+<a class="lien-retour" href="<?= link ?>facture/all"><i class="fa-solid fa-arrow-left"></i> Retour aux factures</a>
+<header class="entete ligne">
+    <div>
+        <h1 class="titre">Facture N° <?= (int)$facture['id'] ?></h1>
+        <p class="sous-titre"><?= texteFacture($facture['prenom'].' '.$facture['nom']) ?></p>
+    </div>
+    <span class="pill <?= $facture['etat'] === 'Payée' ? 'ok' : '' ?>"><?= texteFacture($facture['etat']) ?></span>
+</header>
+
+<div class="grille">
+    <section class="carte large">
+        <h2 class="titre-carte">Montant TTC</h2>
+        <p class="chiffre geant"><?= $facture['prixTTC'] === null ? '—' : texteFacture(number_format((float)$facture['prixTTC'], 2, ',', ' ')) ?><span class="unite">DH</span></p>
+        <dl class="details" style="margin-top: 1.25rem">
+            <dt>Client</dt><dd><?= texteFacture($facture['prenom'].' '.$facture['nom']) ?></dd>
+            <dt>Email</dt><dd><?= texteFacture($facture['email']) ?></dd>
+            <dt>Adresse</dt><dd><?= texteFacture($facture['adresse']) ?></dd>
+            <dt>Date de génération</dt><dd><?= $jourFacture($facture['dateGeneration']) ?></dd>
+            <dt>Période de facturation</dt><dd><?= $jourFacture($facture['dateDebut']) ?> — <?= $facture['dateFin'] ? $jourFacture($facture['dateFin']) : 'Non renseignée' ?></dd>
+            <dt>Date de paiement</dt><dd><?= $facture['datePaiement'] ? $jourFacture($facture['datePaiement']) : 'Aucun paiement enregistré' ?></dd>
+        </dl>
+    </section>
+
+    <div class="pile" style="grid-column: span 2">
+        <section class="carte">
+            <h2 class="titre-carte">Document</h2>
+            <div class="actions" style="margin-top: 1rem">
+                <a class="bouton contour" target="_blank" rel="noopener" href="<?= link ?>facture/pdf/<?= (int)$facture['id'] ?>"><i class="fa-solid fa-file-pdf"></i> Ouvrir le PDF</a>
+                <a class="bouton contour" href="<?= link ?>facture/pdf/<?= (int)$facture['id'] ?>?telecharger=1"><i class="fa-solid fa-download"></i> Télécharger</a>
+            </div>
+        </section>
+
+        <?php if ($facture['etat'] === 'Impayée' && $facture['datePaiement'] === null) { ?>
+        <section class="carte">
+            <h2 class="titre-carte">Paiement en espèces</h2>
+            <form class="pile" style="margin-top: 1rem; gap: 0.75rem" method="post" action="<?= link ?>facture/payer/<?= (int)$facture['id'] ?>">
+                <input type="hidden" name="csrf" value="<?= texteFacture($_SESSION['csrf_factures']) ?>">
+                <label class="case"><input type="checkbox" name="confirmation" value="oui" required> <span>Je confirme avoir reçu le montant de cette facture en espèces.</span></label>
+                <p class="note">La date du paiement sera enregistrée aujourd’hui. Cette confirmation est définitive.</p>
+                <div class="actions fin">
+                    <button class="bouton accent" type="submit"><i class="fa-solid fa-check"></i> Marquer comme payée</button>
+                </div>
+            </form>
+        </section>
+        <?php } ?>
+    </div>
+</div>

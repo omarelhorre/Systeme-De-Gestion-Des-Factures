@@ -3,7 +3,7 @@
 // $tableau est préparé par redirectToIndexF() (voir BD/tableauFournisseur.php).
 $chiffres = $tableau['chiffres'];
 $consommation = $tableau['consommation'];
-$actif = 'tableau';
+$coqueActif = 'tableau';
 
 // Petites fonctions d'affichage, propres à cette page
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };

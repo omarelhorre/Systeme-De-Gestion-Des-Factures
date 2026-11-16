@@ -9,34 +9,34 @@ $libellesTypes = [
     'facture' => 'Facture',
     'autre' => 'Autre',
 ];
+
+// Affichage
+$coqueTitre = 'Mes réclamations';
+$coqueActif = 'reclamations';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes réclamations - Fatourti</title>
-    <link rel="stylesheet" href="<?= dir ?>/public/style/consommation.css">
-    <link rel="stylesheet" href="<?= dir ?>/public/style/reclamations.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/eab6c3ad6c.js" crossorigin="anonymous"></script>
+<?php include ROOT.'IHM/commun/tete.php'; ?>
 </head>
-<body class="reclamations-page">
-<header><strong>Fatourti</strong><nav>
-    <a href="<?= link ?>consommateur/tableauDeBord">Tableau de bord</a> ·
-    <a href="<?= link ?>declaration/all">Mes relevés</a>
-</nav></header>
-<main>
-    <h1>Mes réclamations</h1>
-    <p>Déclarez un problème et suivez son traitement.</p>
-    <?php if ($message): ?><p class="message" role="status"><?= texteReclamation($message) ?></p><?php endif; ?>
-    <?php if ($erreur): ?><p class="erreur" role="alert"><?= texteReclamation($erreur) ?></p><?php endif; ?>
-    <section class="carte">
-        <h2>Nouvelle réclamation</h2>
-        <form method="post" action="<?= link ?>reclamations.php">
-            <input type="hidden" name="csrf" value="<?= texteReclamation($_SESSION['csrf_reclamations']) ?>">
-            <div class="grille">
-                <label>Type de réclamation
+<body>
+<?php include ROOT.'IHM/consommateur/menu.php'; ?>
+
+<main class="contenu entree">
+    <header class="entete">
+        <h1 class="titre">Mes réclamations</h1>
+        <p class="sous-titre">Déclarez un problème et suivez son traitement.</p>
+    </header>
+
+    <?php if ($message): ?><p class="message" role="status"><i class="fa-solid fa-circle-check"></i><span><?= texteReclamation($message) ?></span></p><?php endif; ?>
+    <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?= texteReclamation($erreur) ?></span></p><?php endif; ?>
+
+    <div class="grille">
+        <section class="carte large">
+            <h2 class="titre-carte">Nouvelle réclamation</h2>
+            <form class="formulaire" style="margin-top: 1rem" method="post" action="<?= link ?>reclamations.php">
+                <input type="hidden" name="csrf" value="<?= texteReclamation($_SESSION['csrf_reclamations']) ?>">
+                <label class="champ"><span class="libelle">Type de réclamation</span>
                     <select name="type" required>
                         <option value="">Choisir un type</option>
                         <?php foreach ($libellesTypes as $code => $libelle): ?>
@@ -44,7 +44,7 @@ $libellesTypes = [
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label>Facture concernée (pour le type « Facture »)
+                <label class="champ"><span class="libelle">Facture concernée (type « Facture »)</span>
                     <select name="idFacture">
                         <option value="">Choisir une facture</option>
                         <?php foreach ($factures as $facture): ?>
@@ -52,32 +52,38 @@ $libellesTypes = [
                         <?php endforeach; ?>
                     </select>
                 </label>
-            </div>
-            <label>Description
-                <textarea name="description" rows="5" maxlength="1000" required><?= texteReclamation($valeurs['description']) ?></textarea>
-            </label>
-            <button type="submit">Envoyer la réclamation</button>
-        </form>
-    </section>
-    <section class="carte">
-        <h2>Historique et statut</h2>
-        <?php if (!$reclamations): ?>
-            <p>Aucune réclamation enregistrée.</p>
-        <?php else: ?>
-            <div class="defilement"><table>
-                <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Statut</th><th>Réponse</th></tr></thead>
-                <tbody><?php foreach ($reclamations as $reclamation): ?>
-                    <tr>
-                        <td><?= texteReclamation($reclamation['dateCreation']) ?></td>
-                        <td><?= texteReclamation($libellesTypes[$reclamation['typeReclamation']] ?? 'Autre') ?><?php if ($reclamation['idFacture']): ?> — n° <?= (int)$reclamation['idFacture'] ?><?php endif; ?></td>
-                        <td class="description"><?= nl2br(texteReclamation($reclamation['description'])) ?></td>
-                        <td><?= texteReclamation($reclamation['statut']) ?></td>
-                        <td><?= $reclamation['reponse'] !== null && $reclamation['reponse'] !== '' ? nl2br(texteReclamation($reclamation['reponse'])) : 'Aucune réponse' ?></td>
-                    </tr>
-                <?php endforeach; ?></tbody>
-            </table></div>
-        <?php endif; ?>
-    </section>
+                <label class="champ entier"><span class="libelle">Description</span>
+                    <textarea name="description" rows="5" maxlength="1000" required><?= texteReclamation($valeurs['description']) ?></textarea>
+                </label>
+                <div class="entier actions fin">
+                    <button class="bouton accent" type="submit"><i class="fa-solid fa-paper-plane"></i> Envoyer la réclamation</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="carte large">
+            <h2 class="titre-carte" style="margin-bottom: 1rem">Historique et statut</h2>
+            <?php if (!$reclamations): ?>
+                <p class="vide">Aucune réclamation enregistrée.</p>
+            <?php else: ?>
+                <ul class="lignes" data-pagine="3">
+                    <?php foreach ($reclamations as $reclamation): ?>
+                        <li class="bloc">
+                            <div class="entete ligne" style="margin-bottom: 0.5rem; align-items: center">
+                                <div>
+                                    <p class="ligne-nom"><?= texteReclamation($libellesTypes[$reclamation['typeReclamation']] ?? 'Autre') ?><?php if ($reclamation['idFacture']): ?> — facture n° <?= (int)$reclamation['idFacture'] ?><?php endif; ?></p>
+                                    <p class="ligne-detail"><?= texteReclamation(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?></p>
+                                </div>
+                                <span class="pill <?= $reclamation['statut'] === 'Traitée' ? 'ok' : '' ?>"><?= texteReclamation($reclamation['statut']) ?></span>
+                            </div>
+                            <p style="line-height: 1.5; overflow-wrap: anywhere"><?= nl2br(texteReclamation($reclamation['description'])) ?></p>
+                            <p class="note" style="margin-top: 0.5rem; overflow-wrap: anywhere"><?= $reclamation['reponse'] !== null && $reclamation['reponse'] !== '' ? 'Réponse : '.nl2br(texteReclamation($reclamation['reponse'])) : 'Aucune réponse' ?></p>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </section>
+    </div>
 </main>
 </body>
 </html>
