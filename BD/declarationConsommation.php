@@ -29,6 +29,29 @@ function verrouillerClient($db, $id)
     return $row !== null;
 }
 
+// Relevé ENVOYÉ PAR LE CLIENT sur ce compteur pendant le mois.
+// Le relevé de départ créé par le fournisseur avec le compteur ("Référence initiale") ne compte pas.
+function releveClientDuMois($db, $idAdresseCompteur, $premierJour, $jourSuivant)
+{
+    $q = mysqli_prepare($db, "SELECT id FROM declaration WHERE idAdresseCompteur=? AND dateSaisie>=? AND dateSaisie<? AND statut<>'Référence initiale' LIMIT 1");
+    mysqli_stmt_bind_param($q, 'iss', $idAdresseCompteur, $premierJour, $jourSuivant);
+    mysqli_stmt_execute($q);
+    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($q));
+    mysqli_stmt_close($q);
+    return $row !== null;
+}
+
+// Relevé de ce compteur en anomalie, pas encore corrigé par le fournisseur (une correction le passe en "Validée")
+function anomalieEnAttente($db, $idAdresseCompteur)
+{
+    $q = mysqli_prepare($db, "SELECT id FROM declaration WHERE idAdresseCompteur=? AND statut LIKE 'Anomalie%' LIMIT 1");
+    mysqli_stmt_bind_param($q, 'i', $idAdresseCompteur);
+    mysqli_stmt_execute($q);
+    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($q));
+    mysqli_stmt_close($q);
+    return $row !== null;
+}
+
 function declarationDuMois($db, $idAdresseCompteur, $premierJour, $jourSuivant)
 {
     $q = mysqli_prepare($db, 'SELECT id FROM declaration WHERE idAdresseCompteur=? AND dateSaisie>=? AND dateSaisie<? LIMIT 1');

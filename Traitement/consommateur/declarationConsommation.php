@@ -98,7 +98,14 @@ function traiterConsommation($action, $id = null)
                 mysqli_begin_transaction($db);
                 try {
                     if (!verrouillerClient($db, $idClient)) throw new RuntimeException('Client introuvable.');
-                    if (declarationDuMois($db, $idAdresseCompteur, $premier, $suivant)) throw new InvalidArgumentException('Une déclaration existe déjà pour cette adresse ce mois.');
+                    if ($statutContrat === CONTRAT_EN_RESILIATION) {
+                        // Relevé final : permis même si le relevé du mois a déjà été envoyé (donc au plus deux ce mois-là),
+                        // mais un seul à la fois : s'il est en anomalie, on attend la correction du fournisseur.
+                        if (anomalieEnAttente($db, $idAdresseCompteur)) throw new InvalidArgumentException('Votre relevé final est en cours de vérification par votre fournisseur.');
+                    } else if (releveClientDuMois($db, $idAdresseCompteur, $premier, $suivant)) {
+                        // Relevé régulier : un par compteur et par mois (le relevé de départ du compteur ne compte pas)
+                        throw new InvalidArgumentException('Vous avez déjà envoyé le relevé de ce compteur ce mois-ci.');
+                    }
                     $precedente = derniereDeclarationValide($db, $idAdresseCompteur);
                     // Seuils d'anomalie choisis par le fournisseur du client
                     $calcul = calculerDeclaration($eau, $electricite, $precedente, false, seuilsFournisseur($db, (int)$client['idFournisseur']));

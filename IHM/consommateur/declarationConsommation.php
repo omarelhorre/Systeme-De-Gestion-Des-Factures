@@ -6,8 +6,18 @@ $url = link . 'declaration/';
 $enResiliation = ($statutContrat ?? null) === CONTRAT_EN_RESILIATION;
 $contratResilie = ($statutContrat ?? null) === 'resilié';
 $ouvert = declarationOuverte($date) || $enResiliation;
-$dejaFait = false;
-foreach ($declarations as $ligne) if ((int)$ligne['idAdresseCompteur'] === $idAdresseCompteur && substr($ligne['dateSaisie'], 0, 7) === $date->format('Y-m')) $dejaFait = true;
+// Mêmes règles que le serveur :
+//  - relevé régulier : un par compteur et par mois (le relevé de départ créé avec le compteur ne compte pas) ;
+//  - relevé final (contrat en résiliation) : permis même si le relevé du mois est déjà envoyé,
+//    sauf si un relevé de ce compteur attend la correction d'une anomalie.
+$releveDuMois = false;
+$anomalieEnCours = false;
+foreach ($declarations as $ligne) {
+    if ((int)$ligne['idAdresseCompteur'] !== $idAdresseCompteur) continue;
+    if ($ligne['statut'] !== 'Référence initiale' && substr($ligne['dateSaisie'], 0, 7) === $date->format('Y-m')) $releveDuMois = true;
+    if (strpos($ligne['statut'], 'Anomalie') === 0) $anomalieEnCours = true;
+}
+$dejaFait = $enResiliation ? $anomalieEnCours : $releveDuMois;
 
 // Affichage
 $coqueTitre = 'Mes relevés';
@@ -78,8 +88,13 @@ $pillReleve = function ($statut) {
             <?php elseif (!$ouvert): ?>
                 <p class="bloc" style="margin-top: 1rem">La déclaration est ouverte du 18 au dernier jour de chaque mois. Vous pouvez consulter vos anciens relevés et factures ci-dessous.</p>
             <?php elseif ($dejaFait): ?>
-                <p class="bloc" style="margin-top: 1rem">Vous avez déjà envoyé votre déclaration ce mois-ci.</p>
+                <p class="bloc" style="margin-top: 1rem"><?= $enResiliation
+                    ? 'Votre relevé final est en cours de vérification par votre fournisseur. Le contrat se fermera dès qu\'il sera validé.'
+                    : 'Vous avez déjà envoyé le relevé de ce compteur ce mois-ci.' ?></p>
             <?php else: ?>
+                <?php if ($enResiliation && $releveDuMois): ?>
+                    <p class="note" style="margin-top: 1rem">Le relevé de ce mois est déjà envoyé : ce relevé final s'y ajoute pour clore le contrat.</p>
+                <?php endif; ?>
             <form class="formulaire" style="margin-top: 1rem" method="post" action="<?=$url?>ajouter" enctype="multipart/form-data">
                 <input type="hidden" name="csrf" value="<?=h($_SESSION['csrf_consommation'])?>">
                 <input type="hidden" name="idAdresseCompteur" value="<?=h($idAdresseCompteur)?>">
