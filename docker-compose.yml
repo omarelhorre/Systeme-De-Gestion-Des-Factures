@@ -25,8 +25,12 @@ services:
       # Mode démo : demo=1 dans .env affiche la barre de dates (18 du mois, mois suivant, fin d'année…).
       # Sans demo=1, pas de barre et la vraie date partout.
       DEMO: ${demo:-0}
-      # Paiement en ligne CMI : identifiants du marchand de test (cmi_client_id, cmi_store_key dans .env).
-      # Le bouton "Payer" envoie directement sur la passerelle de test CMI.
+      # Paiement en ligne : paiement=stripe (par défaut) ou paiement=cmi dans .env.
+      #  Stripe : stripe_secret_key=sk_test_... (tableau de bord Stripe, mode test) ; devise : stripe_devise (mad par défaut).
+      #  CMI    : cmi_client_id et cmi_store_key (marchand de test fournis par CMI).
+      PAIEMENT: ${paiement:-stripe}
+      STRIPE_SECRET_KEY: ${stripe_secret_key:-}
+      STRIPE_DEVISE: ${stripe_devise:-mad}
       CMI_CLIENT_ID: ${cmi_client_id:-}
       CMI_STORE_KEY: ${cmi_store_key:-}
       CMI_PASSERELLE: ${cmi_passerelle:-}

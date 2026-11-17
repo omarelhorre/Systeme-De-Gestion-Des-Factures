@@ -21,7 +21,7 @@
             <dt>Période de facturation</dt><dd><?= $jourFacture($facture['dateDebut']) ?> — <?= $facture['dateFin'] ? $jourFacture($facture['dateFin']) : 'Non renseignée' ?></dd>
             <dt>Date de paiement</dt><dd><?= $facture['datePaiement'] ? $jourFacture($facture['datePaiement']) : 'Aucun paiement enregistré' ?></dd>
             <?php if ($facture['datePaiement']) { ?>
-            <dt>Mode de paiement</dt><dd><?= $facture['modePaiement'] === 'en ligne' ? 'En ligne par carte (CMI) · transaction '.texteFacture($facture['referencePaiement']) : 'Espèces' ?></dd>
+            <dt>Mode de paiement</dt><dd><?= $facture['modePaiement'] === 'en ligne' ? 'En ligne par carte ('.(strpos((string)$facture['referencePaiement'], 'pi_') === 0 || strpos((string)$facture['referencePaiement'], 'cs_') === 0 ? 'Stripe' : 'CMI').') · transaction '.texteFacture($facture['referencePaiement']) : 'Espèces' ?></dd>
             <?php } ?>
         </dl>
     </section>

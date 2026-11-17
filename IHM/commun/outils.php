@@ -284,18 +284,25 @@ function horloge(): string
 }
 
 /**
- * Bouton "Payer" d'une facture impayée (client) : un formulaire déjà signé qui envoie
- * directement sur la page de paiement de CMI (voir Traitement/paiement.php).
- * Rien si le paiement en ligne n'est pas configuré.
+ * Bouton "Payer" d'une facture impayée (client), selon le prestataire choisi dans .env :
+ *  - Stripe : envoie à paiement/payer/{id}, qui redirige aussitôt vers la page de paiement Stripe ;
+ *  - CMI    : formulaire déjà signé, envoyé directement à la page de paiement de CMI.
+ * Rien si le paiement en ligne n'est pas configuré (voir Traitement/paiement.php).
  */
 function boutonPayerEnLigne($idFacture, $montant): string
 {
     if (!function_exists('paiementActif') || !paiementActif()) return '';
-    $client = $_SESSION['user'] ?? array();
-    $champs = paiementChamps($idFacture, $montant, trim(($client['prenom'] ?? '').' '.($client['nom'] ?? '')), $client['email'] ?? '');
-    $html = '<form class="paiement-en-ligne" method="post" action="'.htmlspecialchars(paiementPasserelle(), ENT_QUOTES, 'UTF-8').'">';
-    foreach ($champs as $nom => $valeur) {
-        $html .= '<input type="hidden" name="'.htmlspecialchars($nom, ENT_QUOTES, 'UTF-8').'" value="'.htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8').'">';
+    $e = function ($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); };
+    if (paiementPrestataire() === 'stripe') {
+        if (empty($_SESSION['csrf_consommation'])) $_SESSION['csrf_consommation'] = bin2hex(random_bytes(32));
+        $action = link.'paiement/payer/'.(int)$idFacture;
+        $champs = array('csrf' => $_SESSION['csrf_consommation']);
+    } else {
+        $client = $_SESSION['user'] ?? array();
+        $action = paiementPasserelle();
+        $champs = paiementChamps($idFacture, $montant, trim(($client['prenom'] ?? '').' '.($client['nom'] ?? '')), $client['email'] ?? '');
     }
+    $html = '<form class="paiement-en-ligne" method="post" action="'.$e($action).'">';
+    foreach ($champs as $nom => $valeur) $html .= '<input type="hidden" name="'.$e($nom).'" value="'.$e($valeur).'">';
     return $html.'<button class="bouton-payer" type="submit"><i class="fa-regular fa-credit-card"></i> Payer</button></form>';
 }

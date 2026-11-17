@@ -176,8 +176,8 @@ else if($URL[0] == "contrat")
 
 else if($URL[0] == "paiement")
     {
-        // Retours de CMI après un paiement en ligne : paiement/ok|echec|callback|recu|refuse/{idFacture}
-        if(in_array($URL[1] ?? '', ['ok', 'echec', 'callback', 'recu', 'refuse'], true) && isset($id)) paiement($URL[1], $id);
+        // Paiement en ligne d'une facture : Stripe (payer, retour, annule) ou CMI (ok, echec, callback, recu, refuse)
+        if(in_array($URL[1] ?? '', ['payer', 'retour', 'annule', 'ok', 'echec', 'callback', 'recu', 'refuse'], true) && isset($id)) paiement($URL[1], $id);
         else introuvable();
     }
 
