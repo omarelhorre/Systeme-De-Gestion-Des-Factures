@@ -157,7 +157,14 @@ function traiterConsommation($action, $id = null)
         $precedente = derniereDeclarationValide($db, $idAdresseCompteur);
         $declarations = declarationsDuClient($db, $idClient);
         if (empty($_SESSION['csrf_consommation'])) $_SESSION['csrf_consommation'] = bin2hex(random_bytes(32));
-        include ROOT.'IHM/consommateur/declarationConsommation.php';
+        // declaration/ajouter : la page du formulaire ; sinon la liste des relevés (avec l'état du contrat de chaque compteur)
+        if ($action === 'ajouter') {
+            include ROOT.'IHM/consommateur/declarationForm.php';
+        } else {
+            $statutsAdresses = array();
+            foreach ($adresses as $adresse) $statutsAdresses[(int)$adresse['id']] = statutContratAdresse((int)$adresse['id']);
+            include ROOT.'IHM/consommateur/declarationConsommation.php';
+        }
     } catch (Throwable $e) {
         error_log('Fatourti consommation : '.$e->getMessage());
         http_response_code(503);

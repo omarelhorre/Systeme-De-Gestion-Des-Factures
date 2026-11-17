@@ -100,7 +100,7 @@ else if($URL[0] == "annuelle")
 else if($URL[0] == "declaration")
     {
         if(($URL[1] ?? '') == 'all') traiterConsommation('all', $URL[2] ?? null);
-        else if(($URL[1] ?? '') == 'ajouter') traiterConsommation('ajouter');
+        else if(($URL[1] ?? '') == 'ajouter') traiterConsommation('ajouter', $URL[2] ?? null);   // formulaire, sur la page du compteur choisi
         else if(($URL[1] ?? '') == 'anomalies') traiterAnomaliesFournisseur('anomalies');
         else if(in_array($URL[1] ?? '', ['corriger', 'photoEau', 'photoElectricite'], true) && isset($URL[2]) && ctype_digit($URL[2]) && (int)$URL[2] > 0)
             traiterAnomaliesFournisseur($URL[1], (int)$URL[2]);
@@ -119,11 +119,12 @@ else if($URL[0] == "reclamation")
         // Un fournisseur : la gestion des réclamations de ses clients (all, detail/{id}, traiter/{id}).
         if (isset($_SESSION['user']) && checkConsommateur($_SESSION['user']['id']))
             {
-                if (($URL[1] ?? '') == 'all')
+                // reclamation/all : ses réclamations ; reclamation/ajouter : le formulaire pour en déposer une
+                if (in_array($URL[1] ?? '', ['all', 'ajouter'], true))
                     {
                         require_once ROOT.'BD/reclamationsConsommateur.php';
                         require_once ROOT.'Traitement/consommateur/reclamations.php';
-                        traiterReclamationsConsommateur();
+                        traiterReclamationsConsommateur($URL[1]);
                     }
                 else
                     {

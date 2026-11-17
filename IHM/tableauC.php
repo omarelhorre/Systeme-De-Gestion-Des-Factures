@@ -42,7 +42,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                     <i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Index d'eau &nbsp;
                     <i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Index d'électricité
                 </p>
-                <a class="bouton accent" href="<?= link ?>declaration/all">Déclarer ma consommation <i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton accent" href="<?= link ?>declaration/ajouter">Déclarer ma consommation <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </section>
 
@@ -72,7 +72,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                         <p class="legende" style="margin-top: 0.125rem"><span class="etat alerte"><?= (int)$impayes['nombre'] ?> impayée<?= $impayes['nombre'] > 1 ? 's' : '' ?> · <?= nombreFr($impayes['montant'], 2) ?> DH</span></p>
                     <?php } ?>
                 </div>
-                <a class="bouton contour petit" href="<?= link ?>declaration/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton contour petit" href="<?= link ?>declaration/ajouter">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <?php if ($tableau['factures']) { ?>
                 <ul class="lignes">

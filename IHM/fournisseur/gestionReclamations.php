@@ -35,32 +35,30 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
         <section class="carte"><h2 class="titre-carte">Traitées</h2><p class="chiffre" style="margin-top: 0.75rem"><?= (int)$statistiques['traitee'] ?></p></section>
 
         <section class="carte" style="grid-column: 1 / -1">
-            <form class="formulaire" method="get" action="<?= link ?>reclamation/all">
-                <label class="champ"><span class="libelle">Rechercher un client ou un numéro</span>
-                    <input type="search" name="recherche" maxlength="200" value="<?= gestionReclamationsTexte($recherche) ?>" placeholder="Nom du client ou numéro de réclamation…">
+            <!-- Barre d'outils : la recherche part avec Entrée, le type et le statut dès qu'on les change -->
+            <form class="barre-outils" method="get" action="<?= link ?>reclamation/all">
+                <label class="outil"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="search" name="recherche" maxlength="200" value="<?= gestionReclamationsTexte($recherche) ?>" placeholder="Rechercher" aria-label="Rechercher un client ou un numéro de réclamation">
                 </label>
-                <label class="champ"><span class="libelle">Type</span>
-                    <select name="type">
-                        <option value="">Tous les types</option>
+                <label class="outil"><i class="fa-solid fa-filter" aria-hidden="true"></i>
+                    <select name="type" aria-label="Type" onchange="this.form.submit()">
+                        <option value="">Type</option>
                         <?php foreach ($types as $option) { ?>
                         <option value="<?= gestionReclamationsTexte($option) ?>" <?= $type === $option ? 'selected' : '' ?>><?= gestionReclamationsTexte($option) ?></option>
                         <?php } ?>
                     </select>
                 </label>
-                <div class="entier entete ligne" style="margin-bottom: 0">
-                    <div class="filtres dans-carte" role="radiogroup" aria-label="Statut">
-                        <?php foreach ($statuts as $valeur => $libelle) { ?>
-                        <label><input type="radio" name="statut" value="<?= $valeur ?>" <?= $filtreStatut === $valeur ? 'checked' : '' ?>> <?= $libelle ?></label>
-                        <?php } ?>
-                    </div>
-                    <div class="actions">
-                        <a class="bouton contour" href="<?= link ?>reclamation/all">Réinitialiser</a>
-                        <button class="bouton accent" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
-                    </div>
+                <div class="filtres dans-carte" role="radiogroup" aria-label="Statut">
+                    <?php foreach ($statuts as $valeur => $libelle) { ?>
+                    <label><input type="radio" name="statut" value="<?= $valeur ?>" <?= $filtreStatut === $valeur ? 'checked' : '' ?> onchange="this.form.submit()"> <?= $libelle ?></label>
+                    <?php } ?>
                 </div>
+                <?php if ($recherche !== '' || $type !== '' || $filtreStatut !== array_key_first($statuts)) { ?>
+                <a class="lien-discret" href="<?= link ?>reclamation/all">Réinitialiser <i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
+                <?php } ?>
+                <span class="espace"></span>
+                <?= horloge() ?>
             </form>
-
-            <p class="note" style="margin: 1.25rem 0 1rem"><?= count($reclamations) ?> résultat(s). Les compteurs portent sur toutes vos réclamations.</p>
 
             <?php if ($reclamations) { ?>
                 <table class="tableau">

@@ -216,6 +216,13 @@ if (!function_exists('miniCourbe')) {
         <?php return ob_get_clean();
     }
 
+    // Index de compteur sans zéros inutiles : 200.0000 -> "200", 54.6000 -> "54,6"
+    function indexFr($valeur)
+    {
+        $texte = number_format((float)$valeur, 4, ',', "\u{00A0}");
+        return rtrim(rtrim($texte, '0'), ',');
+    }
+
     // Nombre de jours entiers entre une date (AAAA-MM-JJ) et aujourd'hui
     function joursDepuis($date)
     {
@@ -257,4 +264,15 @@ if (!function_exists('miniCourbe')) {
         if ($retard > 0) return array('en retard de '.$retard.' j', 'alerte');
         return array('à régler avant le '.$echeance->format('d/m'), 'attente');
     }
+}
+
+/**
+ * Horloge de la barre d'outils : date et heure de Rabat ; les secondes défilent comme les
+ * rouleaux d'un compteur (animées par app.js). Sans JavaScript, l'heure du serveur s'affiche.
+ */
+function horloge(): string
+{
+    return '<span class="horloge" title="Heure de Rabat"><i class="fa-regular fa-clock" aria-hidden="true"></i>'
+        .'<span class="horloge-date"></span><span class="horloge-heure">'.date('H:i').'</span>'
+        .'<span class="compteur" aria-hidden="true"></span></span>';
 }

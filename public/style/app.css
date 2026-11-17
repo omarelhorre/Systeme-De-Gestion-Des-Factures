@@ -465,41 +465,74 @@ button.bouton.accent { background: var(--vert); }
 .filtres input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
 .filtres.dans-carte { background: none; border: 1px solid var(--trait); }
 
-/* ---------- Tableaux de données : en-tête, filets entre les lignes, survol ---------- */
+/* ---------- Tableaux de données ----------
+   Un cadre fin à petits coins (pas une pilule), un en-tête sur fond papier,
+   des filets entre les lignes et les colonnes, un survol très léger.
+   Les en-têtes sont des boutons de tri (ajoutés par app.js). */
 .tableau {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--trait);
+    border-radius: 0.75rem;
 }
 
 .tableau th {
-    padding: 0.75rem 0.875rem;              /* même espace en haut et en bas */
+    height: 2.5rem;
+    padding: 0 0.875rem;
     border-bottom: 1px solid var(--trait);
+    background: var(--page);
     color: var(--attenue);
     font-size: 0.8125rem;
     font-weight: 500;
     text-align: left;
     white-space: nowrap;
 }
+.tableau th:first-child { border-top-left-radius: 0.75rem; }
+.tableau th:last-child { border-top-right-radius: 0.75rem; }
 
 .tableau td {
-    padding: 0.75rem 0.875rem;
+    padding: 0.75rem 0.875rem;              /* même espace en haut et en bas */
     border-bottom: 1px solid var(--trait);
     vertical-align: middle;
 }
 
-/* grille verticale : un filet entre chaque colonne (pas sur les bords du tableau) */
+/* grille verticale : un filet entre chaque colonne (pas sur les bords du cadre) */
 .tableau th + th,
 .tableau td + td { border-left: 1px solid var(--trait); }
 
 .tableau tbody tr:last-child td { border-bottom: 0; }
+.tableau tbody tr.derniere td { border-bottom: 0; }
+.tableau tbody tr:last-child td:first-child, .tableau tbody tr.derniere td:first-child { border-bottom-left-radius: 0.75rem; }
+.tableau tbody tr:last-child td:last-child, .tableau tbody tr.derniere td:last-child { border-bottom-right-radius: 0.75rem; }
 .tableau tbody tr { transition: background 0.15s; }
-.tableau tbody tr:hover { background: var(--page); }
-.tableau th:first-child, .tableau td:first-child { padding-left: 0.25rem; }
-.tableau th:last-child, .tableau td:last-child { padding-right: 0.25rem; }
+.tableau tbody tr:hover { background: var(--survol); }
 .tableau .fin { text-align: right; }
 .tableau .nombre { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tableau .fort { font-weight: 600; }
 .tableau small { display: block; color: var(--attenue); font-size: 0.8125rem; }
+
+/* en-tête cliquable : trie la colonne (A→Z, puis Z→A ; dates et montants aussi) */
+.tableau .tri {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    margin: 0 -0.5rem;
+    padding: 0.3125rem 0.5rem;
+    border: 0;
+    border-radius: 0.375rem;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+.tableau .tri:hover { background: var(--carte); color: var(--texte); }
+.tableau .tri i { font-size: 0.6875rem; color: var(--gris); }
+.tableau th[aria-sort] .tri { color: var(--texte); }
+.tableau th[aria-sort] .tri i { color: var(--texte); }
+.tableau th.fin .tri { flex-direction: row-reverse; }
+/* dans un tableau, les étiquettes suivent les petits coins du cadre */
+.tableau .tag { border-radius: 0.375rem; }
 
 /* état avec un point de couleur : vert = réglé, rouge = problème, gris = en attente */
 .etat {
@@ -566,48 +599,125 @@ button.bouton.accent { background: var(--vert); }
 
 .pill.alerte { background: var(--rouge); color: #FFFFFF; }   /* anomalie */
 
-/* ---------- Pied de tableau : nombre de résultats, lignes par page, pages ---------- */
+/* ---------- Pied de tableau : résultats à gauche ; lignes par page, page courante, flèches à droite ---------- */
 .pagination {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--trait);   /* collé à la dernière ligne : ce filet ferme le tableau */
+    padding-top: 0.875rem;
     color: var(--attenue);
     font-size: 0.8125rem;
 }
 
 .pagination-droite { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; }
-.pagination-taille { display: inline-flex; align-items: center; gap: 0.5rem; }
+.pagination-taille { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--texte); font-weight: 500; }
 .pagination-taille select {
     height: 2rem;
-    padding: 0 0.625rem;
+    padding: 0 0.5rem;
     border: 1px solid var(--bordure);
-    border-radius: 999px;
+    border-radius: 0.5rem;
     background: transparent;
     font-size: 0.8125rem;
 }
+.pagination-page { color: var(--texte); font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pagination-pages { display: inline-flex; align-items: center; gap: 0.25rem; }
 .pagination-pages button {
-    min-width: 2rem;
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
     height: 2rem;
-    padding: 0 0.625rem;
-    border: 1px solid transparent;
-    border-radius: 999px;
+    border: 1px solid var(--bordure);
+    border-radius: 0.5rem;
     background: none;
     color: var(--texte);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
+    font-size: 0.75rem;
     cursor: pointer;
 }
-.pagination-pages button:hover:not(:disabled) { border-color: var(--bordure); }
-.pagination-pages button.actif { background: var(--texte); color: #FFFFFF; }
-.pagination-pages button.fleche { border-color: var(--bordure); }
+.pagination-pages button:hover:not(:disabled) { background: var(--carte); }
 .pagination-pages button:disabled { opacity: 0.4; cursor: default; }
-.pagination-pages .points { padding: 0 0.25rem; }
+
+/* ---------- Barre d'outils au-dessus d'un tableau ----------
+   Champs sans libellé : une icône dedans, le libellé est le placeholder.
+   Mêmes petits coins que le tableau. */
+.barre-outils {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.875rem;
+}
+.barre-outils .espace { flex: 1; }
+
+.outil {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+.outil > i {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--gris);
+    font-size: 0.8125rem;
+    pointer-events: none;
+}
+.outil input,
+.outil select {
+    height: 2.25rem;
+    padding: 0 0.75rem 0 2.125rem;
+    border: 1px solid var(--bordure);
+    border-radius: 0.625rem;
+    background: transparent;
+    color: var(--texte);
+    font-size: 0.8125rem;
+}
+.outil input { width: 16rem; }
+.outil select { max-width: 12rem; padding-right: 2rem; }
+.outil input::placeholder { color: var(--gris); }
+.outil input:focus,
+.outil select:focus { outline: none; border-color: var(--vert); }
+
+/* filtres de statut dans la barre : mêmes coins carrés-arrondis */
+.barre-outils .filtres { padding: 0.1875rem; border-radius: 0.625rem; }
+.barre-outils .filtres label { height: 1.75rem; padding: 0 0.75rem; border-radius: 0.4375rem; }
+
+.lien-discret { display: inline-flex; align-items: center; gap: 0.375rem; color: var(--attenue); font-size: 0.8125rem; font-weight: 500; }
+.lien-discret:hover { color: var(--texte); }
+
+/* ---------- Horloge : date et heure de Rabat, les secondes roulent comme un compteur ---------- */
+.horloge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--bordure);
+    border-radius: 0.625rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+.horloge > i { color: var(--gris); }
+.horloge-date { color: var(--attenue); }
+.horloge-heure { font-family: var(--mono); font-feature-settings: "zero" 0; font-variant-numeric: tabular-nums; }
+/* chaque chiffre des secondes est une fenêtre où défile une bande 0…9 */
+.compteur { display: inline-flex; gap: 0.125rem; }
+.rouleau {
+    display: inline-block;
+    width: 1.0625rem;
+    height: 1.375rem;
+    overflow: hidden;
+    border-radius: 0.25rem;
+    background: var(--texte);
+    color: #FFFFFF;
+    font-family: var(--mono);
+    font-feature-settings: "zero" 0;
+    line-height: 1.375rem;
+    text-align: center;
+}
+.rouleau span { display: block; transition: transform 0.4s cubic-bezier(0.3, 0.7, 0.2, 1); }
+.rouleau span.sans-transition { transition: none; }
+@media (prefers-reduced-motion: reduce) { .rouleau span { transition: none; } }
 
 /* ---------- Formulaires ---------- */
 .formulaire {
@@ -1015,8 +1125,8 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 @media (max-width: 640px) {
     .cache-mobile { display: none; }
     .avatar-liste { display: none; }
-    .tableau th:first-child, .tableau td:first-child { padding-left: 0; }
-    .tableau th:last-child, .tableau td:last-child { padding-right: 0; }
+    .outil, .outil input, .outil select { width: 100%; max-width: none; }
+    .barre-outils .espace { display: none; }
 }
 
 /* photos du relevé précédent (formulaire de déclaration) : vignettes de hauteur fixe */

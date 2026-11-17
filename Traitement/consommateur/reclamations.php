@@ -26,7 +26,8 @@ function validerReclamationConsommateur(array $donnees): array
     return [$type, $description, $idFacture];
 }
 
-function traiterReclamationsConsommateur(): void
+// $vue : 'all' (la liste) ou 'ajouter' (le formulaire). Le formulaire est envoyé en POST.
+function traiterReclamationsConsommateur(string $vue = 'all'): void
 {
     $methode = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if (!in_array($methode, ['GET', 'POST'], true)) {
@@ -84,7 +85,8 @@ function traiterReclamationsConsommateur(): void
         unset($_SESSION['message_reclamations']);
         $factures = facturesDuConsommateur($db, $idConsommateur);
         $reclamations = historiqueReclamationsConsommateur($db, $idConsommateur);
-        include ROOT . 'IHM/consommateur/reclamations.php';
+        // Formulaire demandé, ou renvoyé avec une erreur ; sinon la liste
+        include ROOT . ($vue === 'ajouter' || $erreur !== '' ? 'IHM/consommateur/reclamationForm.php' : 'IHM/consommateur/reclamations.php');
     } catch (Throwable $exception) {
         error_log('Fatourti réclamations : ' . $exception->getMessage());
         http_response_code(503);

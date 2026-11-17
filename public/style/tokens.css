@@ -20,6 +20,7 @@
     --carte: #F1EEE7;          /* blocs posés dans le cadre */
     --trait: #E6E2D8;          /* bordure du cadre uniquement */
     --bordure: #D9D4C8;        /* bordure des champs */
+    --survol: #FBFAF7;         /* survol d'une ligne de tableau */
     --texte: #0E1116;
     --attenue: #6B6F76;        /* texte secondaire */
     --gris: #A19E96;           /* moitié douce d'un titre, placeholders, icônes */

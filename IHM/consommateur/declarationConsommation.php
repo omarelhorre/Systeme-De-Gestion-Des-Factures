@@ -1,33 +1,21 @@
 <?php
+// Mes relevés : l'historique des relevés et des factures du client.
+// Le formulaire est sur sa propre page (declaration/ajouter), comme "Ajouter un client".
+// Variables fournies par traiterConsommation() : $client, $adresses, $declarations, $statutsAdresses, $date, $message, $erreur.
 require_once ROOT.'IHM/commun/outils.php';
 function h($valeur) { return htmlspecialchars((string)$valeur, ENT_QUOTES, 'UTF-8'); }
 $url = link . 'declaration/';
-// Un contrat en résiliation attend le relevé final : la saisie est ouverte tout de suite, quel que soit le jour.
-$enResiliation = ($statutContrat ?? null) === CONTRAT_EN_RESILIATION;
-$contratResilie = ($statutContrat ?? null) === 'resilié';
-$ouvert = declarationOuverte($date) || $enResiliation;
-// Mêmes règles que le serveur :
-//  - relevé régulier : un par compteur et par mois (le relevé de départ créé avec le compteur ne compte pas) ;
-//  - relevé final (contrat en résiliation) : permis même si le relevé du mois est déjà envoyé,
-//    sauf si un relevé de ce compteur attend la correction d'une anomalie.
-$releveDuMois = false;
-$anomalieEnCours = false;
-foreach ($declarations as $ligne) {
-    if ((int)$ligne['idAdresseCompteur'] !== $idAdresseCompteur) continue;
-    if ($ligne['statut'] !== 'Référence initiale' && substr($ligne['dateSaisie'], 0, 7) === $date->format('Y-m')) $releveDuMois = true;
-    if (strpos($ligne['statut'], 'Anomalie') === 0) $anomalieEnCours = true;
-}
-$dejaFait = $enResiliation ? $anomalieEnCours : $releveDuMois;
-
-// Affichage
 $coqueTitre = 'Mes relevés';
 $coqueActif = 'releves';
+$moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
 $jourReleve = function ($jour) { return $jour ? date('d/m/Y', strtotime($jour)) : '—'; };
-// Couleur de la pill selon le statut : validée = vert, anomalie = rouge, le reste = neutre
-$pillReleve = function ($statut) {
+// Couleur du point selon le statut : validée = vert, anomalie = rouge, le reste = gris
+$etatReleve = function ($statut) {
     if ($statut === 'Validée') return 'ok';
     return strpos($statut, 'Anomalie') === 0 ? 'alerte' : '';
 };
+// Compteurs dont le relevé final est attendu (contrat en résiliation)
+$relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statutsAdresses) { return ($statutsAdresses[(int)$a['id']] ?? null) === CONTRAT_EN_RESILIATION; }));
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -41,134 +29,65 @@ $pillReleve = function ($statut) {
     <header class="entete ligne">
         <div>
             <h1 class="titre">Mes relevés</h1>
-            <p class="sous-titre">Bienvenue, <?=h($client['prenom'].' '.$client['nom'])?>.</p>
+            <p class="sous-titre">
+                <?php if (declarationOuverte($date)) { ?>
+                    Déclaration ouverte jusqu'au <?= $date->format('t').' '.$moisLongs[(int)$date->format('n')] ?>
+                <?php } else { ?>
+                    Prochaine déclaration du 18 au <?= $date->format('t').' '.$moisLongs[(int)$date->format('n')] ?>
+                <?php } ?>
+            </p>
         </div>
-        <label class="champ" style="width: 22rem; max-width: 100%"><span class="libelle">Adresse du compteur</span>
-            <select onchange="window.location.href='<?=$url?>all/' + this.value">
-                <?php foreach ($adresses as $adresse): ?>
-                <option value="<?=h($adresse['id'])?>" <?=((int)$adresse['id'] === $idAdresseCompteur ? 'selected' : '')?>><?=h($adresse['adresse'].' — '.$adresse['categorie'])?></option>
-                <?php endforeach; ?>
-            </select>
-        </label>
+        <a class="bouton accent" href="<?= $url ?>ajouter<?= $relevesFinaux ? '/'.(int)$relevesFinaux[0]['id'] : '' ?>"><i class="fa-solid fa-plus"></i> Déclarer ma consommation</a>
     </header>
 
     <?php if ($message): ?><p class="message" role="status"><i class="fa-solid fa-circle-check"></i><span><?=h($message)?></span></p><?php endif; ?>
     <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?=h($erreur)?></span></p><?php endif; ?>
 
-    <div class="pile">
-        <section class="carte">
-            <h2 class="titre-carte">Nouvelle déclaration</h2>
-            <?php if ($precedente): ?>
-                <!-- Le relevé du mois dernier : la valeur et la photo de chaque compteur, pour comparer avant de saisir -->
-                <p class="legende">Dernier relevé valide, du <?=$jourReleve($precedente['dateSaisie'])?> :</p>
-                <div class="photos photos-releve" style="margin-top: 0.75rem">
-                    <figure>
-                        <?php if ($precedente['cheminCompteurEauImg']): ?>
-                            <img src="<?=$url?>eau/<?=h($precedente['id'])?>" alt="Photo du compteur d'eau au dernier relevé">
-                        <?php endif; ?>
-                        <figcaption><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Eau · <?=h(nombreFr($precedente['indexEau'], 2))?> m³<?= $precedente['cheminCompteurEauImg'] ? '' : ' <span class="note">(relevé de référence, sans photo)</span>' ?></figcaption>
-                    </figure>
-                    <figure>
-                        <?php if ($precedente['cheminCompteurElectriciteImg']): ?>
-                            <img src="<?=$url?>electricite/<?=h($precedente['id'])?>" alt="Photo du compteur d'électricité au dernier relevé">
-                        <?php endif; ?>
-                        <figcaption><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Électricité · <?=h(nombreFr($precedente['indexElectricite'], 2))?> kWh<?= $precedente['cheminCompteurElectriciteImg'] ? '' : ' <span class="note">(relevé de référence, sans photo)</span>' ?></figcaption>
-                    </figure>
-                </div>
-            <?php else: ?>
-                <p class="legende">Votre premier relevé servira de référence. Il ne donnera pas lieu à une facture.</p>
-            <?php endif; ?>
+    <?php if ($relevesFinaux): ?>
+        <!-- Contrat en résiliation : le relevé final peut être déclaré tout de suite -->
+        <p class="message" role="status"><i class="fa-solid fa-file-signature" style="color: var(--attente)"></i>
+            <span>Relevé final attendu pour
+                <?php foreach ($relevesFinaux as $i => $adresse): ?><?= $i > 0 ? ', ' : '' ?><a class="fort" style="text-decoration: underline" href="<?= $url ?>ajouter/<?= (int)$adresse['id'] ?>"><?= h($adresse['adresse']) ?></a><?php endforeach; ?>
+                : il clôt le contrat et crée la facture finale.</span></p>
+    <?php endif; ?>
 
-            <?php if ($enResiliation): ?>
-                <p class="erreur-bloc" style="margin: 1rem 0 0; color: var(--texte)"><i class="fa-solid fa-file-signature" style="color: var(--attente)"></i><span>Votre contrat pour ce compteur est en cours de résiliation. Déclarez votre <strong>relevé final</strong> : votre facture finale sera créée et le contrat se fermera.</span></p>
-            <?php endif; ?>
-
-            <?php if ($contratResilie): ?>
-                <p class="bloc" style="margin-top: 1rem">Le contrat de ce compteur est résilié : il ne reçoit plus de déclaration. Vos anciens relevés et factures restent disponibles ci-dessous.</p>
-            <?php elseif (!$ouvert): ?>
-                <p class="bloc" style="margin-top: 1rem">La déclaration est ouverte du 18 au dernier jour de chaque mois. Vous pouvez consulter vos anciens relevés et factures ci-dessous.</p>
-            <?php elseif ($dejaFait): ?>
-                <p class="bloc" style="margin-top: 1rem"><?= $enResiliation
-                    ? 'Votre relevé final est en cours de vérification par votre fournisseur. Le contrat se fermera dès qu\'il sera validé.'
-                    : 'Vous avez déjà envoyé le relevé de ce compteur ce mois-ci.' ?></p>
-            <?php else: ?>
-                <?php if ($enResiliation && $releveDuMois): ?>
-                    <p class="note" style="margin-top: 1rem">Le relevé de ce mois est déjà envoyé : ce relevé final s'y ajoute pour clore le contrat.</p>
-                <?php endif; ?>
-            <form class="formulaire" style="margin-top: 1rem" method="post" action="<?=$url?>ajouter" enctype="multipart/form-data">
-                <input type="hidden" name="csrf" value="<?=h($_SESSION['csrf_consommation'])?>">
-                <input type="hidden" name="idAdresseCompteur" value="<?=h($idAdresseCompteur)?>">
-
-                <!-- Eau -->
-                <div class="bloc pile" style="gap: 0.875rem">
-                    <p class="bloc-titre" style="margin: 0; color: var(--eau)"><i class="fa-solid fa-droplet"></i> Eau</p>
-                    <label class="champ"><span class="libelle">Index du compteur (m³)</span>
-                        <input type="text" inputmode="decimal" name="indexEau" required pattern="[0-9]+([.,][0-9]{1,4})?">
-                    </label>
-                    <label class="champ"><span class="libelle">Photo du compteur (JPEG, 3 Mo max)</span>
-                        <input type="file" name="photoEau" accept="image/jpeg" required>
-                    </label>
-                </div>
-
-                <!-- Électricité -->
-                <div class="bloc pile" style="gap: 0.875rem">
-                    <p class="bloc-titre" style="margin: 0; color: var(--elec)"><i class="fa-solid fa-bolt"></i> Électricité</p>
-                    <label class="champ"><span class="libelle">Index du compteur (kWh)</span>
-                        <input type="text" inputmode="decimal" name="indexElectricite" required pattern="[0-9]+([.,][0-9]{1,4})?">
-                    </label>
-                    <label class="champ"><span class="libelle">Photo du compteur (JPEG, 3 Mo max)</span>
-                        <input type="file" name="photoElectricite" accept="image/jpeg" required>
-                    </label>
-                </div>
-
-                <div class="entier actions fin">
-                    <button class="bouton accent" type="submit"><i class="fa-solid fa-paper-plane"></i> Enregistrer la déclaration</button>
-                </div>
-            </form>
-            <?php endif; ?>
-        </section>
-
-        <section class="carte">
-            <h2 class="titre-carte" style="margin-bottom: 1rem">Historique et factures</h2>
-            <?php if (!$declarations): ?>
-                <p class="vide">Aucune déclaration enregistrée.</p>
-            <?php else: ?>
-            <table class="tableau">
-                <thead>
-                    <tr>
-                        <th>Date</th><th class="secondaire">Adresse</th><th class="fin cache-mobile">Eau (m³)</th><th class="fin cache-mobile">Électricité (kWh)</th>
-                        <th>Statut</th><th class="secondaire">Photos</th><th>Facture</th>
-                    </tr>
-                </thead>
-                <tbody data-pagine="6"><?php foreach ($declarations as $ligne): ?>
-                    <tr>
-                        <td class="nombre"><?=$jourReleve($ligne['dateSaisie'])?></td>
-                        <td class="secondaire"><div class="tronque" title="<?=h($ligne['adresse'])?>"><?=h($ligne['adresse'])?></div></td>
-                        <td class="fin nombre cache-mobile"><?=h($ligne['indexEau'])?></td>
-                        <td class="fin nombre cache-mobile"><?=h($ligne['indexElectricite'])?></td>
-                        <td><span class="etat <?=$pillReleve($ligne['statut'])?>" title="<?=h($ligne['statut'])?>"><span class="tronque" style="max-width: 10rem"><?=h($ligne['statut'])?></span></span></td>
-                        <td class="secondaire">
-                            <?php if ($ligne['cheminCompteurEauImg'] || $ligne['cheminCompteurElectriciteImg']): ?>
-                            <div class="actions">
-                                <?php if ($ligne['cheminCompteurEauImg']): ?><a class="bouton-rond" href="<?=$url?>eau/<?=h($ligne['id'])?>" title="Photo du compteur d'eau" aria-label="Photo du compteur d'eau"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i></a><?php endif; ?>
-                                <?php if ($ligne['cheminCompteurElectriciteImg']): ?><a class="bouton-rond" href="<?=$url?>electricite/<?=h($ligne['id'])?>" title="Photo du compteur d'électricité" aria-label="Photo du compteur d'électricité"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i></a><?php endif; ?>
-                            </div>
-                            <?php else: ?><span class="note">Sans photo</span><?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($ligne['idFacture']): ?>
-                                <a class="fort" href="<?=$url?>facture/<?=h($ligne['id'])?>"><i class="fa-solid fa-download"></i> N° <?=h($ligne['idFacture'])?></a>
-                                <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?><?php if ($ligne['datePaiement']): ?> le <?=$jourReleve($ligne['datePaiement'])?><?php endif; ?></span></small>
-                            <?php else: ?><span class="note">Aucune</span><?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?></tbody>
-            </table>
-            <?php endif; ?>
-        </section>
-    </div>
-
-    <p class="note" style="margin-top: 1rem">Tarifs et seuils affichés à titre de démonstration. TVA : 18 %.</p>
+    <section class="carte">
+        <?php if (!$declarations): ?>
+            <p class="vide">Aucun relevé pour le moment.</p>
+        <?php else: ?>
+        <table class="tableau">
+            <thead>
+                <tr>
+                    <th>Date</th><th class="secondaire">Compteur</th><th class="fin cache-mobile">Eau (m³)</th><th class="fin cache-mobile">Électricité (kWh)</th>
+                    <th>Statut</th><th class="secondaire">Photos</th><th>Facture</th>
+                </tr>
+            </thead>
+            <tbody data-pagine="8"><?php foreach ($declarations as $ligne): ?>
+                <tr>
+                    <td class="nombre"><?=$jourReleve($ligne['dateSaisie'])?></td>
+                    <td class="secondaire"><div class="tronque" title="<?=h($ligne['adresse'])?>"><?=h($ligne['adresse'])?></div></td>
+                    <td class="fin nombre cache-mobile"><?=indexFr($ligne['indexEau'])?></td>
+                    <td class="fin nombre cache-mobile"><?=indexFr($ligne['indexElectricite'])?></td>
+                    <td><span class="etat <?=$etatReleve($ligne['statut'])?>" title="<?=h($ligne['statut'])?>"><span class="tronque" style="max-width: 10rem"><?=h($ligne['statut'] === 'Référence initiale' ? 'Relevé de départ' : $ligne['statut'])?></span></span></td>
+                    <td class="secondaire">
+                        <?php if ($ligne['cheminCompteurEauImg'] || $ligne['cheminCompteurElectriciteImg']): ?>
+                        <div class="actions-ligne">
+                            <?php if ($ligne['cheminCompteurEauImg']): ?><a class="bouton-rond" href="<?=$url?>eau/<?=h($ligne['id'])?>" title="Photo du compteur d'eau" aria-label="Photo du compteur d'eau"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i></a><?php endif; ?>
+                            <?php if ($ligne['cheminCompteurElectriciteImg']): ?><a class="bouton-rond" href="<?=$url?>electricite/<?=h($ligne['id'])?>" title="Photo du compteur d'électricité" aria-label="Photo du compteur d'électricité"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i></a><?php endif; ?>
+                        </div>
+                        <?php else: ?><span class="note">—</span><?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($ligne['idFacture']): ?>
+                            <a class="fort" href="<?=$url?>facture/<?=h($ligne['id'])?>"><i class="fa-solid fa-download"></i> N° <?=h($ligne['idFacture'])?></a>
+                            <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?><?php if ($ligne['datePaiement']): ?> le <?=$jourReleve($ligne['datePaiement'])?><?php endif; ?></span></small>
+                        <?php else: ?><span class="note">—</span><?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?></tbody>
+        </table>
+        <?php endif; ?>
+    </section>
 </main>
 </body>
 </html>
