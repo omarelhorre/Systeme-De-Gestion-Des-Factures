@@ -570,9 +570,8 @@ button.bouton.accent { background: var(--vert); }
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem 1.5rem;
-    margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--trait);
+    border-top: 1px solid var(--trait);   /* collé à la dernière ligne : ce filet ferme le tableau */
     color: var(--attenue);
     font-size: 0.8125rem;
 }
