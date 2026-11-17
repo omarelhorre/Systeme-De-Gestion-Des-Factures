@@ -63,6 +63,57 @@
             return mysqli_query($link,$sql);
         }
 
+        // ----- Liste des clients : informations en plus, en lecture seule -----
+
+        // Pour chaque client : email, CIN, téléphone, compteurs, contrats actifs, montant impayé.
+        // Renvoie un tableau indexé par l'identifiant du client.
+        function resumeClients()
+        {
+            global $link;
+            $sql = "SELECT c.id, u.email, c.cin, c.telephone,
+                    (SELECT COUNT(*) FROM adresseCompteur a WHERE a.idConsommateur=c.id) AS compteurs,
+                    (SELECT COUNT(*) FROM contrat k WHERE k.idConsommateur=c.id AND k.statut='actif') AS contratsActifs,
+                    (SELECT COALESCE(SUM(d.prixTTC),0) FROM facture f JOIN declaration d ON d.id=f.idDeclaration
+                        WHERE d.idConsommateur=c.id AND f.etat='Impayée') AS impaye,
+                    (SELECT COUNT(*) FROM facture f JOIN declaration d ON d.id=f.idDeclaration
+                        WHERE d.idConsommateur=c.id AND f.etat='Impayée') AS facturesImpayees
+                    FROM consommateur c JOIN utilisateur u ON u.id=c.id";
+            $resume = array();
+            foreach (mysqli_fetch_all(mysqli_query($link,$sql), MYSQLI_ASSOC) as $ligne) {
+                $resume[(int)$ligne['id']] = $ligne;
+            }
+            return $resume;
+        }
+
+        // Consommation de chaque client, mois par mois (relevés validés, tous compteurs additionnés).
+        // Les index sont cumulés : la consommation d'un relevé = index - index précédent du même compteur.
+        // Renvoie [idClient => [ 'AAAA-MM' => ['eau' => m³, 'electricite' => kWh, 'date' => dernier relevé] ]], les 6 derniers mois.
+        function consommationRecenteClients()
+        {
+            global $link;
+            $sql = "SELECT x.idConsommateur, DATE_FORMAT(x.dateSaisie,'%Y-%m') AS mois, MAX(x.dateSaisie) AS date,
+                           SUM(x.eau) AS eau, SUM(x.electricite) AS electricite
+                    FROM (
+                        SELECT d.idConsommateur, d.dateSaisie, d.statut,
+                               d.indexEau - LAG(d.indexEau) OVER (PARTITION BY d.idAdresseCompteur ORDER BY d.dateSaisie, d.id) AS eau,
+                               d.indexElectricite - LAG(d.indexElectricite) OVER (PARTITION BY d.idAdresseCompteur ORDER BY d.dateSaisie, d.id) AS electricite
+                        FROM declaration d
+                        WHERE d.statut IN ('Référence initiale','Validée')
+                    ) x
+                    WHERE x.statut='Validée' AND x.eau IS NOT NULL
+                    GROUP BY x.idConsommateur, mois
+                    ORDER BY x.idConsommateur, mois";
+            $series = array();
+            foreach (mysqli_fetch_all(mysqli_query($link,$sql), MYSQLI_ASSOC) as $ligne) {
+                $series[(int)$ligne['idConsommateur']][$ligne['mois']] = array(
+                    'eau' => (float)$ligne['eau'], 'electricite' => (float)$ligne['electricite'], 'date' => $ligne['date']);
+            }
+            foreach ($series as $id => $mois) {
+                $series[$id] = array_slice($mois, -6, null, true);
+            }
+            return $series;
+        }
+
         // Compter ce que le client a déjà : relevés (hors référence initiale), factures, réclamations.
         function historiqueConsommateur($id)
         {

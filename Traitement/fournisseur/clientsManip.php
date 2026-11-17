@@ -25,7 +25,10 @@
         {
             $data[] = $ligne;
         }
-        include_once(ROOT."/IHM/fournisseur/clientsList.php"); 
+        // Informations en plus pour le tableau (lecture seule) : contact, contrats, impayés, consommation récente
+        $resume = resumeClients();
+        $series = consommationRecenteClients();
+        include_once(ROOT."/IHM/fournisseur/clientsList.php");
            
     }
     function add()
@@ -180,10 +183,40 @@
         // La nouvelle adresse reçoit son propre contrat (PDF enregistré comme les autres).
         include_once(ROOT."/Traitement/domPDFTraitement.php");
         $pdf = genererPdfContrat(["nom" => $client["nom"], "prenom" => $client["prenom"], "adresse" => $adresse]);
-        $cheminGeneration = ROOT.'stockageContrats/contrat-'.(int)$id.'-'.$idAdresse.'.pdf';
+        $nomFichier = 'contrat-'.(int)$id.'-'.$idAdresse.'.pdf';
+        $cheminGeneration = ROOT.'stockageContrats/'.$nomFichier;
         file_put_contents($cheminGeneration,$pdf);
         ajouterContrat($id,$cheminGeneration,$idAdresse);
+        // Comme à la création du client : le contrat lui est envoyé par email.
+        envoyerContratParEmail($client, $pdf, $nomFichier, $adresse);
         header('Location:'.link.'consommateur/modifier/'.$id); exit;
+    }
+
+    // Envoie un contrat (PDF déjà généré) au client, avec le même compte SMTP que la création de client.
+    // Un échec d'envoi n'annule pas le contrat : il est noté dans le journal d'erreurs.
+    function envoyerContratParEmail($client, $pdf, $nomFichier, $adresse)
+    {
+        if (!getenv('SMTP_PASS') || !filter_var($client['email'] ?? '', FILTER_VALIDATE_EMAIL)) return false;
+        try {
+            $email = new PHPMailer(true);
+            $email->isSMTP();
+            $email->SMTPAuth = TRUE;
+            $email->Host = 'smtp.gmail.com';
+            $email->Port = '587';
+            $email->Username = 'farhan.othmane@etu.uae.ac.ma';
+            $email->Password = getenv('SMTP_PASS');
+            $email-> SMTPSecure = 'tls';
+            $email->CharSet = 'UTF-8';
+            $email->setFrom('farhan.othmane@etu.uae.ac.ma','Fatourti');
+            $email->AddAddress($client["email"],$client["nom"].' '.$client["prenom"]);
+            $email->Subject = 'Votre nouveau contrat Fatourti';
+            $email->Body = "Bonjour ".$client["prenom"].",\n\nVous trouverez en pièce jointe le contrat de votre nouvelle adresse : ".$adresse.".\n\nFatourti";
+            $email->addStringAttachment($pdf,$nomFichier);
+            return $email->send();
+        } catch (\PHPMailer\PHPMailer\Exception $erreur) {
+            error_log('Fatourti contrat : échec de l\'envoi par email.');
+            return false;
+        }
     }
 
     // Résilier des contrats d'un client. $id est l'identifiant du CLIENT :

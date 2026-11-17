@@ -36,7 +36,7 @@ $jourFacture = function ($date) { return $date ? date('d/m/Y', strtotime($date))
             <table class="tableau">
                 <thead>
                     <tr>
-                        <th>Facture</th><th>Client</th><th class="secondaire">Adresse</th><th class="secondaire">Période</th>
+                        <th>Facture</th><th class="cache-mobile">Client</th><th class="secondaire">Adresse</th><th class="secondaire">Période</th>
                         <th class="fin">Montant TTC</th><th>État</th><th></th>
                     </tr>
                 </thead>
@@ -44,11 +44,11 @@ $jourFacture = function ($date) { return $date ? date('d/m/Y', strtotime($date))
                     <?php foreach ($data as $ligne) { ?>
                         <tr>
                             <td class="nombre">N° <?= (int)$ligne['id'] ?><small><?= $jourFacture($ligne['dateGeneration']) ?></small></td>
-                            <td><div class="tronque fort"><?= texteFacture($ligne['prenom'].' '.$ligne['nom']) ?></div></td>
+                            <td class="cache-mobile"><div class="tronque fort"><?= texteFacture($ligne['prenom'].' '.$ligne['nom']) ?></div></td>
                             <td class="secondaire"><div class="tronque" title="<?= texteFacture($ligne['adresse']) ?>"><?= texteFacture($ligne['adresse']) ?></div></td>
                             <td class="secondaire nombre"><?= $jourFacture($ligne['dateDebut']) ?> — <?= $ligne['dateFin'] ? $jourFacture($ligne['dateFin']) : 'Non renseignée' ?></td>
                             <td class="fin nombre fort"><?= $ligne['prixTTC'] === null ? 'Non renseigné' : texteFacture(number_format((float)$ligne['prixTTC'], 2, ',', ' ')).' DH' ?></td>
-                            <td><span class="pill <?= $ligne['etat'] === 'Payée' ? 'ok' : '' ?>"><?= texteFacture($ligne['etat']) ?></span></td>
+                            <td><span class="etat <?= $ligne['etat'] === 'Payée' ? 'ok' : 'alerte' ?>"><?= texteFacture($ligne['etat']) ?></span></td>
                             <td class="fin"><a class="bouton-rond" href="<?= link ?>facture/detail/<?= (int)$ligne['id'] ?>" aria-label="Consulter la facture <?= (int)$ligne['id'] ?>"><i class="fa-solid fa-arrow-right"></i></a></td>
                         </tr>
                     <?php } ?>

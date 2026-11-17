@@ -1,8 +1,14 @@
 <?php
-// Liste des clients du fournisseur. $data vient de afficherClients() : [id, nom, prénom, adresse].
+// Liste des clients du fournisseur.
+// Variables fournies par afficherClients() :
+//   $data   : [id, nom, prénom, adresse]
+//   $resume : par client, email, CIN, téléphone, compteurs, contrats actifs, impayé
+//   $series : par client, consommation des 6 derniers mois avec relevé
+require_once ROOT.'IHM/commun/outils.php';
 $coqueTitre = 'Clients';
 $coqueActif = 'clients';
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
+$totalImpaye = array_sum(array_map(function ($r) { return (float)$r['impaye']; }, $resume));
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -16,7 +22,7 @@ $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UT
     <header class="entete ligne">
         <div>
             <h1 class="titre">Clients</h1>
-            <p class="sous-titre"><?= count($data) ?> client<?= count($data) > 1 ? 's' : '' ?></p>
+            <p class="sous-titre"><?= count($data) ?> client<?= count($data) > 1 ? 's' : '' ?> · <?= nombreFr($totalImpaye, 2) ?> DH impayés</p>
         </div>
         <a class="bouton accent" href="<?= link ?>consommateur/ajouter"><i class="fa-solid fa-plus"></i> Ajouter un client</a>
     </header>
@@ -25,25 +31,76 @@ $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UT
         <?php if ($data) { ?>
             <table class="tableau">
                 <thead>
-                    <tr><th>Client</th><th class="secondaire">Adresse</th><th></th></tr>
+                    <tr>
+                        <th>Client</th>
+                        <th class="secondaire">Contact</th>
+                        <th class="secondaire">Compteurs</th>
+                        <th class="cache-mobile">Électricité <small style="display: inline">· dernier mois</small></th>
+                        <th class="secondaire">Eau</th>
+                        <th class="fin">Impayé</th>
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody data-pagine="8">
-                    <?php foreach ($data as $V) { ?>
+                    <?php foreach ($data as $V) {
+                        $id = (int)$V[0];
+                        $infos = $resume[$id] ?? array('email' => '', 'cin' => '', 'telephone' => '', 'compteurs' => 0, 'contratsActifs' => 0, 'impaye' => 0, 'facturesImpayees' => 0);
+                        $mois = $series[$id] ?? array();
+                        $elec = array_column($mois, 'electricite');
+                        $eau = array_column($mois, 'eau');
+                        $dernier = $mois ? end($mois) : null;
+                    ?>
                         <tr>
                             <td>
                                 <div class="cellule-nom">
                                     <i class="fa-solid fa-circle-user avatar-liste" aria-hidden="true"></i>
                                     <div class="tronque">
                                         <span class="fort"><?= $e($V[2].' '.$V[1]) ?></span>
-                                        <small>N° <?= (int)$V[0] ?></small>
+                                        <small>N° <?= $id ?><?= trim((string)$infos['cin']) !== '' ? ' · '.$e($infos['cin']) : '' ?></small>
                                     </div>
                                 </div>
                             </td>
-                            <td class="secondaire"><div class="tronque" title="<?= $e($V[3]) ?>"><?= $e($V[3]) ?></div></td>
+                            <td class="secondaire">
+                                <div class="tronque" style="max-width: 13rem"><?= $e($infos['email']) ?></div>
+                                <small><?= trim((string)$infos['telephone']) !== '' ? $e($infos['telephone']) : 'Téléphone non renseigné' ?></small>
+                            </td>
+                            <td class="secondaire">
+                                <span class="fort"><?= (int)$infos['compteurs'] ?></span> compteur<?= $infos['compteurs'] > 1 ? 's' : '' ?>
+                                <small><span class="etat <?= $infos['contratsActifs'] > 0 ? 'ok' : '' ?>"><?= (int)$infos['contratsActifs'] ?> contrat<?= $infos['contratsActifs'] > 1 ? 's' : '' ?> actif<?= $infos['contratsActifs'] > 1 ? 's' : '' ?></span></small>
+                            </td>
+                            <td class="cache-mobile">
+                                <?php if ($dernier) { ?>
+                                    <div class="tendance elec" title="Consommation d'électricité des derniers mois">
+                                        <?= miniCourbe($elec, true) ?>
+                                        <span class="tendance-valeur"><?= nombreFr($dernier['electricite']) ?> kWh <?= variationConsommation($elec) ?>
+                                            <small>relevé du <?= $e(date('d/m', strtotime($dernier['date']))) ?></small></span>
+                                    </div>
+                                <?php } else { ?>
+                                    <span class="note">Aucun relevé facturé</span>
+                                <?php } ?>
+                            </td>
+                            <td class="secondaire">
+                                <?php if ($dernier) { ?>
+                                    <div class="tendance eau" title="Consommation d'eau des derniers mois">
+                                        <?= miniCourbe($eau, false) ?>
+                                        <span class="tendance-valeur"><?= nombreFr($dernier['eau'], 1) ?> m³ <?= variationConsommation($eau) ?></span>
+                                    </div>
+                                <?php } else { ?>
+                                    <span class="note">—</span>
+                                <?php } ?>
+                            </td>
+                            <td class="fin nombre">
+                                <?php if ((float)$infos['impaye'] > 0) { ?>
+                                    <span class="fort"><?= nombreFr($infos['impaye'], 2) ?> DH</span>
+                                    <small><?= (int)$infos['facturesImpayees'] ?> facture<?= $infos['facturesImpayees'] > 1 ? 's' : '' ?></small>
+                                <?php } else { ?>
+                                    <span class="etat ok">À jour</span>
+                                <?php } ?>
+                            </td>
                             <td class="fin">
-                                <div class="actions fin">
-                                    <a class="bouton contour petit" href="<?= link ?>consommateur/modifier/<?= (int)$V[0] ?>"><i class="fa-solid fa-pen"></i> Modifier</a>
-                                    <a class="bouton danger petit" href="<?= link ?>consommateur/supprimer/<?= (int)$V[0] ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
+                                <div class="actions-ligne">
+                                    <a class="bouton-rond" href="<?= link ?>consommateur/modifier/<?= $id ?>" title="Modifier" aria-label="Modifier <?= $e($V[2].' '.$V[1]) ?>"><i class="fa-solid fa-pen"></i></a>
+                                    <a class="bouton-rond danger" href="<?= link ?>consommateur/supprimer/<?= $id ?>" title="Supprimer" aria-label="Supprimer <?= $e($V[2].' '.$V[1]) ?>"><i class="fa-solid fa-trash"></i></a>
                                 </div>
                             </td>
                         </tr>

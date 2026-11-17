@@ -77,6 +77,12 @@
         else if (checkAgent($id)) $role = 'agent';
         else $role = 'fournisseur';
 
+        // Cartes d'informations de la page, selon le rôle (lecture seule)
+        include_once(ROOT."/BD/compte.php");
+        if ($role === 'consommateur') $infosCompte = compteConsommateur($id);
+        else if ($role === 'agent') $infosCompte = compteAgent($id);
+        else $infosCompte = compteFournisseur($id);
+
         include_once(ROOT."/IHM/profil.php");
     }
 ?>

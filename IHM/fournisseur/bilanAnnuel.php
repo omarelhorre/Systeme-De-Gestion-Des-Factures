@@ -39,7 +39,7 @@ $iconeElec = '<i class="fa-solid fa-bolt" style="color: var(--elec)"></i>';
                 <thead>
                     <tr>
                         <th>Client</th><th class="secondaire">Déclaré par le client</th><th class="secondaire">Relevé de l'agent</th>
-                        <th>Différence</th><th class="fin">Reste estimé TTC</th><th>Rappel</th>
+                        <th class="cache-mobile">Différence</th><th class="fin">Reste estimé TTC</th><th>Rappel</th>
                     </tr>
                 </thead>
                 <tbody data-pagine="6">
@@ -53,11 +53,11 @@ $iconeElec = '<i class="fa-solid fa-bolt" style="color: var(--elec)"></i>';
                         </td>
                         <td class="secondaire nombre"><?=$iconeEau?> <?=$quantite($ligne['eauDeclaree'])?> m³<br><?=$iconeElec?> <?=$quantite($ligne['electriciteDeclaree'])?> kWh</td>
                         <td class="secondaire nombre"><?php if ($ligne['idAnnuel']): ?><?=$iconeEau?> <?=$quantite($ligne['ConsommationEau'])?> m³<br><?=$iconeElec?> <?=$quantite($ligne['ConsommationElectricite'])?> kWh<?php else: ?><span class="note">En attente du fichier agent</span><?php endif; ?></td>
-                        <td class="nombre"><?php if ($ligne['idAnnuel']): ?><?=$iconeEau?> <?=$quantite($ligne['ecartEau'])?> m³<br><?=$iconeElec?> <?=$quantite($ligne['ecartElectricite'])?> kWh<?php else: ?>—<?php endif; ?></td>
+                        <td class="nombre cache-mobile"><?php if ($ligne['idAnnuel']): ?><?=$iconeEau?> <?=$quantite($ligne['ecartEau'])?> m³<br><?=$iconeElec?> <?=$quantite($ligne['ecartElectricite'])?> kWh<?php else: ?>—<?php endif; ?></td>
                         <td class="fin nombre fort"><?= $ligne['idRegularisation'] ? texteBilan(number_format((float)$ligne['montantEstime'],2,',',' ')).' DH' : '<span class="note">Aucun reste</span>' ?></td>
                         <td>
                             <?php if ($ligne['dateReglement']): ?>
-                                <span class="pill ok">Payé le <?=$jourBilan($ligne['dateReglement'])?></span>
+                                <span class="etat ok">Payé le <?=$jourBilan($ligne['dateReglement'])?></span>
                             <?php elseif ($ligne['idRegularisation']): ?>
                                 <small>Échéance : <?=$jourBilan($ligne['dateLimite'])?> · <?=texteBilan($ligne['nombreEnvois'])?> rappel(s)</small>
                                 <form method="post" action="<?=link?>annuelle/regler/<?=texteBilan($ligne['idRegularisation'])?>" style="margin-top: 0.375rem">

@@ -2,31 +2,83 @@
 // Pagination des listes et tableaux (pas de barre de défilement interne)
 
 // ---------- Pagination ----------
-// Sur un <tbody> ou un <ul> : data-pagine="8" = 8 lignes par page.
-// Les boutons Précédent / Suivant sont ajoutés après la liste, et cachés si tout tient sur une page.
-document.querySelectorAll("[data-pagine]").forEach((liste) => {
-    const parPage = Number(liste.dataset.pagine);
+// Sur un <tbody> ou un <ul> : data-pagine="8" = 8 lignes par page au départ.
+// Sous la liste : "Affichage de 1 à 8 sur 23", le choix du nombre de lignes, puis les pages numérotées.
+document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
     const lignes = Array.from(liste.children).filter((ligne) => !ligne.classList.contains("vide"));
-    const nbPages = Math.ceil(lignes.length / parPage);
-    if (nbPages <= 1) return;
+    if (lignes.length === 0) return;
 
+    // le nombre de lignes choisi est retenu pour cette page (si le navigateur le permet)
+    const cle = "fatourti-lignes-" + location.pathname + "-" + rang;
+    let parPage = Number(liste.dataset.pagine);
+    try { parPage = Number(localStorage.getItem(cle)) || parPage; } catch (e) {}
     let page = 1;
+
     const zone = document.createElement("div");
     zone.className = "pagination";
-    zone.innerHTML =
-        '<button class="bouton accent petit" type="button">Précédent</button>' +
-        '<span class="pagination-numero"></span>' +
-        '<button class="bouton accent petit" type="button">Suivant</button>';
-    const [precedent, numero, suivant] = zone.children;
+    const resume = document.createElement("span");
+    const droite = document.createElement("div");
+    droite.className = "pagination-droite";
+
+    const taille = document.createElement("label");
+    taille.className = "pagination-taille";
+    taille.append("Lignes par page");
+    const choix = document.createElement("select");
+    [8, 16, 32, 64].forEach((n) => choix.add(new Option(n, n, false, n === parPage)));
+    if (![8, 16, 32, 64].includes(parPage)) choix.add(new Option(parPage, parPage, true, true), 0);
+    taille.appendChild(choix);
+
+    const pages = document.createElement("div");
+    pages.className = "pagination-pages";
+    droite.append(taille, pages);
+    zone.append(resume, droite);
+
+    function bouton(texte, cible, classe) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = texte;
+        if (classe) b.className = classe;
+        b.addEventListener("click", () => { page = cible; afficher(); });
+        return b;
+    }
+
+    // pages à montrer : la première, la dernière, et deux autour de la page courante
+    function numeros(nbPages) {
+        const liste = [];
+        for (let n = 1; n <= nbPages; n++) {
+            if (n === 1 || n === nbPages || Math.abs(n - page) <= 1) liste.push(n);
+            else if (liste[liste.length - 1] !== "…") liste.push("…");
+        }
+        return liste;
+    }
 
     function afficher() {
-        lignes.forEach((ligne, i) => { ligne.hidden = i < (page - 1) * parPage || i >= page * parPage; });
-        numero.textContent = page + " / " + nbPages;
+        const nbPages = Math.max(1, Math.ceil(lignes.length / parPage));
+        if (page > nbPages) page = nbPages;
+        const debut = (page - 1) * parPage;
+        lignes.forEach((ligne, i) => { ligne.hidden = i < debut || i >= debut + parPage; });
+        resume.textContent = "Affichage de " + (debut + 1) + " à " + Math.min(debut + parPage, lignes.length) + " sur " + lignes.length + " résultat" + (lignes.length > 1 ? "s" : "");
+
+        pages.replaceChildren();
+        pages.hidden = nbPages <= 1;
+        const precedent = bouton("Précédent", page - 1, "fleche");
         precedent.disabled = page <= 1;
+        pages.appendChild(precedent);
+        numeros(nbPages).forEach((n) => {
+            if (n === "…") { const p = document.createElement("span"); p.className = "points"; p.textContent = "…"; pages.appendChild(p); }
+            else pages.appendChild(bouton(n, n, n === page ? "actif" : ""));
+        });
+        const suivant = bouton("Suivant", page + 1, "fleche");
         suivant.disabled = page >= nbPages;
+        pages.appendChild(suivant);
     }
-    precedent.addEventListener("click", () => { page -= 1; afficher(); });
-    suivant.addEventListener("click", () => { page += 1; afficher(); });
+
+    choix.addEventListener("change", () => {
+        parPage = Number(choix.value);
+        page = 1;
+        try { localStorage.setItem(cle, parPage); } catch (e) {}
+        afficher();
+    });
 
     // après le tableau entier si la liste est un <tbody>, sinon après la liste
     (liste.closest("table") || liste).after(zone);

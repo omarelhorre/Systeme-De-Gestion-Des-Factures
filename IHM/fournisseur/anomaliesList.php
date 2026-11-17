@@ -43,7 +43,7 @@ $jourAnomalie = function ($date) { return $date ? date('d/m/Y', strtotime($date)
                             <td class="secondaire"><div class="tronque" title="<?= texteAnomalie($ligne['adresse']) ?>"><?= texteAnomalie($ligne['adresse']) ?></div></td>
                             <td class="fin nombre secondaire"><?= texteAnomalie($ligne['indexEau']) ?></td>
                             <td class="fin nombre secondaire"><?= texteAnomalie($ligne['indexElectricite']) ?></td>
-                            <td><div class="tronque" title="<?= texteAnomalie($ligne['statut']) ?>"><?= texteAnomalie($ligne['statut']) ?></div></td>
+                            <td><span class="etat alerte" title="<?= texteAnomalie($ligne['statut']) ?>"><span class="tronque" style="max-width: 12rem"><?= texteAnomalie($ligne['statut']) ?></span></span></td>
                             <td class="fin"><a class="bouton contour petit" href="<?= link ?>declaration/corriger/<?= (int)$ligne['id'] ?>">Examiner</a></td>
                         </tr>
                     <?php endforeach; ?>

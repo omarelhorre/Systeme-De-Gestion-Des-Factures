@@ -96,7 +96,7 @@ $pillReleve = function ($statut) {
             <table class="tableau">
                 <thead>
                     <tr>
-                        <th>Date</th><th class="secondaire">Adresse</th><th class="fin">Eau (m³)</th><th class="fin">Électricité (kWh)</th>
+                        <th>Date</th><th class="secondaire">Adresse</th><th class="fin cache-mobile">Eau (m³)</th><th class="fin cache-mobile">Électricité (kWh)</th>
                         <th>Statut</th><th class="secondaire">Photos</th><th>Facture</th>
                     </tr>
                 </thead>
@@ -104,9 +104,9 @@ $pillReleve = function ($statut) {
                     <tr>
                         <td class="nombre"><?=$jourReleve($ligne['dateSaisie'])?></td>
                         <td class="secondaire"><div class="tronque" title="<?=h($ligne['adresse'])?>"><?=h($ligne['adresse'])?></div></td>
-                        <td class="fin nombre"><?=h($ligne['indexEau'])?></td>
-                        <td class="fin nombre"><?=h($ligne['indexElectricite'])?></td>
-                        <td><span class="pill <?=$pillReleve($ligne['statut'])?>" title="<?=h($ligne['statut'])?>"><span class="tronque"><?=h($ligne['statut'])?></span></span></td>
+                        <td class="fin nombre cache-mobile"><?=h($ligne['indexEau'])?></td>
+                        <td class="fin nombre cache-mobile"><?=h($ligne['indexElectricite'])?></td>
+                        <td><span class="etat <?=$pillReleve($ligne['statut'])?>" title="<?=h($ligne['statut'])?>"><span class="tronque" style="max-width: 10rem"><?=h($ligne['statut'])?></span></span></td>
                         <td class="secondaire">
                             <div class="actions">
                                 <a class="bouton-rond" href="<?=$url?>eau/<?=h($ligne['id'])?>" title="Photo du compteur d'eau" aria-label="Photo du compteur d'eau"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i></a>

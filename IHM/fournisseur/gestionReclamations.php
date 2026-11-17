@@ -64,17 +64,17 @@ $pillReclamation = function ($statut) { return gestionReclamationsStatut($statut
 
             <?php if ($reclamations) { ?>
                 <table class="tableau">
-                    <thead><tr><th>N°</th><th>Client</th><th class="secondaire">Type</th><th>Statut</th><th></th></tr></thead>
+                    <thead><tr><th class="cache-mobile">N°</th><th>Client</th><th class="secondaire">Type</th><th>Statut</th><th></th></tr></thead>
                     <tbody data-pagine="8">
                     <?php foreach ($reclamations as $ligne) { ?>
                         <tr>
-                            <td class="nombre">N° <?= str_pad((string)(int)$ligne['idReclamation'], 3, '0', STR_PAD_LEFT) ?></td>
+                            <td class="nombre cache-mobile">N° <?= str_pad((string)(int)$ligne['idReclamation'], 3, '0', STR_PAD_LEFT) ?></td>
                             <td>
                                 <div class="tronque"><span class="fort"><?= gestionReclamationsTexte($ligne['prenom'].' '.$ligne['nom']) ?></span>
                                 <small><?= gestionReclamationsTexte(date('d/m/Y', strtotime($ligne['dateCreation']))) ?></small></div>
                             </td>
-                            <td class="secondaire"><?= gestionReclamationsTexte($ligne['typeReclamation']) ?></td>
-                            <td><span class="pill <?= $pillReclamation($ligne['statut']) ?>"><?= gestionReclamationsTexte($ligne['statut']) ?></span></td>
+                            <td class="secondaire"><span class="tag"><?= gestionReclamationsTexte($ligne['typeReclamation']) ?></span></td>
+                            <td><span class="etat <?= $pillReclamation($ligne['statut']) ?>"><?= gestionReclamationsTexte($ligne['statut']) ?></span></td>
                             <td class="fin"><a class="bouton-rond" href="<?= link ?>reclamation/detail/<?= (int)$ligne['idReclamation'] ?>" aria-label="Voir la réclamation <?= (int)$ligne['idReclamation'] ?>"><i class="fa-solid fa-arrow-right"></i></a></td>
                         </tr>
                     <?php } ?>

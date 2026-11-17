@@ -215,32 +215,34 @@
     flex-shrink: 0;
     height: 1.625rem;
     padding: 0 0.75rem;
-    border-radius: 999px;
-    background: var(--carte);          /* neutre : en attente, impayée, en cours */
+    border: 1px solid var(--bordure);
+    border-radius: 999px;              /* neutre : en attente, impayée, en cours (contour, sans fond) */
     font-size: 0.75rem;
     font-weight: 600;
     white-space: nowrap;
 }
 
-.pill.ok { background: var(--vert); color: #FFFFFF; }       /* payée, traitée */
+.pill.ok { border-color: var(--vert); background: var(--vert); color: #FFFFFF; }       /* payée, traitée */
 
 /* ---------- Listes dans une carte ---------- */
 .lignes {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
 }
 
-.ligne {
+/* (la classe "ligne" sert aussi aux en-têtes de page ".entete.ligne" : ils sont exclus ici) */
+.ligne:not(.entete) {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     min-width: 0;
-    padding: 0.625rem 0.875rem;
-    border-radius: 1.25rem;
-    background: var(--page);
+    padding: 0.75rem 0.25rem;
+    border-bottom: 1px solid var(--trait);
 }
+.lignes > li:last-child .ligne,
+.lignes > .ligne:last-child { border-bottom: 0; }
+.lignes > li.bloc { margin-bottom: 0.625rem; }
 
 .ligne-texte { flex: 1; min-width: 0; }
 
@@ -461,18 +463,17 @@ button.bouton.accent { background: var(--vert); }
 .filtres a.actif,
 .filtres label:has(input:checked) { background: var(--texte); color: #FFFFFF; }
 .filtres input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
-.filtres.dans-carte { background: var(--page); }
+.filtres.dans-carte { background: none; border: 1px solid var(--trait); }
 
-/* ---------- Tableaux : des lignes arrondies, sans filets ---------- */
+/* ---------- Tableaux de données : en-tête, filets entre les lignes, survol ---------- */
 .tableau {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 0.5rem;
-    margin: -0.5rem 0;
+    border-collapse: collapse;
 }
 
 .tableau th {
-    padding: 0 0.875rem;
+    padding: 0 0.875rem 0.75rem;
+    border-bottom: 1px solid var(--trait);
     color: var(--attenue);
     font-size: 0.8125rem;
     font-weight: 500;
@@ -481,17 +482,69 @@ button.bouton.accent { background: var(--vert); }
 }
 
 .tableau td {
-    padding: 0.625rem 0.875rem;
-    background: var(--page);
+    padding: 0.75rem 0.875rem;
+    border-bottom: 1px solid var(--trait);
     vertical-align: middle;
 }
 
-.tableau td:first-child { border-radius: 1.25rem 0 0 1.25rem; }
-.tableau td:last-child { border-radius: 0 1.25rem 1.25rem 0; }
+.tableau tbody tr:last-child td { border-bottom: 0; }
+.tableau tbody tr { transition: background 0.15s; }
+.tableau tbody tr:hover { background: var(--page); }
+.tableau th:first-child, .tableau td:first-child { padding-left: 0.25rem; }
+.tableau th:last-child, .tableau td:last-child { padding-right: 0.25rem; }
 .tableau .fin { text-align: right; }
 .tableau .nombre { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tableau .fort { font-weight: 600; }
 .tableau small { display: block; color: var(--attenue); font-size: 0.8125rem; }
+
+/* état avec un point de couleur : vert = réglé, rouge = problème, gris = en attente */
+.etat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+.etat::before {
+    content: "";
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--gris);
+}
+.etat.ok::before { background: var(--vert); }
+.etat.alerte::before { background: var(--rouge); }
+
+/* étiquette à contour, sans fond (catégorie, type) */
+.tag {
+    display: inline-flex;
+    align-items: center;
+    height: 1.5rem;
+    padding: 0 0.625rem;
+    border: 1px solid var(--bordure);
+    border-radius: 999px;
+    color: var(--attenue);
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* boutons d'action d'une ligne : icônes seules */
+.actions-ligne { display: inline-flex; gap: 0.375rem; }
+.bouton-rond.danger { color: var(--rouge); }
+.bouton-rond.danger:hover { border-color: var(--rouge); }
+
+/* mini-courbe de consommation + valeur + variation */
+.tendance { display: flex; align-items: center; gap: 0.625rem; white-space: nowrap; }
+.tendance svg { width: 4.5rem; height: 1.5rem; flex-shrink: 0; overflow: visible; }
+.tendance path { fill: none; stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.tendance.elec path { stroke: var(--elec-vif); }
+.tendance.eau path { stroke: var(--eau); }
+.tendance-valeur { font-weight: 600; font-variant-numeric: tabular-nums; }
+.tendance-valeur small { display: block; font-weight: 400; }
+.variation { font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.variation.hausse { color: var(--rouge); }
+.variation.baisse { color: var(--vert); }
 
 /* texte long : coupé avec "…" plutôt que de casser la mise en page */
 .tronque {
@@ -506,16 +559,49 @@ button.bouton.accent { background: var(--vert); }
 
 .pill.alerte { background: var(--rouge); color: #FFFFFF; }   /* anomalie */
 
-/* ---------- Pagination ---------- */
+/* ---------- Pied de tableau : nombre de résultats, lignes par page, pages ---------- */
 .pagination {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
     margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--trait);
+    color: var(--attenue);
+    font-size: 0.8125rem;
 }
 
-.pagination-numero { color: var(--attenue); font-variant-numeric: tabular-nums; }
+.pagination-droite { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; }
+.pagination-taille { display: inline-flex; align-items: center; gap: 0.5rem; }
+.pagination-taille select {
+    height: 2rem;
+    padding: 0 0.625rem;
+    border: 1px solid var(--bordure);
+    border-radius: 999px;
+    background: transparent;
+    font-size: 0.8125rem;
+}
+.pagination-pages { display: inline-flex; align-items: center; gap: 0.25rem; }
+.pagination-pages button {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.625rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: none;
+    color: var(--texte);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+.pagination-pages button:hover:not(:disabled) { border-color: var(--bordure); }
+.pagination-pages button.actif { background: var(--texte); color: #FFFFFF; }
+.pagination-pages button.fleche { border-color: var(--bordure); }
+.pagination-pages button:disabled { opacity: 0.4; cursor: default; }
+.pagination-pages .points { padding: 0 0.25rem; }
 
 /* ---------- Formulaires ---------- */
 .formulaire {
@@ -589,8 +675,8 @@ button.bouton.accent { background: var(--vert); }
 /* bloc intérieur à une carte (un groupe de champs, une adresse…) */
 .bloc {
     padding: 1rem;
+    border: 1px solid var(--trait);
     border-radius: 1.25rem;
-    background: var(--page);
 }
 
 .bloc-titre { font-weight: 600; margin-bottom: 0.75rem; }
@@ -612,15 +698,15 @@ button.bouton.accent { background: var(--vert); }
     gap: 1rem;
 }
 
-.photos figure { border-radius: 1.25rem; overflow: hidden; background: var(--page); }
+.photos figure { border: 1px solid var(--trait); border-radius: 1.25rem; overflow: hidden; }
 .photos img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
 .photos figcaption { padding: 0.625rem 0.875rem; font-weight: 600; }
 
 /* ---------- Texte technique ---------- */
 .code {
     padding: 1rem;
+    border: 1px solid var(--trait);
     border-radius: 1.25rem;
-    background: var(--page);
     font-family: var(--mono);
     font-size: 0.8125rem;
     line-height: 1.6;
@@ -811,8 +897,7 @@ a.compte:hover .compte-avatar { color: var(--texte); }
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .notifs-liste .vide { padding: 1.5rem 0; }
@@ -823,10 +908,10 @@ a.compte:hover .compte-avatar { color: var(--texte); }
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-    padding: 0.75rem 0.875rem;
-    border-radius: 1.25rem;
-    background: var(--page);
+    padding: 0.875rem 0.25rem 0.875rem 0.75rem;
+    border-bottom: 1px solid var(--trait);
 }
+.notif:last-child { border-bottom: 0; }
 
 /* point devant les notifications pas encore vues */
 .notif.non-lue::before {
@@ -846,11 +931,11 @@ a.compte:hover .compte-avatar { color: var(--texte); }
     flex-shrink: 0;
     width: 2rem;
     height: 2rem;
+    border: 1px solid var(--bordure);
     border-radius: 50%;
-    background: var(--cadre);
     font-size: 0.8125rem;
 }
-.notif-icone.traitee { background: var(--vert); color: #FFFFFF; }
+.notif-icone.traitee { border-color: var(--vert); background: var(--vert); color: #FFFFFF; }
 
 .notif-texte { flex: 1; min-width: 0; }
 .notif-titre { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -862,7 +947,7 @@ a.compte:hover .compte-avatar { color: var(--texte); }
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.notif-texte .bouton { margin-top: 0.5rem; background: var(--cadre); }
+.notif-texte .bouton { margin-top: 0.5rem; }
 
 .notif-cote {
     display: flex;
@@ -908,4 +993,22 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 /* ligne à cocher (choix des contrats à résilier) : toute la ligne est cliquable */
 .choix { cursor: pointer; }
 .choix input { width: 1.125rem; height: 1.125rem; flex-shrink: 0; accent-color: var(--rouge); }
-.choix:has(input:checked) { background: var(--carte); }
+.choix:has(input:checked) { background: var(--page); }   /* ligne sélectionnée */
+
+/* nom et rôle l'un sous l'autre, à gauche de l'avatar */
+.compte-texte {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 0;
+    line-height: 1.25;
+}
+.compte-texte .compte-role { font-size: 0.75rem; }
+
+/* colonnes cachées sur téléphone (en plus des colonnes "secondaire") */
+@media (max-width: 640px) {
+    .cache-mobile { display: none; }
+    .avatar-liste { display: none; }
+    .tableau th:first-child, .tableau td:first-child { padding-left: 0; }
+    .tableau th:last-child, .tableau td:last-child { padding-right: 0; }
+}
