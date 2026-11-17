@@ -26,7 +26,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
 
     <div class="grille">
         <!-- Widget principal : la déclaration du mois -->
-        <section class="carte large haute">
+        <section class="carte large">
             <h2 class="titre-carte">Déclaration de <?= $moisLongs[(int)date('n')] ?></h2>
             <p class="chiffre geant" style="margin-top: 0.5rem"><?= $declarationOuverteAujourdhui ? 'Ouverte' : 'Le 18' ?></p>
             <p class="legende">
@@ -37,13 +37,24 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                 <?php } ?>
             </p>
 
-            <!-- Sa consommation récente : de quoi comparer avant sa prochaine déclaration -->
+            <div class="carte-pied">
+                <p class="legende">
+                    <i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Index d'eau &nbsp;
+                    <i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Index d'électricité
+                </p>
+                <a class="bouton accent" href="<?= link ?>declaration/all">Déclarer ma consommation <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </section>
+
+        <!-- Sa consommation récente : de quoi comparer avant sa prochaine déclaration -->
+        <section class="carte large">
+            <h2 class="titre-carte">Consommation</h2>
             <?php $mois = $tableau['consommation']; if ($mois) {
                 $dernier = end($mois);
                 $elec = array_column($mois, 'electricite');
                 $eau = array_column($mois, 'eau'); ?>
-                <div class="pile" style="margin-top: 1.75rem; gap: 1rem">
-                    <p class="libelle">Consommation du dernier mois · relevé du <?= $e(date('d/m/Y', strtotime($dernier['date']))) ?></p>
+                <p class="legende">Dernier mois · relevé du <?= $e(date('d/m/Y', strtotime($dernier['date']))) ?></p>
+                <div class="pile" style="margin-top: 1.25rem; gap: 1rem">
                     <div class="tendance grande elec">
                         <?= miniCourbe($elec, true) ?>
                         <span class="tendance-valeur"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> <?= nombreFr($dernier['electricite']) ?> kWh <?= variationConsommation($elec) ?></span>
@@ -52,17 +63,11 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                         <?= miniCourbe($eau, false) ?>
                         <span class="tendance-valeur"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> <?= nombreFr($dernier['eau'], 1) ?> m³ <?= variationConsommation($eau) ?></span>
                     </div>
-                    <p class="note">Sur les <?= count($mois) ?> derniers mois relevés. La variation compare au mois précédent.</p>
                 </div>
+                <p class="note" style="margin-top: auto; padding-top: 1rem">Sur les <?= count($mois) ?> derniers mois relevés. La variation compare au mois précédent.</p>
+            <?php } else { ?>
+                <p class="vide">Vos courbes apparaîtront après deux relevés facturés.</p>
             <?php } ?>
-
-            <div class="carte-pied">
-                <p class="legende">
-                    <i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Index d'eau &nbsp;
-                    <i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Index d'électricité
-                </p>
-                <a class="bouton accent" href="<?= link ?>declaration/all">Déclarer ma consommation <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
         </section>
 
         <!-- Ses dernières factures, avec le PDF à portée de clic -->
