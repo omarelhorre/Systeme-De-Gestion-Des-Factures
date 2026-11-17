@@ -19,20 +19,8 @@ function consommationsDeclareesAnnee($db, $annee)
     return $totaux;
 }
 
-function coutEauMensuel($quantite)
-{
-    return min($quantite, 6) * 2.37
-        + min(max($quantite - 6, 0), 14) * 7.39
-        + min(max($quantite - 20, 0), 15) * 10.98
-        + max($quantite - 35, 0) * 11.03;
-}
-
-function coutElectriciteMensuel($quantite)
-{
-    return min($quantite, 100) * 0.82
-        + min(max($quantite - 100, 0), 50) * 0.92
-        + max($quantite - 150, 0) * 1.10;
-}
+// coutEauMensuel() et coutElectriciteMensuel() : même grille que les factures mensuelles
+require_once ROOT.'Traitement/consommateur/reglesConsommation.php';
 
 function estimerRegularisationAnnuelle($agentEau, $agentElectricite, $clientEau, $clientElectricite)
 {

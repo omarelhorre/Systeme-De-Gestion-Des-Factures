@@ -41,12 +41,24 @@ function declarationDuMois($db, $idAdresseCompteur, $premierJour, $jourSuivant)
 
 function derniereDeclarationValide($db, $idAdresseCompteur)
 {
-    $q = mysqli_prepare($db, "SELECT id, indexEau, indexElectricite, dateSaisie FROM declaration WHERE idAdresseCompteur=? AND statut IN ('Référence initiale','Validée') ORDER BY dateSaisie DESC, id DESC LIMIT 1");
+    // Les chemins des photos servent à les afficher au client pendant sa nouvelle saisie.
+    $q = mysqli_prepare($db, "SELECT id, indexEau, indexElectricite, dateSaisie, cheminCompteurEauImg, cheminCompteurElectriciteImg FROM declaration WHERE idAdresseCompteur=? AND statut IN ('Référence initiale','Validée') ORDER BY dateSaisie DESC, id DESC LIMIT 1");
     mysqli_stmt_bind_param($q, 'i', $idAdresseCompteur);
     mysqli_stmt_execute($q);
     $row = mysqli_fetch_assoc(mysqli_stmt_get_result($q));
     mysqli_stmt_close($q);
     return $row ?: null;
+}
+
+// Seuils d'anomalie choisis par un fournisseur : ['eau' => m³, 'electricite' => kWh]
+function seuilsFournisseur($db, $idFournisseur)
+{
+    $q = mysqli_prepare($db, "SELECT seuilEau, seuilElectricite FROM fournisseur WHERE id=?");
+    mysqli_stmt_bind_param($q, 'i', $idFournisseur);
+    mysqli_stmt_execute($q);
+    $row = mysqli_fetch_assoc(mysqli_stmt_get_result($q));
+    mysqli_stmt_close($q);
+    return $row ? array('eau' => (float)$row['seuilEau'], 'electricite' => (float)$row['seuilElectricite']) : null;
 }
 
 function enregistrerDeclaration($db, $fournisseur, $client, $idAdresseCompteur, $photoEau, $photoElectricite, $eau, $electricite, $date, $statut, $debut, $fin, $ht, $ttc)

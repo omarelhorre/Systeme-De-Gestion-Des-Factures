@@ -49,8 +49,19 @@
                 (SELECT COUNT(*) FROM facture f JOIN declaration d ON d.id=f.idDeclaration WHERE d.idFournisseur=?) AS factures,
                 (SELECT COALESCE(SUM(d.prixTTC),0) FROM facture f JOIN declaration d ON d.id=f.idDeclaration WHERE d.idFournisseur=? AND f.etat='Impayée') AS montantImpaye,
                 (SELECT COUNT(*) FROM reclamation r JOIN consommateur c ON c.id=r.id WHERE c.idFournisseur=? AND r.statut<>'Traitée') AS reclamationsOuvertes,
-                (SELECT COUNT(*) FROM declaration WHERE idFournisseur=? AND statut LIKE 'Anomalie%') AS anomalies",
-            'iiiiiii', $id, $id, $id, $id, $id, $id, $id)[0];
+                (SELECT COUNT(*) FROM declaration WHERE idFournisseur=? AND statut LIKE 'Anomalie%') AS anomalies,
+                (SELECT seuilEau FROM fournisseur WHERE id=?) AS seuilEau,
+                (SELECT seuilElectricite FROM fournisseur WHERE id=?) AS seuilElectricite",
+            'iiiiiiiii', $id, $id, $id, $id, $id, $id, $id, $id, $id)[0];
+    }
+
+    // Seuils d'anomalie du fournisseur : au-delà, une déclaration devient une anomalie au lieu d'une facture
+    function modifierSeuilsFournisseur($id, $seuilEau, $seuilElectricite)
+    {
+        global $link;
+        $q = mysqli_prepare($link, "UPDATE fournisseur SET seuilEau=?, seuilElectricite=? WHERE id=?");
+        mysqli_stmt_bind_param($q, 'ddi', $seuilEau, $seuilElectricite, $id);
+        return mysqli_stmt_execute($q);
     }
 
     // Agent : ses importations annuelles

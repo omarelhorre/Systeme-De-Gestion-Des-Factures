@@ -8,10 +8,12 @@
                 WHERE id='".$ID."'";
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
-    function selectAll()
+    // Les clients d'UN fournisseur (chaque fournisseur ne voit que les siens)
+    function selectAll($idFournisseur)
     {
         global $link;
-        $sql = "SELECT id,nom,prenom,adresse FROM consommateur NATURAL JOIN utilisateur";
+        $sql = "SELECT id,nom,prenom,adresse FROM consommateur NATURAL JOIN utilisateur
+                WHERE idFournisseur=".(int)$idFournisseur;
         return mysqli_query($link,$sql);
     }
     function insertConsommateur($lastUser,$idFournisseur,$adresse,$cin='',$telephone='')

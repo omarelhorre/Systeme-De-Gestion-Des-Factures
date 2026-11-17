@@ -2,6 +2,7 @@
 // Page "Mon compte". Variables fournies par profil() :
 // $utilisateur, $role ('fournisseur', 'consommateur' ou 'agent'), $consommateur, $infosCompte, $message, $erreur.
 require_once ROOT.'IHM/commun/outils.php';
+require_once ROOT.'Traitement/consommateur/reglesConsommation.php';   // grille tarifaire affichée au fournisseur
 $jour = function ($date) { return $date ? date('d/m/Y', strtotime($date)) : '—'; };
 $coqueTitre = 'Mon compte';
 $coqueActif = 'profil';
@@ -141,6 +142,45 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
                 <h2 class="titre-carte">À traiter</h2>
                 <p class="chiffre" style="margin-top: 0.75rem"><?= (int)$infosCompte['reclamationsOuvertes'] + (int)$infosCompte['anomalies'] ?></p>
                 <p class="legende"><?= (int)$infosCompte['reclamationsOuvertes'] ?> réclamation<?= $infosCompte['reclamationsOuvertes'] > 1 ? 's' : '' ?> · <?= (int)$infosCompte['anomalies'] ?> anomalie<?= $infosCompte['anomalies'] > 1 ? 's' : '' ?></p>
+            </section>
+
+            <!-- Seuils d'anomalie : au-delà, la déclaration devient une anomalie au lieu d'une facture -->
+            <section class="carte large">
+                <h2 class="titre-carte">Seuils d'anomalie</h2>
+                <p class="legende">Une déclaration qui dépasse ces consommations mensuelles devient une anomalie à corriger, sans facture.</p>
+                <form class="formulaire" style="margin-top: 1rem" method="post" action="<?= link ?>utilisateur/modifierSeuils">
+                    <input type="hidden" name="csrf" value="<?= $e($_SESSION['csrf_profil']) ?>">
+                    <label class="champ"><span class="libelle"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Eau (m³ par mois)</span>
+                        <input type="text" name="seuilEau" inputmode="decimal" required value="<?= $e($_POST['seuilEau'] ?? number_format((float)$infosCompte['seuilEau'], 2, ',', '')) ?>">
+                    </label>
+                    <label class="champ"><span class="libelle"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Électricité (kWh par mois)</span>
+                        <input type="text" name="seuilElectricite" inputmode="decimal" required value="<?= $e($_POST['seuilElectricite'] ?? number_format((float)$infosCompte['seuilElectricite'], 2, ',', '')) ?>">
+                    </label>
+                    <div class="entier actions fin">
+                        <button class="bouton plein" type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer les seuils</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Grille tarifaire du sujet, lue dans les règles de facturation (aucune saisie) -->
+            <section class="carte large">
+                <h2 class="titre-carte" style="margin-bottom: 0.25rem">Grille tarifaire</h2>
+                <p class="legende" style="margin-bottom: 0.75rem">Chaque tranche est facturée à son prix, puis TVA de <?= (int)round(TVA_CONSOMMATION * 100) ?> %.</p>
+                <table class="tableau">
+                    <thead><tr><th>Électricité</th><th class="fin">DH / kWh</th><th>Eau</th><th class="fin">DH / m³</th></tr></thead>
+                    <tbody>
+                        <?php $libelleTranche = function ($t, $unite) { return $t[1] === null ? 'Au-delà de '.$t[0].' '.$unite : $t[0].' à '.$t[1].' '.$unite; };
+                        for ($i = 0; $i < max(count(TRANCHES_ELECTRICITE), count(TRANCHES_EAU)); $i++) {
+                            $elec = TRANCHES_ELECTRICITE[$i] ?? null; $eau = TRANCHES_EAU[$i] ?? null; ?>
+                            <tr>
+                                <td><?= $elec ? $libelleTranche($elec, 'kWh') : '' ?></td>
+                                <td class="fin nombre"><?= $elec ? nombreFr($elec[2], 2) : '' ?></td>
+                                <td><?= $eau ? $libelleTranche($eau, 'm³') : '' ?></td>
+                                <td class="fin nombre"><?= $eau ? nombreFr($eau[2], 2) : '' ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
             </section>
 
         <?php } else { ?>

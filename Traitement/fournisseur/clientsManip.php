@@ -19,7 +19,7 @@
 
     function afficherClients()
     {
-        $result = selectAll();
+        $result = selectAll((int)($_SESSION['user']['id'] ?? 0));
         $data = [];
         while($ligne = mysqli_fetch_row($result))
         {

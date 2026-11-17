@@ -37,7 +37,7 @@ if($URL[0] == "utilisateur" )
             {
                 deconnexion();
             }
-        else if(in_array($URL[1], ["profil", "modifierEmail", "modifierMotDePasse"], true))
+        else if(in_array($URL[1], ["profil", "modifierEmail", "modifierMotDePasse", "modifierSeuils"], true))
             {
                 profil($URL[1]);
             }

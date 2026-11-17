@@ -6,7 +6,7 @@
     include_once(ROOT."/BD/consommateur.php");
     include_once(ROOT."/BD/agent.php");
 
-    // $action : 'profil' (affichage), 'modifierEmail' ou 'modifierMotDePasse' (formulaires en POST)
+    // $action : 'profil' (affichage), 'modifierEmail', 'modifierMotDePasse' ou 'modifierSeuils' (formulaires en POST)
     function profil($action)
     {
         if (!isset($_SESSION['user'])) {
@@ -26,7 +26,23 @@
                 if (!hash_equals($_SESSION['csrf_profil'], (string)($_POST['csrf'] ?? ''))) {
                     $erreur = 'Session expirée : rechargez la page.';
                 }
-                // Toute modification demande le mot de passe actuel
+                // Seuils d'anomalie : réservés au fournisseur, sans mot de passe (ce n'est pas une donnée de connexion)
+                else if ($action == 'modifierSeuils')
+                    {
+                        include_once(ROOT."/BD/compte.php");
+                        $seuilEau = str_replace(',', '.', trim((string)($_POST['seuilEau'] ?? '')));
+                        $seuilElectricite = str_replace(',', '.', trim((string)($_POST['seuilElectricite'] ?? '')));
+                        if (!checkFournisseur($id)) {
+                            $erreur = 'Seuls les fournisseurs définissent des seuils.';
+                        } else if (!preg_match('/^\d{1,6}(\.\d{1,2})?$/', $seuilEau) || !preg_match('/^\d{1,6}(\.\d{1,2})?$/', $seuilElectricite)
+                            || (float)$seuilEau <= 0 || (float)$seuilElectricite <= 0) {
+                            $erreur = 'Les seuils doivent être des nombres positifs (deux décimales au plus).';
+                        } else {
+                            modifierSeuilsFournisseur($id, (float)$seuilEau, (float)$seuilElectricite);
+                            $_SESSION['message_profil'] = 'Seuils d\'anomalie enregistrés. Ils s\'appliquent aux prochaines déclarations.';
+                        }
+                    }
+                // Toute autre modification demande le mot de passe actuel
                 else if (!password_verify($motDePasseActuel, $utilisateur['pass'])) {
                     $erreur = 'Mot de passe actuel incorrect.';
                 }

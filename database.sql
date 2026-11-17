@@ -16,6 +16,8 @@ CREATE TABLE agent
 CREATE TABLE fournisseur
 (
     id int primary key,
+    seuilEau decimal(10,2) DEFAULT 100.00 NOT NULL,
+    seuilElectricite decimal(10,2) DEFAULT 1000.00 NOT NULL,
     FOREIGN KEY (id) REFERENCES utilisateur(id)
 );
 CREATE TABLE consommateur 

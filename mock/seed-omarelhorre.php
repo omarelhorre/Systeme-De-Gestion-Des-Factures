@@ -89,7 +89,7 @@ try {
         $idFacture = enregistrerFacture($db, $idDeclaration, $pdf, $jour);
         $courante = array('indexEau' => $eau, 'indexElectricite' => $elec, 'dateSaisie' => $jour);
         $infosClient = array('id' => $idClient, 'nom' => $client['nom'], 'prenom' => $client['prenom'], 'adresse' => $adresse['adresse']);
-        creerPdfFacture(ROOT.$pdf, $idFacture, $infosClient, $precedente, $courante, $calcul, ROOT.$photoEau, ROOT.$photoElec);
+        creerPdfFacture(ROOT.$pdf, $idFacture, $infosClient, $precedente, $courante, $calcul, ROOT.$photoEau, ROOT.$photoElec, $jour);
         $fichiersCrees[] = ROOT.$pdf;
 
         if ($payeLe) {

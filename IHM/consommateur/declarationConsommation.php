@@ -1,4 +1,5 @@
 <?php
+require_once ROOT.'IHM/commun/outils.php';
 function h($valeur) { return htmlspecialchars((string)$valeur, ENT_QUOTES, 'UTF-8'); }
 $url = link . 'declaration/';
 $ouvert = declarationOuverte($date);
@@ -45,7 +46,22 @@ $pillReleve = function ($statut) {
         <section class="carte">
             <h2 class="titre-carte">Nouvelle déclaration</h2>
             <?php if ($precedente): ?>
-                <p class="legende">Dernier relevé valide du <?=$jourReleve($precedente['dateSaisie'])?> : eau <strong><?=h($precedente['indexEau'])?> m³</strong>, électricité <strong><?=h($precedente['indexElectricite'])?> kWh</strong>.</p>
+                <!-- Le relevé du mois dernier : la valeur et la photo de chaque compteur, pour comparer avant de saisir -->
+                <p class="legende">Dernier relevé valide, du <?=$jourReleve($precedente['dateSaisie'])?> :</p>
+                <div class="photos photos-releve" style="margin-top: 0.75rem">
+                    <figure>
+                        <?php if ($precedente['cheminCompteurEauImg']): ?>
+                            <img src="<?=$url?>eau/<?=h($precedente['id'])?>" alt="Photo du compteur d'eau au dernier relevé">
+                        <?php endif; ?>
+                        <figcaption><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Eau · <?=h(nombreFr($precedente['indexEau'], 2))?> m³<?= $precedente['cheminCompteurEauImg'] ? '' : ' <span class="note">(relevé de référence, sans photo)</span>' ?></figcaption>
+                    </figure>
+                    <figure>
+                        <?php if ($precedente['cheminCompteurElectriciteImg']): ?>
+                            <img src="<?=$url?>electricite/<?=h($precedente['id'])?>" alt="Photo du compteur d'électricité au dernier relevé">
+                        <?php endif; ?>
+                        <figcaption><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Électricité · <?=h(nombreFr($precedente['indexElectricite'], 2))?> kWh<?= $precedente['cheminCompteurElectriciteImg'] ? '' : ' <span class="note">(relevé de référence, sans photo)</span>' ?></figcaption>
+                    </figure>
+                </div>
             <?php else: ?>
                 <p class="legende">Votre premier relevé servira de référence. Il ne donnera pas lieu à une facture.</p>
             <?php endif; ?>
@@ -108,10 +124,12 @@ $pillReleve = function ($statut) {
                         <td class="fin nombre cache-mobile"><?=h($ligne['indexElectricite'])?></td>
                         <td><span class="etat <?=$pillReleve($ligne['statut'])?>" title="<?=h($ligne['statut'])?>"><span class="tronque" style="max-width: 10rem"><?=h($ligne['statut'])?></span></span></td>
                         <td class="secondaire">
+                            <?php if ($ligne['cheminCompteurEauImg'] || $ligne['cheminCompteurElectriciteImg']): ?>
                             <div class="actions">
-                                <a class="bouton-rond" href="<?=$url?>eau/<?=h($ligne['id'])?>" title="Photo du compteur d'eau" aria-label="Photo du compteur d'eau"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i></a>
-                                <a class="bouton-rond" href="<?=$url?>electricite/<?=h($ligne['id'])?>" title="Photo du compteur d'électricité" aria-label="Photo du compteur d'électricité"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i></a>
+                                <?php if ($ligne['cheminCompteurEauImg']): ?><a class="bouton-rond" href="<?=$url?>eau/<?=h($ligne['id'])?>" title="Photo du compteur d'eau" aria-label="Photo du compteur d'eau"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i></a><?php endif; ?>
+                                <?php if ($ligne['cheminCompteurElectriciteImg']): ?><a class="bouton-rond" href="<?=$url?>electricite/<?=h($ligne['id'])?>" title="Photo du compteur d'électricité" aria-label="Photo du compteur d'électricité"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i></a><?php endif; ?>
                             </div>
+                            <?php else: ?><span class="note">Sans photo</span><?php endif; ?>
                         </td>
                         <td>
                             <?php if ($ligne['idFacture']): ?>

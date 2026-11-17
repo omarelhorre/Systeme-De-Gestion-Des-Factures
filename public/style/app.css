@@ -1016,3 +1016,6 @@ a.compte:hover .compte-avatar { color: var(--texte); }
     .tableau th:first-child, .tableau td:first-child { padding-left: 0; }
     .tableau th:last-child, .tableau td:last-child { padding-right: 0; }
 }
+
+/* photos du relevé précédent (formulaire de déclaration) : vignettes de hauteur fixe */
+.photos-releve img { aspect-ratio: auto; height: 9rem; object-fit: contain; background: var(--page); }

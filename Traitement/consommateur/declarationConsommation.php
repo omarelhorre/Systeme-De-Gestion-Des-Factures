@@ -96,7 +96,8 @@ function traiterConsommation($action, $id = null)
                     if (!verrouillerClient($db, $idClient)) throw new RuntimeException('Client introuvable.');
                     if (declarationDuMois($db, $idAdresseCompteur, $premier, $suivant)) throw new InvalidArgumentException('Une déclaration existe déjà pour cette adresse ce mois.');
                     $precedente = derniereDeclarationValide($db, $idAdresseCompteur);
-                    $calcul = calculerDeclaration($eau, $electricite, $precedente);
+                    // Seuils d'anomalie choisis par le fournisseur du client
+                    $calcul = calculerDeclaration($eau, $electricite, $precedente, false, seuilsFournisseur($db, (int)$client['idFournisseur']));
                     $statut = $calcul['statut'] === 'Anomalie' ? 'Anomalie : '.$calcul['motif'] : $calcul['statut'];
                     $photoEau = sauverPhoto($_FILES['photoEau']); $sauves[] = ROOT.$photoEau;
                     $photoElectricite = sauverPhoto($_FILES['photoElectricite']); $sauves[] = ROOT.$photoElectricite;
@@ -108,7 +109,7 @@ function traiterConsommation($action, $id = null)
                         $idFacture = enregistrerFacture($db, $idDeclaration, $pdfRelatif, $jour);
                         $courante = array('indexEau' => $eau, 'indexElectricite' => $electricite, 'dateSaisie' => $jour);
                         $sauves[] = ROOT.$pdfRelatif;
-                        creerPdfFacture(ROOT.$pdfRelatif, $idFacture, $client, $precedente, $courante, $calcul, ROOT.$photoEau, ROOT.$photoElectricite);
+                        creerPdfFacture(ROOT.$pdfRelatif, $idFacture, $client, $precedente, $courante, $calcul, ROOT.$photoEau, ROOT.$photoElectricite, $jour);
                     }
                     mysqli_commit($db);
                     // Notifications : facture disponible, ou anomalie signalée au client et à son fournisseur.

@@ -56,30 +56,48 @@ class PdfFacture
     }
 }
 
-function creerPdfFacture($chemin, $numero, $client, $precedente, $courante, $calcul, $photoEau, $photoElectricite)
+// $dateFacture : date de la facture (AAAA-MM-JJ) ; sans valeur, la date du jour.
+function creerPdfFacture($chemin, $numero, $client, $precedente, $courante, $calcul, $photoEau, $photoElectricite, $dateFacture = null)
 {
+    $montant = function ($valeur) { return number_format((float)$valeur, 2, ',', ' ').' MAD'; };
+    $quantite = function ($valeur) { return rtrim(rtrim(number_format((float)$valeur, 2, ',', ' '), '0'), ','); };
+    $jour = function ($date) { return date('d/m/Y', strtotime($date)); };
+
     $pdf = new PdfFacture();
     $pdf->texte(40, 48, 23, 'FATOURTI');
     $pdf->texte(40, 77, 13, 'Facture n° '.$numero);
-    $pdf->texte(40, 99, 10, 'Tarifs de démonstration - à valider avant utilisation réelle');
-    $pdf->texte(40, 130, 11, 'Client : '.$client['prenom'].' '.$client['nom'].' (n° '.$client['id'].')');
-    $pdf->texte(40, 148, 10, 'Adresse : '.$client['adresse']);
-    $pdf->texte(40, 166, 10, 'Période : '.$precedente['dateSaisie'].' au '.$courante['dateSaisie']);
-    $pdf->texte(40, 204, 11, 'ÉLECTRICITÉ');
-    $pdf->texte(40, 226, 10, 'Index précédent : '.$precedente['indexElectricite'].' kWh');
-    $pdf->texte(40, 244, 10, 'Index courant : '.$courante['indexElectricite'].' kWh');
-    $pdf->texte(40, 262, 10, 'Consommation : '.$calcul['electricite'].' kWh × '.TARIF_ELECTRICITE_DEMO.' MAD/kWh');
-    $pdf->texte(40, 300, 11, 'EAU');
-    $pdf->texte(40, 322, 10, 'Index précédent : '.$precedente['indexEau'].' m³');
-    $pdf->texte(40, 340, 10, 'Index courant : '.$courante['indexEau'].' m³');
-    $pdf->texte(40, 358, 10, 'Consommation : '.$calcul['eau'].' m³ × '.TARIF_EAU_DEMO.' MAD/m³');
-    $pdf->texte(40, 401, 11, 'Total HT : '.number_format($calcul['ht'], 2, ',', ' ').' MAD');
-    $pdf->texte(40, 421, 11, 'TVA (18 %) : '.number_format(round($calcul['ht'] * TVA_CONSOMMATION, 2), 2, ',', ' ').' MAD');
-    $pdf->texte(40, 444, 13, 'Total TTC : '.number_format($calcul['ttc'], 2, ',', ' ').' MAD');
-    $pdf->texte(40, 488, 10, 'Photos des compteurs');
-    $pdf->texte(40, 508, 9, 'Eau');
-    $pdf->texte(305, 508, 9, 'Électricité');
-    $pdf->image('Eau', $photoEau, 40, 520, 240, 190);
-    $pdf->image('Electricite', $photoElectricite, 305, 520, 240, 190);
+    $pdf->texte(40, 95, 10, 'Date de la facture : '.$jour($dateFacture ?: date('Y-m-d')));
+    $pdf->texte(40, 125, 11, 'Client : '.$client['prenom'].' '.$client['nom'].' (n° '.$client['id'].')');
+    $pdf->texte(40, 143, 10, 'Adresse : '.$client['adresse']);
+    $pdf->texte(40, 161, 10, 'Période : du '.$jour($precedente['dateSaisie']).' au '.$jour($courante['dateSaisie']));
+
+    // Une colonne par service : index, consommation, puis le prix de chaque tranche utilisée
+    $services = array(
+        array(40, 'ÉLECTRICITÉ', 'kWh', 'indexElectricite', $calcul['electricite'], $calcul['detailElectricite'] ?? array(), $calcul['htElectricite'] ?? null),
+        array(305, 'EAU', 'm³', 'indexEau', $calcul['eau'], $calcul['detailEau'] ?? array(), $calcul['htEau'] ?? null),
+    );
+    foreach ($services as $service) {
+        list($x, $titre, $unite, $index, $consommation, $detail, $sousTotal) = $service;
+        $pdf->texte($x, 200, 11, $titre);
+        $pdf->texte($x, 220, 10, 'Index précédent : '.$quantite($precedente[$index]).' '.$unite);
+        $pdf->texte($x, 236, 10, 'Index courant : '.$quantite($courante[$index]).' '.$unite);
+        $pdf->texte($x, 252, 10, 'Consommation : '.$quantite($consommation).' '.$unite);
+        $y = 272;
+        foreach ($detail as $ligne) {
+            $tranche = $ligne['a'] === null ? 'au-delà de '.$ligne['de'] : $ligne['de'].' à '.$ligne['a'];
+            $pdf->texte($x, $y, 9, $tranche.' '.$unite.' : '.$quantite($ligne['quantite']).' × '.number_format($ligne['prix'], 2, ',', ' ').' = '.$montant($ligne['montant']));
+            $y += 15;
+        }
+        if ($sousTotal !== null) $pdf->texte($x, 340, 10, 'Sous-total HT : '.$montant($sousTotal));
+    }
+
+    $pdf->texte(40, 385, 11, 'Total HT : '.$montant($calcul['ht']));
+    $pdf->texte(40, 405, 11, 'TVA (18 %) : '.$montant(round($calcul['ht'] * TVA_CONSOMMATION, 2)));
+    $pdf->texte(40, 428, 13, 'Total TTC : '.$montant($calcul['ttc']));
+    $pdf->texte(40, 470, 10, 'Photos des compteurs');
+    $pdf->texte(40, 490, 9, 'Eau');
+    $pdf->texte(305, 490, 9, 'Électricité');
+    $pdf->image('Eau', $photoEau, 40, 502, 240, 190);
+    $pdf->image('Electricite', $photoElectricite, 305, 502, 240, 190);
     $pdf->enregistrer($chemin);
 }

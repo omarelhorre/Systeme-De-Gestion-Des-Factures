@@ -111,7 +111,7 @@ function traiterAnomaliesFournisseur(string $action, ?int $id = null): void
                         'prenom' => $anomalie['prenom'], 'adresse' => $anomalie['adresse']];
                     creerPdfFacture($pdf, $factureId, $client, $precedente,
                         ['indexEau' => $eau, 'indexElectricite' => $electricite,
-                         'dateSaisie' => $anomalie['dateSaisie']], $calcul, $photoEau, $photoElectricite);
+                         'dateSaisie' => $anomalie['dateSaisie']], $calcul, $photoEau, $photoElectricite, $dateFacture);
                     $db->commit();
                     // Notifications : le client est prévenu, et la demande du fournisseur est marquée traitée.
                     notifier($clientId, 'anomalie_corrigee', 'Votre relevé a été corrigé', 'La facture n° '.$factureId.' est disponible : '.number_format((float)$calcul['ttc'], 2, ',', ' ').' DH TTC.', 'declaration/all/'.(int)$anomalie['idAdresseCompteur'], array('idObjet' => $factureId, 'email' => true));
