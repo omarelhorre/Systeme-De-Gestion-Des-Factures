@@ -26,7 +26,7 @@ services:
       # Sans demo=1, pas de barre et la vraie date partout.
       DEMO: ${demo:-0}
       # Paiement en ligne CMI : identifiants du marchand de test (cmi_client_id, cmi_store_key dans .env).
-      # Sans eux, en mode démo, un simulateur local remplace la page de paiement de CMI.
+      # Le bouton "Payer" envoie directement sur la passerelle de test CMI.
       CMI_CLIENT_ID: ${cmi_client_id:-}
       CMI_STORE_KEY: ${cmi_store_key:-}
       CMI_PASSERELLE: ${cmi_passerelle:-}

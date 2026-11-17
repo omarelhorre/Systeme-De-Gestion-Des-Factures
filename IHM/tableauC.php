@@ -80,11 +80,11 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                         <li class="ligne">
                             <div class="ligne-texte">
                                 <p class="ligne-nom">Facture N° <?= (int)$facture['id'] ?></p>
-                                <p class="ligne-detail"><?= $e(date('d/m/Y', strtotime($facture['dateGeneration']))) ?> · <?= $e($facture['adresse']) ?></p>
+                                <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration'], $facture['modePaiement']); ?>
+                                <p class="ligne-detail"><?= $e(date('d/m/Y', strtotime($facture['dateGeneration']))) ?> · <span class="etat <?= $classe ?>"><?= $libelle ?></span></p>
                             </div>
                             <span class="ligne-montant"><?= nombreFr($facture['prixTTC'], 2) ?> DH</span>
-                            <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration'], $facture['modePaiement']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
-                            <?php if ($facture['etat'] === 'Impayée') echo boutonPayerEnLigne($facture['id']); ?>
+                            <?php if ($facture['etat'] === 'Impayée') echo boutonPayerEnLigne($facture['id'], $facture['prixTTC']); ?>
                             <a class="bouton-rond" href="<?= link ?>declaration/facture/<?= (int)$facture['idDeclaration'] ?>" title="Télécharger le PDF" aria-label="Télécharger la facture <?= (int)$facture['id'] ?>"><i class="fa-solid fa-download"></i></a>
                         </li>
                     <?php } ?>

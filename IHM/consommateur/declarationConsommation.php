@@ -58,17 +58,17 @@ $relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statut
         <table class="tableau">
             <thead>
                 <tr>
-                    <th>Date</th><th class="secondaire">Compteur</th><th class="fin cache-mobile">Eau (m³)</th><th class="fin cache-mobile">Électricité (kWh)</th>
-                    <th>Statut</th><th class="secondaire">Photos</th><th>Facture</th>
+                    <th>Date</th><th class="secondaire">Compteur</th><th class="fin cache-mobile">Eau (m³)</th><th class="fin cache-mobile">Électr. (kWh)</th>
+                    <th>Statut</th><th class="secondaire">Photos</th><th>Facture</th><th>Paiement</th>
                 </tr>
             </thead>
             <tbody data-pagine="8"><?php foreach ($declarations as $ligne): ?>
                 <tr>
                     <td class="nombre"><?=$jourReleve($ligne['dateSaisie'])?></td>
-                    <td class="secondaire"><div class="tronque" title="<?=h($ligne['adresse'])?>"><?=h($ligne['adresse'])?></div></td>
+                    <td class="secondaire"><div class="tronque" style="max-width: 10rem" title="<?=h($ligne['adresse'])?>"><?=h($ligne['adresse'])?></div></td>
                     <td class="fin nombre cache-mobile"><?=indexFr($ligne['indexEau'])?></td>
                     <td class="fin nombre cache-mobile"><?=indexFr($ligne['indexElectricite'])?></td>
-                    <td><span class="etat <?=$etatReleve($ligne['statut'])?>" title="<?=h($ligne['statut'])?>"><span class="tronque" style="max-width: 10rem"><?=h($ligne['statut'] === 'Référence initiale' ? 'Relevé de départ' : $ligne['statut'])?></span></span></td>
+                    <td><span class="etat <?=$etatReleve($ligne['statut'])?>" title="<?=h($ligne['statut'])?>"><span class="tronque" style="max-width: 8.5rem"><?=h($ligne['statut'] === 'Référence initiale' ? 'Relevé de départ' : $ligne['statut'])?></span></span></td>
                     <td class="secondaire">
                         <?php if ($ligne['cheminCompteurEauImg'] || $ligne['cheminCompteurElectriciteImg']): ?>
                         <div class="actions-ligne">
@@ -79,11 +79,16 @@ $relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statut
                     </td>
                     <td>
                         <?php if ($ligne['idFacture']): ?>
-                            <div class="facture-cellule">
-                                <a class="fort" href="<?=$url?>facture/<?=h($ligne['id'])?>" title="Télécharger le PDF"><i class="fa-solid fa-download"></i> N° <?=h($ligne['idFacture'])?></a>
-                                <?php if ($ligne['etat'] === 'Impayée') echo boutonPayerEnLigne($ligne['idFacture']); ?>
-                            </div>
-                            <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie'], $ligne['modePaiement']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?><?php if ($ligne['datePaiement']): ?> le <?=$jourReleve($ligne['datePaiement'])?><?php endif; ?></span></small>
+                            <a class="fort" href="<?=$url?>facture/<?=h($ligne['id'])?>" title="Télécharger le PDF"><i class="fa-solid fa-download"></i> N° <?=h($ligne['idFacture'])?></a>
+                            <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?></span></small>
+                        <?php else: ?><span class="note">—</span><?php endif; ?>
+                    </td>
+                    <!-- Paiement en ligne : seulement pour une facture impayée -->
+                    <td class="nombre">
+                        <?php if ($ligne['idFacture'] && $ligne['etat'] === 'Impayée'): ?>
+                            <?= boutonPayerEnLigne($ligne['idFacture'], $ligne['prixTTC']) ?>
+                        <?php elseif ($ligne['datePaiement']): ?>
+                            <?= $ligne['modePaiement'] === 'en ligne' ? 'En ligne' : 'Espèces' ?><small>le <?= date('d/m/Y', strtotime($ligne['datePaiement'])) ?></small>
                         <?php else: ?><span class="note">—</span><?php endif; ?>
                     </td>
                 </tr>

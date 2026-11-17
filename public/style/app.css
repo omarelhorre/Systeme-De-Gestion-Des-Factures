@@ -1299,6 +1299,24 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 .demo button:hover { background: rgba(255, 255, 255, 0.12); color: #FFFFFF; }
 .demo .demo-reel { background: #FFFFFF; color: var(--texte); font-weight: 600; }
 
-/* ---------- Paiement en ligne : le bouton à côté du téléchargement de la facture ---------- */
-.facture-cellule { display: flex; align-items: center; gap: 0.625rem; white-space: nowrap; }
+/* ---------- Paiement en ligne : bouton plat (petits coins, fond papier), dans sa propre colonne ---------- */
 .paiement-en-ligne { display: inline-flex; }
+.bouton-payer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    height: 2rem;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: var(--carte);
+    color: var(--texte);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.bouton-payer:hover { background: var(--trait); }
+.bouton-payer i { color: var(--vert); }

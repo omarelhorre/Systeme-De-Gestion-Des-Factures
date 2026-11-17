@@ -284,14 +284,18 @@ function horloge(): string
 }
 
 /**
- * Bouton "Payer en ligne" d'une facture impayée (client) : envoie vers la passerelle CMI.
- * Rien si le paiement en ligne n'est pas configuré (voir Traitement/paiement.php).
+ * Bouton "Payer" d'une facture impayée (client) : un formulaire déjà signé qui envoie
+ * directement sur la page de paiement de CMI (voir Traitement/paiement.php).
+ * Rien si le paiement en ligne n'est pas configuré.
  */
-function boutonPayerEnLigne($idFacture): string
+function boutonPayerEnLigne($idFacture, $montant): string
 {
-    if (!function_exists('paiementMode') || paiementMode() === '') return '';
-    if (empty($_SESSION['csrf_consommation'])) $_SESSION['csrf_consommation'] = bin2hex(random_bytes(32));
-    return '<form class="paiement-en-ligne" method="post" action="'.link.'paiement/payer/'.(int)$idFacture.'">'
-        .'<input type="hidden" name="csrf" value="'.htmlspecialchars($_SESSION['csrf_consommation'], ENT_QUOTES, 'UTF-8').'">'
-        .'<button class="bouton contour petit" type="submit"><i class="fa-regular fa-credit-card"></i> Payer en ligne</button></form>';
+    if (!function_exists('paiementActif') || !paiementActif()) return '';
+    $client = $_SESSION['user'] ?? array();
+    $champs = paiementChamps($idFacture, $montant, trim(($client['prenom'] ?? '').' '.($client['nom'] ?? '')), $client['email'] ?? '');
+    $html = '<form class="paiement-en-ligne" method="post" action="'.htmlspecialchars(paiementPasserelle(), ENT_QUOTES, 'UTF-8').'">';
+    foreach ($champs as $nom => $valeur) {
+        $html .= '<input type="hidden" name="'.htmlspecialchars($nom, ENT_QUOTES, 'UTF-8').'" value="'.htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8').'">';
+    }
+    return $html.'<button class="bouton-payer" type="submit"><i class="fa-regular fa-credit-card"></i> Payer</button></form>';
 }
