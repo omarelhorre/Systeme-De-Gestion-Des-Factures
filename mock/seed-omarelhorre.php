@@ -152,7 +152,7 @@ try {
         $traitee = $statut === 'Traitée';
         $ajouter($fournisseur, 'reclamation_nouvelle', 'Nouvelle réclamation n° '.$idReclamation, mb_substr($description, 0, 200), 'reclamation/detail/'.$idReclamation, 1, $idReclamation, $date.' 09:00:00', $date >= '2026-11-01' ? null : $date.' 12:00:00', $traitee ? $date.' 17:00:00' : null);
         if ($reponse !== null) {
-            $ajouter($idClient, 'reclamation_reponse', 'Réclamation n° '.$idReclamation.' : '.$statut, mb_substr($reponse, 0, 200), 'reclamations.php', 0, $idReclamation, $date.' 17:00:00', $date >= '2026-09-01' ? null : $date.' 20:00:00', null);
+            $ajouter($idClient, 'reclamation_reponse', 'Réclamation n° '.$idReclamation.' : '.$statut, mb_substr($reponse, 0, 200), 'reclamation/all', 0, $idReclamation, $date.' 17:00:00', $date >= '2026-09-01' ? null : $date.' 20:00:00', null);
         }
     }
 

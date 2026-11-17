@@ -115,8 +115,27 @@ else if($URL[0] == "facture")
     }
 else if($URL[0] == "reclamation")
     {
-        require_once ROOT.'Traitement/fournisseur/gestionReclamations.php';
-        gestionReclamationsAfficher($URL);
+        // Un consommateur : reclamation/all = ses réclamations + le formulaire pour en déposer une (POST sur la même adresse).
+        // Un fournisseur : la gestion des réclamations de ses clients (all, detail/{id}, traiter/{id}).
+        if (isset($_SESSION['user']) && checkConsommateur($_SESSION['user']['id']))
+            {
+                if (($URL[1] ?? '') == 'all')
+                    {
+                        require_once ROOT.'BD/reclamationsConsommateur.php';
+                        require_once ROOT.'Traitement/consommateur/reclamations.php';
+                        traiterReclamationsConsommateur();
+                    }
+                else
+                    {
+                        header('Location: '.link.'reclamation/all');
+                        exit;
+                    }
+            }
+        else
+            {
+                require_once ROOT.'Traitement/fournisseur/gestionReclamations.php';
+                gestionReclamationsAfficher($URL);
+            }
     }
 
 else if($URL[0] == "notification")

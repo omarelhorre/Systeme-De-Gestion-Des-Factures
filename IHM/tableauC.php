@@ -104,7 +104,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
         <section class="carte large">
             <div class="carte-entete">
                 <h2 class="titre-carte">Mes réclamations</h2>
-                <a class="bouton contour petit" href="<?= link ?>reclamations.php">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton contour petit" href="<?= link ?>reclamation/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <?php if ($tableau['reclamations']) { ?>
                 <ul class="lignes">

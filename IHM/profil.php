@@ -78,7 +78,7 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
             <section class="carte">
                 <div class="carte-entete">
                     <h2 class="titre-carte">Réclamations</h2>
-                    <a class="bouton contour petit" href="<?= link ?>reclamations.php">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+                    <a class="bouton contour petit" href="<?= link ?>reclamation/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <p class="chiffre"><?= (int)$reclamations['ouvertes'] ?></p>
                 <p class="legende">en cours sur <?= (int)$reclamations['total'] ?> au total</p>

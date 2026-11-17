@@ -35,7 +35,7 @@ $coqueActif = 'reclamations';
     <div class="grille">
         <section class="carte large">
             <h2 class="titre-carte">Nouvelle réclamation</h2>
-            <form class="formulaire" style="margin-top: 1rem" method="post" action="<?= link ?>reclamations.php">
+            <form class="formulaire" style="margin-top: 1rem" method="post" action="<?= link ?>reclamation/all">
                 <input type="hidden" name="csrf" value="<?= texteReclamation($_SESSION['csrf_reclamations']) ?>">
                 <label class="champ"><span class="libelle">Type de réclamation</span>
                     <select name="type" required>
