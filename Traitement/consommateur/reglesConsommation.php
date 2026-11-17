@@ -65,6 +65,17 @@ function coutElectriciteMensuel($quantite)
     return array_sum(array_column(detailTranches($quantite, TRANCHES_ELECTRICITE), 'montant'));
 }
 
+// Nombre de mois couverts par un relevé : du mois du dernier relevé valide au mois actuel (au moins 1).
+// Ex. dernier relevé en septembre, nouveau en novembre (octobre oublié) = 2 mois.
+function moisCouverts($precedente)
+{
+    $avant = new DateTimeImmutable(substr((string)$precedente['dateSaisie'], 0, 10));
+    $maintenant = dateConsommation();
+    $mois = ((int)$maintenant->format('Y') * 12 + (int)$maintenant->format('n'))
+          - ((int)$avant->format('Y') * 12 + (int)$avant->format('n'));
+    return max(1, $mois);
+}
+
 // $seuils : ['eau' => m³, 'electricite' => kWh] du fournisseur ; sans valeur, les seuils par défaut.
 function calculerDeclaration($eau, $electricite, $precedente, $validationFournisseur = false, $seuils = null)
 {
@@ -72,8 +83,10 @@ function calculerDeclaration($eau, $electricite, $precedente, $validationFournis
         return array('statut' => 'Référence initiale', 'eau' => null, 'electricite' => null,
             'motif' => '', 'ht' => null, 'ttc' => null);
     }
-    $seuilEau = (float)($seuils['eau'] ?? SEUIL_EAU_DEMO);
-    $seuilElectricite = (float)($seuils['electricite'] ?? SEUIL_ELECTRICITE_DEMO);
+    // Les seuils sont mensuels : un relevé qui couvre plusieurs mois (mois oublié) a droit à autant de fois le seuil.
+    $mois = moisCouverts($precedente);
+    $seuilEau = (float)($seuils['eau'] ?? SEUIL_EAU_DEMO) * $mois;
+    $seuilElectricite = (float)($seuils['electricite'] ?? SEUIL_ELECTRICITE_DEMO) * $mois;
     $quantiteEau = round($eau - (float)$precedente['indexEau'], 4);
     $quantiteElectricite = round($electricite - (float)$precedente['indexElectricite'], 4);
     $motifs = array();
