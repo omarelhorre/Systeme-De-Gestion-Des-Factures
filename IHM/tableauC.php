@@ -90,7 +90,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                                 <p class="ligne-detail"><?= $e(date('d/m/Y', strtotime($facture['dateGeneration']))) ?> · <?= $e($facture['adresse']) ?></p>
                             </div>
                             <span class="ligne-montant"><?= nombreFr($facture['prixTTC'], 2) ?> DH</span>
-                            <span class="etat <?= $facture['etat'] === 'Payée' ? 'ok' : 'alerte' ?>"><?= $e($facture['etat']) ?></span>
+                            <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
                             <a class="bouton-rond" href="<?= link ?>declaration/facture/<?= (int)$facture['idDeclaration'] ?>" title="Télécharger le PDF" aria-label="Télécharger la facture <?= (int)$facture['id'] ?>"><i class="fa-solid fa-download"></i></a>
                         </li>
                     <?php } ?>
@@ -114,7 +114,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                                 <p class="ligne-nom"><?= $e($reclamation['description']) ?></p>
                                 <p class="ligne-detail">N° <?= (int)$reclamation['idReclamation'] ?> · <?= $e(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?><?= trim((string)$reclamation['reponse']) !== '' ? ' · Réponse : '.$e($reclamation['reponse']) : '' ?></p>
                             </div>
-                            <span class="etat <?= $reclamation['statut'] === 'Traitée' ? 'ok' : '' ?>"><?= $e($reclamation['statut']) ?></span>
+                            <?php list($libelle, $classe) = statutReclamation($reclamation['statut']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
                         </li>
                     <?php } ?>
                 </ul>

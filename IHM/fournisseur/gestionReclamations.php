@@ -4,7 +4,7 @@
 $coqueTitre = 'Réclamations';
 $coqueActif = 'reclamations';
 // "Traitée" = vert, le reste = neutre
-$pillReclamation = function ($statut) { return gestionReclamationsStatut($statut) === 'traitee' ? 'ok' : ''; };
+require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -71,10 +71,10 @@ $pillReclamation = function ($statut) { return gestionReclamationsStatut($statut
                             <td class="nombre cache-mobile">N° <?= str_pad((string)(int)$ligne['idReclamation'], 3, '0', STR_PAD_LEFT) ?></td>
                             <td>
                                 <div class="tronque"><span class="fort"><?= gestionReclamationsTexte($ligne['prenom'].' '.$ligne['nom']) ?></span>
-                                <small><?= gestionReclamationsTexte(date('d/m/Y', strtotime($ligne['dateCreation']))) ?></small></div>
+                                <small><?= gestionReclamationsTexte(date('d/m/Y', strtotime($ligne['dateCreation']))) ?> · <?= ilYa($ligne['dateCreation']) ?></small></div>
                             </td>
                             <td class="secondaire"><span class="tag"><?= gestionReclamationsTexte($ligne['typeReclamation']) ?></span></td>
-                            <td><span class="etat <?= $pillReclamation($ligne['statut']) ?>"><?= gestionReclamationsTexte($ligne['statut']) ?></span></td>
+                            <?php list($libelle, $classe) = statutReclamation($ligne['statut']); ?><td><span class="etat <?= $classe ?>"><?= $libelle ?></span></td>
                             <td class="fin"><a class="bouton-rond" href="<?= link ?>reclamation/detail/<?= (int)$ligne['idReclamation'] ?>" aria-label="Voir la réclamation <?= (int)$ligne['idReclamation'] ?>"><i class="fa-solid fa-arrow-right"></i></a></td>
                         </tr>
                     <?php } ?>
@@ -90,9 +90,9 @@ $pillReclamation = function ($statut) { return gestionReclamationsStatut($statut
     <header class="entete ligne">
         <div>
             <h1 class="titre">Réclamation N° <?= (int)$reclamation['idReclamation'] ?></h1>
-            <p class="sous-titre"><?= gestionReclamationsTexte($reclamation['prenom'].' '.$reclamation['nom']) ?> · <?= gestionReclamationsTexte(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?></p>
+            <p class="sous-titre"><?= gestionReclamationsTexte($reclamation['prenom'].' '.$reclamation['nom']) ?> · <?= gestionReclamationsTexte(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?> · <?= ilYa($reclamation['dateCreation']) ?></p>
         </div>
-        <span class="pill <?= $pillReclamation($reclamation['statut']) ?>"><?= gestionReclamationsTexte($reclamation['statut']) ?></span>
+        <?php list($libelle, $classe) = statutReclamation($reclamation['statut']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
     </header>
 
     <div class="grille">

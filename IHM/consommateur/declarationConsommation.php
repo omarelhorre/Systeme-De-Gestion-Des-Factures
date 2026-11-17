@@ -134,7 +134,7 @@ $pillReleve = function ($statut) {
                         <td>
                             <?php if ($ligne['idFacture']): ?>
                                 <a class="fort" href="<?=$url?>facture/<?=h($ligne['id'])?>"><i class="fa-solid fa-download"></i> N° <?=h($ligne['idFacture'])?></a>
-                                <small><?=h($ligne['etat'])?><?php if ($ligne['datePaiement']): ?> le <?=$jourReleve($ligne['datePaiement'])?><?php endif; ?></small>
+                                <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?><?php if ($ligne['datePaiement']): ?> le <?=$jourReleve($ligne['datePaiement'])?><?php endif; ?></span></small>
                             <?php else: ?><span class="note">Aucune</span><?php endif; ?>
                         </td>
                     </tr>

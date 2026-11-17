@@ -26,7 +26,9 @@
 
     /* Couleurs institutionnelles */
     --vert: #006233;           /* L'action principale de l'écran, validé, payé */
-    --rouge: #C1272D;          /* sceau, erreurs */
+    --rouge: #C1272D;          /* sceau, erreurs, factures en retard */
+    --attente: #D4911E;        /* en attente (réclamation), à régler avant l'échéance */
+    --encours: #2F6FB3;        /* réclamation en cours de traitement */
 
     /* Couleurs des services : uniquement pour les données */
     --elec: #9A5B00;           /* électricité : texte */

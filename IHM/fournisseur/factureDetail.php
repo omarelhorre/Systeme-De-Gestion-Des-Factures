@@ -6,7 +6,7 @@
         <h1 class="titre">Facture N° <?= (int)$facture['id'] ?></h1>
         <p class="sous-titre"><?= texteFacture($facture['prenom'].' '.$facture['nom']) ?></p>
     </div>
-    <span class="pill <?= $facture['etat'] === 'Payée' ? 'ok' : '' ?>"><?= texteFacture($facture['etat']) ?></span>
+    <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
 </header>
 
 <div class="grille">

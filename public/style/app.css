@@ -518,6 +518,9 @@ button.bouton.accent { background: var(--vert); }
 }
 .etat.ok::before { background: var(--vert); }
 .etat.alerte::before { background: var(--rouge); }
+.etat.attente::before { background: var(--attente); }
+.etat.encours::before { background: var(--encours); }
+.etat .age { color: var(--attenue); }
 
 /* étiquette à contour, sans fond (catégorie, type) */
 .tag {

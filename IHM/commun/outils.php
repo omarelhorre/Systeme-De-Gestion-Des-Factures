@@ -43,4 +43,46 @@ if (!function_exists('miniCourbe')) {
     {
         return number_format((float)$valeur, $decimales, ',', "\u{00A0}");
     }
+
+    // Nombre de jours entiers entre une date (AAAA-MM-JJ) et aujourd'hui
+    function joursDepuis($date)
+    {
+        $debut = new DateTimeImmutable(substr((string)$date, 0, 10));
+        $aujourdhui = new DateTimeImmutable(date('Y-m-d'));
+        return (int)$debut->diff($aujourdhui)->format('%r%a');
+    }
+
+    // Âge lisible : "aujourd'hui", "hier", "il y a 3 j", "il y a 2 mois"
+    function ilYa($date)
+    {
+        $jours = joursDepuis($date);
+        if ($jours <= 0) return "aujourd'hui";
+        if ($jours === 1) return 'hier';
+        if ($jours < 60) return 'il y a '.$jours.' j';
+        return 'il y a '.intdiv($jours, 30).' mois';
+    }
+
+    // Statut d'une réclamation : libellé uniforme et couleur du point
+    // (en attente = ambre, en cours = bleu, traitée = vert). La base contient parfois "En Attente".
+    function statutReclamation($statut)
+    {
+        $cle = strtolower(strtr(trim((string)$statut), array('É' => 'e', 'é' => 'e')));
+        if (in_array($cle, array('traitee', 'traite', 'traitees'), true)) return array('Traitée', 'ok');
+        if ($cle === 'en cours') return array('En cours', 'encours');
+        if ($cle === 'en attente') return array('En attente', 'attente');
+        return array((string)$statut, '');
+    }
+
+    // Délai de paiement d'une facture (jours après sa date) : sert seulement à l'affichage du retard.
+    if (!defined('DELAI_PAIEMENT_JOURS')) define('DELAI_PAIEMENT_JOURS', 30);
+
+    // État d'une facture : "Payée", "à régler avant le 19/11" (ambre) ou "en retard de 28 j" (rouge)
+    function etatFacture($etat, $dateFacture)
+    {
+        if ($etat === 'Payée') return array('Payée', 'ok');
+        $echeance = (new DateTimeImmutable(substr((string)$dateFacture, 0, 10)))->modify('+'.DELAI_PAIEMENT_JOURS.' days');
+        $retard = joursDepuis($echeance->format('Y-m-d'));
+        if ($retard > 0) return array('en retard de '.$retard.' j', 'alerte');
+        return array('à régler avant le '.$echeance->format('d/m'), 'attente');
+    }
 }

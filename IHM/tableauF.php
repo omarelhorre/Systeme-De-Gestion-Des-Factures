@@ -1,5 +1,6 @@
 <?php
 // Tableau de bord fournisseur.
+require_once ROOT.'IHM/commun/outils.php';
 // $tableau est préparé par redirectToIndexF() (voir BD/tableauFournisseur.php).
 $chiffres = $tableau['chiffres'];
 $consommation = $tableau['consommation'];
@@ -75,7 +76,7 @@ if ($afficherCourbes) {
         <section class="carte">
             <div class="carte-entete">
                 <h2 class="titre-carte">Clients</h2>
-                <a class="bouton-rond" href="<?= link ?>consommateur/all" aria-label="Voir les clients"><i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton contour petit" href="<?= link ?>consommateur/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <p class="chiffre"><?= (int)$chiffres['clients'] ?></p>
             <p class="legende">sous contrat</p>
@@ -84,7 +85,7 @@ if ($afficherCourbes) {
         <section class="carte">
             <div class="carte-entete">
                 <h2 class="titre-carte">Anomalies</h2>
-                <a class="bouton-rond" href="<?= link ?>declaration/anomalies" aria-label="Corriger les anomalies"><i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton contour petit" href="<?= link ?>declaration/anomalies">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <p class="chiffre <?= $chiffres['anomalies'] > 0 ? 'alerte' : '' ?>"><?= (int)$chiffres['anomalies'] ?></p>
             <p class="legende">relevé<?= $chiffres['anomalies'] > 1 ? 's' : '' ?> à corriger</p>
@@ -94,7 +95,7 @@ if ($afficherCourbes) {
         <section class="carte large haute">
             <div class="carte-entete">
                 <h2 class="titre-carte">Consommation</h2>
-                <a class="bouton-rond" href="<?= link ?>annuelle/all" aria-label="Voir le bilan annuel"><i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton contour petit" href="<?= link ?>annuelle/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <?php if ($afficherCourbes) { ?>
                 <div class="courbes">
@@ -142,7 +143,9 @@ if ($afficherCourbes) {
                                 <p class="ligne-nom"><?= $e($reclamation['prenom'].' '.$reclamation['nom']) ?></p>
                                 <p class="ligne-detail"><?= $e($reclamation['description']) ?></p>
                             </div>
-                            <span class="etat"><?= $e($reclamation['statut']) ?></span>
+                            <?php list($libelle, $classe) = statutReclamation($reclamation['statut']); ?>
+                            <span class="note" style="flex-shrink: 0; white-space: nowrap"><?= ilYa($reclamation['dateCreation']) ?></span>
+                            <span class="etat <?= $classe ?>"><?= $libelle ?></span>
                         </li>
                     <?php } ?>
                 </ul>
@@ -165,7 +168,7 @@ if ($afficherCourbes) {
                                 <p class="ligne-detail">N° <?= (int)$facture['id'] ?> · <?= $e(date('d/m/Y', strtotime($facture['dateGeneration']))) ?></p>
                             </div>
                             <span class="ligne-montant"><?= $nombre($facture['prixTTC'], 2) ?> DH</span>
-                            <span class="etat <?= $facture['etat'] === 'Payée' ? 'ok' : 'alerte' ?>"><?= $e($facture['etat']) ?></span>
+                            <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
                         </li>
                     <?php } ?>
                 </ul>

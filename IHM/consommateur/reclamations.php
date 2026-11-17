@@ -1,4 +1,5 @@
 <?php
+require_once ROOT.'IHM/commun/outils.php';
 function texteReclamation($valeur): string
 {
     return htmlspecialchars((string)$valeur, ENT_QUOTES, 'UTF-8');
@@ -74,7 +75,7 @@ $coqueActif = 'reclamations';
                                     <p class="ligne-nom"><?= texteReclamation($libellesTypes[$reclamation['typeReclamation']] ?? 'Autre') ?><?php if ($reclamation['idFacture']): ?> — facture n° <?= (int)$reclamation['idFacture'] ?><?php endif; ?></p>
                                     <p class="ligne-detail"><?= texteReclamation(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?></p>
                                 </div>
-                                <span class="pill <?= $reclamation['statut'] === 'Traitée' ? 'ok' : '' ?>"><?= texteReclamation($reclamation['statut']) ?></span>
+                                <?php list($libelle, $classe) = statutReclamation($reclamation['statut']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
                             </div>
                             <p style="line-height: 1.5; overflow-wrap: anywhere"><?= nl2br(texteReclamation($reclamation['description'])) ?></p>
                             <p class="note" style="margin-top: 0.5rem; overflow-wrap: anywhere"><?= $reclamation['reponse'] !== null && $reclamation['reponse'] !== '' ? 'Réponse : '.nl2br(texteReclamation($reclamation['reponse'])) : 'Aucune réponse' ?></p>

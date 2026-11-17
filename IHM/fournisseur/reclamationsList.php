@@ -1,4 +1,5 @@
 <?php if (!isset($reclamations)) { http_response_code(404); exit; } ?>
+<?php require_once ROOT.'IHM/commun/outils.php'; ?>
 <?php
 // Liste simple des réclamations (lecture seule).
 $coqueTitre = 'Réclamations';
@@ -26,9 +27,9 @@ $coqueActif = 'reclamations';
                         <div class="entete ligne" style="margin-bottom: 0.5rem; align-items: center">
                             <div>
                                 <p class="ligne-nom"><?= texteReclamation($reclamation['prenom'].' '.$reclamation['nom']) ?></p>
-                                <p class="ligne-detail">N° <?= (int)$reclamation['idReclamation'] ?> · <?= texteReclamation(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?></p>
+                                <p class="ligne-detail">N° <?= (int)$reclamation['idReclamation'] ?> · <?= texteReclamation(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?> · <?= ilYa($reclamation['dateCreation']) ?></p>
                             </div>
-                            <span class="pill <?= $reclamation['statut'] === 'Traitée' ? 'ok' : '' ?>"><?= texteReclamation($reclamation['statut']) ?></span>
+                            <?php list($libelle, $classe) = statutReclamation($reclamation['statut']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
                         </div>
                         <p style="line-height: 1.5; overflow-wrap: anywhere"><?= nl2br(texteReclamation($reclamation['description'])) ?></p>
                         <p class="note" style="margin-top: 0.5rem; overflow-wrap: anywhere"><?= trim($reclamation['reponse'] ?? '') === '' ? 'Aucune réponse' : 'Réponse : '.nl2br(texteReclamation($reclamation['reponse'])) ?></p>
