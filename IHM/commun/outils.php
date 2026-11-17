@@ -114,7 +114,7 @@ if (!function_exists('miniCourbe')) {
             <figcaption class="graphe-legende">
                 <span><span class="cle elec"></span>Électricité</span>
                 <span><span class="cle eau"></span>Eau</span>
-                <span class="note">Indice 100 = moyenne de chaque service sur la période</span>
+                <span class="note">Indice 100 = moyenne de chaque service sur les mois affichés</span>
             </figcaption>
             <div class="graphe-corps">
                 <div class="graphe-axe" aria-hidden="true">
@@ -153,6 +153,66 @@ if (!function_exists('miniCourbe')) {
                 <?php } ?>
             </table>
         </figure>
+        <?php return ob_get_clean();
+    }
+
+    // Version compacte du graphique, pour une ligne de tableau : les deux courbes indexées (100 = moyenne),
+    // sans axe ni légende ; le survol (ou le focus clavier) affiche le mois et les vraies valeurs.
+    function miniGraphiqueConsommation(array $points)
+    {
+        $points = array_values($points);
+        $n = count($points);
+        if ($n < 2) return '';
+        $moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
+        $e = function ($t) { return htmlspecialchars((string)$t, ENT_QUOTES, 'UTF-8'); };
+
+        $indices = array();
+        foreach (array('electricite', 'eau') as $serie) {
+            $valeurs = array_map('floatval', array_column($points, $serie));
+            $moyenne = array_sum($valeurs) / $n;   // 100 = moyenne des mois affichés
+            $indices[$serie] = array_map(function ($v) use ($moyenne) { return $moyenne > 0 ? $v / $moyenne * 100 : 100; }, $valeurs);
+        }
+        $tous = array_merge($indices['electricite'], $indices['eau']);
+        $bas = min($tous);
+        $haut = max($tous);
+        if ($haut - $bas < 1) { $bas -= 1; $haut += 1; }
+        // une petite marge en haut et en bas pour que le trait ne touche pas les bords
+        $y = function ($indice) use ($bas, $haut) { return round(90 - ($indice - $bas) / ($haut - $bas) * 80, 2); };
+        $x = function ($i) use ($n) { return round($i * 100 / ($n - 1), 2); };
+        $trace = function (array $serie) use ($x, $y, $n) {
+            $d = 'M'.$x(0).' '.$y($serie[0]);
+            for ($i = 1; $i < $n; $i++) {
+                $milieu = round(($x($i - 1) + $x($i)) / 2, 2);
+                $d .= ' C'.$milieu.' '.$y($serie[$i - 1]).' '.$milieu.' '.$y($serie[$i]).' '.$x($i).' '.$y($serie[$i]);
+            }
+            return $d;
+        };
+
+        $donnees = array();
+        $resume = array();
+        foreach ($points as $i => $p) {
+            list($annee, $m) = explode('-', $p['mois']);
+            $donnees[] = array(
+                'mois' => $moisLongs[(int)$m].' '.$annee, 'x' => $x($i),
+                'elec' => $y($indices['electricite'][$i]), 'eau' => $y($indices['eau'][$i]),
+                'kwh' => nombreFr($p['electricite']).' kWh', 'm3' => nombreFr($p['eau'], 1).' m³',
+            );
+            $resume[] = $moisLongs[(int)$m].' : '.nombreFr($p['electricite']).' kWh, '.nombreFr($p['eau'], 1).' m³';
+        }
+
+        ob_start(); ?>
+        <span class="graphe mini" data-graphe="<?= $e(json_encode($donnees)) ?>">
+            <span class="graphe-zone" tabindex="0" aria-label="<?= $e('Consommation : '.implode(' ; ', $resume)) ?>">
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="trait-elec" d="<?= $trace($indices['electricite']) ?>"/>
+                    <path class="trait-eau" d="<?= $trace($indices['eau']) ?>"/>
+                </svg>
+                <span class="graphe-guide" hidden></span>
+                <span class="graphe-point elec" hidden></span>
+                <span class="graphe-point eau" hidden></span>
+                <span class="graphe-bulle" role="status" hidden></span>
+            </span>
+        </span>
         <?php return ob_get_clean();
     }
 

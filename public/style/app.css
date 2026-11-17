@@ -1153,3 +1153,22 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 .graphe .graphe-axe, .graphe .graphe-zone { height: auto; min-height: var(--hauteur-graphe); }
 /* le tracé suit la taille de sa zone (sinon le SVG prend une forme carrée) */
 .graphe-zone svg { position: absolute; inset: 0; }
+
+/* ---------- Mini-graphique (une ligne de tableau) ---------- */
+.graphe.mini { display: inline-block; flex-shrink: 0; vertical-align: middle; }
+.graphe.mini .graphe-zone {
+    display: block;
+    width: 6.5rem;
+    height: 2rem;
+    min-height: 0;
+    margin-right: 0;
+}
+.graphe.mini .graphe-point { width: 0.5rem; height: 0.5rem; }
+/* l'infobulle s'ouvre au-dessus de la ligne */
+.graphe.mini .graphe-bulle { top: auto; bottom: calc(100% + 0.5rem); text-align: left; }
+
+/* valeurs à côté du mini-graphique */
+.conso-ligne { display: flex; align-items: center; gap: 0.75rem; white-space: nowrap; }
+.conso-valeurs { display: flex; flex-direction: column; gap: 0.125rem; font-variant-numeric: tabular-nums; }
+.conso-valeurs > span { display: inline-flex; align-items: center; gap: 0.375rem; }
+.conso-valeurs .cle { width: 0.75rem; }

@@ -35,8 +35,7 @@ $totalImpaye = array_sum(array_map(function ($r) { return (float)$r['impaye']; }
                         <th>Client</th>
                         <th class="secondaire">Contact</th>
                         <th class="secondaire">Compteurs</th>
-                        <th class="cache-mobile">Électricité <small style="display: inline">· dernier mois</small></th>
-                        <th class="secondaire">Eau</th>
+                        <th class="cache-mobile">Consommation <small style="display: inline">· 6 derniers mois, survol pour le détail</small></th>
                         <th class="fin">Impayé</th>
                         <th></th>
                     </tr>
@@ -69,24 +68,19 @@ $totalImpaye = array_sum(array_map(function ($r) { return (float)$r['impaye']; }
                                 <small><span class="etat <?= $infos['contratsActifs'] > 0 ? 'ok' : '' ?>"><?= (int)$infos['contratsActifs'] ?> contrat<?= $infos['contratsActifs'] > 1 ? 's' : '' ?> actif<?= $infos['contratsActifs'] > 1 ? 's' : '' ?></span></small>
                             </td>
                             <td class="cache-mobile">
-                                <?php if ($dernier) { ?>
-                                    <div class="tendance elec" title="Consommation d'électricité des derniers mois">
-                                        <?= miniCourbe($elec, true) ?>
-                                        <span class="tendance-valeur"><?= nombreFr($dernier['electricite']) ?> kWh <?= variationConsommation($elec) ?>
-                                            <small>relevé du <?= $e(date('d/m', strtotime($dernier['date']))) ?></small></span>
+                                <?php if ($dernier) {
+                                    $points = array();
+                                    foreach ($mois as $cle => $valeurs) $points[] = array('mois' => $cle, 'electricite' => $valeurs['electricite'], 'eau' => $valeurs['eau']); ?>
+                                    <div class="conso-ligne">
+                                        <?= miniGraphiqueConsommation($points) ?>
+                                        <div class="conso-valeurs">
+                                            <span><span class="cle elec"></span><span class="fort"><?= nombreFr($dernier['electricite']) ?> kWh</span> <?= variationConsommation($elec) ?></span>
+                                            <span><span class="cle eau"></span><span class="fort"><?= nombreFr($dernier['eau'], 1) ?> m³</span> <?= variationConsommation($eau) ?></span>
+                                        </div>
+                                        <small>relevé du <?= $e(date('d/m', strtotime($dernier['date']))) ?></small>
                                     </div>
                                 <?php } else { ?>
                                     <span class="note">Aucun relevé facturé</span>
-                                <?php } ?>
-                            </td>
-                            <td class="secondaire">
-                                <?php if ($dernier) { ?>
-                                    <div class="tendance eau" title="Consommation d'eau des derniers mois">
-                                        <?= miniCourbe($eau, false) ?>
-                                        <span class="tendance-valeur"><?= nombreFr($dernier['eau'], 1) ?> m³ <?= variationConsommation($eau) ?></span>
-                                    </div>
-                                <?php } else { ?>
-                                    <span class="note">—</span>
                                 <?php } ?>
                             </td>
                             <td class="fin nombre">
