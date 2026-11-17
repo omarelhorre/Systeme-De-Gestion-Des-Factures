@@ -21,7 +21,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
 <main class="contenu entree">
     <header class="entete">
         <h1 class="titre">Bonjour, <?= htmlspecialchars($_SESSION['user']['prenom'] ?? '', ENT_QUOTES, 'UTF-8') ?></h1>
-        <p class="sous-titre"><?= (int)date('j').' '.$moisLongs[(int)date('n')].' '.date('Y') ?></p>
+        <p class="sous-titre"><?= horloge() ?></p>
     </header>
 
     <div class="grille">

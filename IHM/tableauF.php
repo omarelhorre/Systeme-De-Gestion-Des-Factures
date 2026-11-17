@@ -30,7 +30,7 @@ if ($afficherCourbes) {
 <main class="contenu entree">
     <header class="entete">
         <h1 class="titre">Bonjour, <?= $e($_SESSION['user']['prenom'] ?? '') ?></h1>
-        <p class="sous-titre"><?= (int)date('j').' '.$moisLongs[(int)date('n')].' '.date('Y') ?></p>
+        <p class="sous-titre"><?= horloge() ?></p>
     </header>
 
     <div class="grille">

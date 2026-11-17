@@ -56,8 +56,6 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
                 <?php if ($recherche !== '' || $type !== '' || $filtreStatut !== array_key_first($statuts)) { ?>
                 <a class="lien-discret" href="<?= link ?>reclamation/all">Réinitialiser <i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                 <?php } ?>
-                <span class="espace"></span>
-                <?= horloge() ?>
             </form>
 
             <?php if ($reclamations) { ?>

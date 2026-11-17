@@ -153,13 +153,13 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
     afficher();
 });
 
-// ---------- Horloge (barre d'outils des tableaux) ----------
+// ---------- Horloge (sous le "Bonjour" des tableaux de bord) ----------
 // Date et heure de Rabat. Les deux chiffres des secondes sont des bandes 0…9 qui défilent
 // vers le haut, comme les rouleaux d'un compteur d'eau ; après 9, la bande continue sur un 0
 // puis revient discrètement au début.
 document.querySelectorAll(".horloge").forEach((horloge) => {
     const format = new Intl.DateTimeFormat("fr-FR", {
-        timeZone: "Africa/Casablanca", weekday: "short", day: "numeric", month: "short",
+        timeZone: "Africa/Casablanca", day: "numeric", month: "long", year: "numeric",
         hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
     });
     const jour = horloge.querySelector(".horloge-date");
@@ -186,7 +186,7 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         const cible = chiffre === 0 && rouleau.actuel === n - 1 ? n : chiffre;
         bande.classList.toggle("sans-transition", rouleau.actuel === -1);
         void bande.offsetHeight;   // applique le changement de transition avant de bouger
-        bande.style.transform = "translateY(" + (-cible * 1.375) + "rem)";
+        bande.style.transform = "translateY(" + (-cible * 1.25) + "em)";   // 1,25em = hauteur d'un chiffre
         if (cible === n) {
             setTimeout(() => {
                 bande.classList.add("sans-transition");
@@ -198,7 +198,7 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
 
     function maintenant() {
         const p = Object.fromEntries(format.formatToParts(new Date()).map((x) => [x.type, x.value]));
-        jour.textContent = p.weekday + " " + p.day + " " + p.month;
+        jour.textContent = p.day + " " + p.month + " " + p.year;
         heure.textContent = p.hour + ":" + p.minute + ":";
         placer(rouleaux[0], Number(p.second[0]));
         placer(rouleaux[1], Number(p.second[1]));

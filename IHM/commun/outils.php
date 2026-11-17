@@ -267,12 +267,15 @@ if (!function_exists('miniCourbe')) {
 }
 
 /**
- * Horloge de la barre d'outils : date et heure de Rabat ; les secondes défilent comme les
- * rouleaux d'un compteur (animées par app.js). Sans JavaScript, l'heure du serveur s'affiche.
+ * Date et heure de Rabat sous le "Bonjour" des tableaux de bord : « 17 novembre 2026 · 06:10:03 ».
+ * Les secondes défilent comme les rouleaux d'un compteur (animées par app.js), dans la même police
+ * que le texte. Sans JavaScript, la date et l'heure du serveur s'affichent.
  */
 function horloge(): string
 {
-    return '<span class="horloge" title="Heure de Rabat"><i class="fa-regular fa-clock" aria-hidden="true"></i>'
-        .'<span class="horloge-date"></span><span class="horloge-heure">'.date('H:i').'</span>'
+    $mois = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
+    return '<span class="horloge" title="Heure de Rabat">'
+        .'<span class="horloge-date">'.(int)date('j').' '.$mois[(int)date('n')].' '.date('Y').'</span> · '
+        .'<span class="horloge-heure">'.date('H:i:').'</span>'
         .'<span class="compteur" aria-hidden="true"></span></span>';
 }
