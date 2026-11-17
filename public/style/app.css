@@ -472,7 +472,7 @@ button.bouton.accent { background: var(--vert); }
 }
 
 .tableau th {
-    padding: 0 0.875rem 0.75rem;
+    padding: 0.75rem 0.875rem;              /* même espace en haut et en bas */
     border-bottom: 1px solid var(--trait);
     color: var(--attenue);
     font-size: 0.8125rem;
@@ -486,6 +486,10 @@ button.bouton.accent { background: var(--vert); }
     border-bottom: 1px solid var(--trait);
     vertical-align: middle;
 }
+
+/* grille verticale : un filet entre chaque colonne (pas sur les bords du tableau) */
+.tableau th + th,
+.tableau td + td { border-left: 1px solid var(--trait); }
 
 .tableau tbody tr:last-child td { border-bottom: 0; }
 .tableau tbody tr { transition: background 0.15s; }
