@@ -49,7 +49,7 @@ $jourFacture = function ($date) { return $date ? date('d/m/Y', strtotime($date))
                             <td class="secondaire"><div class="tronque" title="<?= texteFacture($ligne['adresse']) ?>"><?= texteFacture($ligne['adresse']) ?></div></td>
                             <td class="secondaire nombre"><?= $jourFacture($ligne['dateDebut']) ?> — <?= $ligne['dateFin'] ? $jourFacture($ligne['dateFin']) : 'Non renseignée' ?></td>
                             <td class="fin nombre fort"><?= $ligne['prixTTC'] === null ? 'Non renseigné' : texteFacture(number_format((float)$ligne['prixTTC'], 2, ',', ' ')).' DH' ?></td>
-                            <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateGeneration']); ?><td><span class="etat <?= $classe ?>"><?= $libelle ?></span></td>
+                            <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateGeneration'], $ligne['modePaiement']); ?><td><span class="etat <?= $classe ?>"><?= $libelle ?></span></td>
                             <td class="fin"><a class="bouton-rond" href="<?= link ?>facture/detail/<?= (int)$ligne['id'] ?>" aria-label="Consulter la facture <?= (int)$ligne['id'] ?>"><i class="fa-solid fa-arrow-right"></i></a></td>
                         </tr>
                     <?php } ?>

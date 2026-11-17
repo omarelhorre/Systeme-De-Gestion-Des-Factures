@@ -15,7 +15,7 @@ function tableauConsommateurLire($db, $sql, $id)
 function tableauConsommateur($db, $id)
 {
     $factures = tableauConsommateurLire($db,
-        "SELECT f.id, f.etat, f.dateGeneration, f.datePaiement, d.id AS idDeclaration, d.prixTTC, a.adresse
+        "SELECT f.id, f.etat, f.dateGeneration, f.datePaiement, f.modePaiement, d.id AS idDeclaration, d.prixTTC, a.adresse
          FROM facture f JOIN declaration d ON d.id=f.idDeclaration JOIN adresseCompteur a ON a.id=d.idAdresseCompteur
          WHERE d.idConsommateur=? ORDER BY f.dateGeneration DESC, f.id DESC LIMIT 4", $id);
     $impayes = tableauConsommateurLire($db,

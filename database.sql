@@ -114,6 +114,8 @@ CREATE TABLE facture(
     idDeclaration int UNIQUE NOT NULL,
     etat varchar(20) DEFAULT 'Impayée' NOT NULL, 
     datePaiement DATE,
+    modePaiement varchar(20),             -- NULL = espèces chez le fournisseur, 'en ligne' = carte via CMI
+    referencePaiement varchar(64),        -- numéro de transaction CMI
     cheminGenere varchar(255) NOT NULL,
     dateGeneration DATE DEFAULT (CURRENT_DATE()) NOT NULL,
     FOREIGN KEY (idDeclaration) REFERENCES declaration(id),

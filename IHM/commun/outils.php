@@ -256,9 +256,9 @@ if (!function_exists('miniCourbe')) {
     if (!defined('DELAI_PAIEMENT_JOURS')) define('DELAI_PAIEMENT_JOURS', 30);
 
     // État d'une facture : "Payée", "à régler avant le 19/11" (ambre) ou "en retard de 28 j" (rouge)
-    function etatFacture($etat, $dateFacture)
+    function etatFacture($etat, $dateFacture, $modePaiement = null)
     {
-        if ($etat === 'Payée') return array('Payée', 'ok');
+        if ($etat === 'Payée') return array($modePaiement === 'en ligne' ? 'Payée en ligne' : 'Payée', 'ok');
         $echeance = (new DateTimeImmutable(substr((string)$dateFacture, 0, 10)))->modify('+'.DELAI_PAIEMENT_JOURS.' days');
         $retard = joursDepuis($echeance->format('Y-m-d'));
         if ($retard > 0) return array('en retard de '.$retard.' j', 'alerte');
@@ -281,4 +281,17 @@ function horloge(): string
         .'<span class="horloge-date">'.(int)date('j').' '.$mois[(int)date('n')].' '.date('Y').'</span> · '
         .'<span class="horloge-heure">'.date('H:i:').'</span>'
         .'<span class="compteur" aria-hidden="true"></span></span>';
+}
+
+/**
+ * Bouton "Payer en ligne" d'une facture impayée (client) : envoie vers la passerelle CMI.
+ * Rien si le paiement en ligne n'est pas configuré (voir Traitement/paiement.php).
+ */
+function boutonPayerEnLigne($idFacture): string
+{
+    if (!function_exists('paiementMode') || paiementMode() === '') return '';
+    if (empty($_SESSION['csrf_consommation'])) $_SESSION['csrf_consommation'] = bin2hex(random_bytes(32));
+    return '<form class="paiement-en-ligne" method="post" action="'.link.'paiement/payer/'.(int)$idFacture.'">'
+        .'<input type="hidden" name="csrf" value="'.htmlspecialchars($_SESSION['csrf_consommation'], ENT_QUOTES, 'UTF-8').'">'
+        .'<button class="bouton contour petit" type="submit"><i class="fa-regular fa-credit-card"></i> Payer en ligne</button></form>';
 }

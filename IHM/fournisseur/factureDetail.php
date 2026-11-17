@@ -6,7 +6,7 @@
         <h1 class="titre">Facture N° <?= (int)$facture['id'] ?></h1>
         <p class="sous-titre"><?= texteFacture($facture['prenom'].' '.$facture['nom']) ?></p>
     </div>
-    <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
+    <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration'], $facture['modePaiement']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
 </header>
 
 <div class="grille">
@@ -20,6 +20,9 @@
             <dt>Date de génération</dt><dd><?= $jourFacture($facture['dateGeneration']) ?></dd>
             <dt>Période de facturation</dt><dd><?= $jourFacture($facture['dateDebut']) ?> — <?= $facture['dateFin'] ? $jourFacture($facture['dateFin']) : 'Non renseignée' ?></dd>
             <dt>Date de paiement</dt><dd><?= $facture['datePaiement'] ? $jourFacture($facture['datePaiement']) : 'Aucun paiement enregistré' ?></dd>
+            <?php if ($facture['datePaiement']) { ?>
+            <dt>Mode de paiement</dt><dd><?= $facture['modePaiement'] === 'en ligne' ? 'En ligne par carte (CMI) · transaction '.texteFacture($facture['referencePaiement']) : 'Espèces' ?></dd>
+            <?php } ?>
         </dl>
     </section>
 

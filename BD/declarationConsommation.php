@@ -109,7 +109,7 @@ function enregistrerFacture($db, $declaration, $chemin, $date)
 
 function declarationsDuClient($db, $id)
 {
-    $q = mysqli_prepare($db, 'SELECT d.*, a.adresse, a.categorie, f.id AS idFacture, f.etat, f.datePaiement FROM declaration d JOIN adresseCompteur a ON a.id=d.idAdresseCompteur LEFT JOIN facture f ON f.idDeclaration=d.id WHERE d.idConsommateur=? ORDER BY d.dateSaisie DESC,d.id DESC');
+    $q = mysqli_prepare($db, 'SELECT d.*, a.adresse, a.categorie, f.id AS idFacture, f.etat, f.datePaiement, f.modePaiement FROM declaration d JOIN adresseCompteur a ON a.id=d.idAdresseCompteur LEFT JOIN facture f ON f.idDeclaration=d.id WHERE d.idConsommateur=? ORDER BY d.dateSaisie DESC,d.id DESC');
     mysqli_stmt_bind_param($q, 'i', $id);
     mysqli_stmt_execute($q);
     $rows = mysqli_fetch_all(mysqli_stmt_get_result($q), MYSQLI_ASSOC);

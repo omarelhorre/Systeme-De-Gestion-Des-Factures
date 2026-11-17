@@ -79,8 +79,11 @@ $relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statut
                     </td>
                     <td>
                         <?php if ($ligne['idFacture']): ?>
-                            <a class="fort" href="<?=$url?>facture/<?=h($ligne['id'])?>"><i class="fa-solid fa-download"></i> N° <?=h($ligne['idFacture'])?></a>
-                            <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?><?php if ($ligne['datePaiement']): ?> le <?=$jourReleve($ligne['datePaiement'])?><?php endif; ?></span></small>
+                            <div class="facture-cellule">
+                                <a class="fort" href="<?=$url?>facture/<?=h($ligne['id'])?>" title="Télécharger le PDF"><i class="fa-solid fa-download"></i> N° <?=h($ligne['idFacture'])?></a>
+                                <?php if ($ligne['etat'] === 'Impayée') echo boutonPayerEnLigne($ligne['idFacture']); ?>
+                            </div>
+                            <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie'], $ligne['modePaiement']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?><?php if ($ligne['datePaiement']): ?> le <?=$jourReleve($ligne['datePaiement'])?><?php endif; ?></span></small>
                         <?php else: ?><span class="note">—</span><?php endif; ?>
                     </td>
                 </tr>

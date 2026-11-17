@@ -25,6 +25,11 @@ services:
       # Mode démo : demo=1 dans .env affiche la barre de dates (18 du mois, mois suivant, fin d'année…).
       # Sans demo=1, pas de barre et la vraie date partout.
       DEMO: ${demo:-0}
+      # Paiement en ligne CMI : identifiants du marchand de test (cmi_client_id, cmi_store_key dans .env).
+      # Sans eux, en mode démo, un simulateur local remplace la page de paiement de CMI.
+      CMI_CLIENT_ID: ${cmi_client_id:-}
+      CMI_STORE_KEY: ${cmi_store_key:-}
+      CMI_PASSERELLE: ${cmi_passerelle:-}
       LD_PRELOAD: /usr/local/lib/libfaketime.so.1
       FAKETIME_TIMESTAMP_FILE: /tmp/fatourti-demo-date
       FAKETIME_NO_CACHE: "1"   # relu à chaque fois : la nouvelle date vaut dès la page suivante

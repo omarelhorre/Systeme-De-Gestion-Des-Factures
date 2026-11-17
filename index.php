@@ -14,6 +14,7 @@ include_once(ROOT."/Traitement/consommateur/declarationConsommation.php");
 include_once(ROOT."/Traitement/agent/importAnnuel.php");
 include_once(ROOT."/Traitement/fournisseur/bilanAnnuel.php");
 include_once(ROOT."/Traitement/demo.php");
+include_once(ROOT."/Traitement/paiement.php");
 
 // Adresse inconnue : la page 404, et rien d'autre
 function introuvable()
@@ -170,6 +171,13 @@ else if($URL[0] == "contrat")
             {
                 resilier($id);
             }
+        else introuvable();
+    }
+
+else if($URL[0] == "paiement")
+    {
+        // Paiement en ligne d'une facture (CMI) : paiement/payer|ok|echec|callback|recu|refuse|simulateur/{idFacture}
+        if(in_array($URL[1] ?? '', ['payer', 'ok', 'echec', 'callback', 'recu', 'refuse', 'simulateur'], true) && isset($id)) paiement($URL[1], $id);
         else introuvable();
     }
 

@@ -1298,3 +1298,7 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 }
 .demo button:hover { background: rgba(255, 255, 255, 0.12); color: #FFFFFF; }
 .demo .demo-reel { background: #FFFFFF; color: var(--texte); font-weight: 600; }
+
+/* ---------- Paiement en ligne : le bouton à côté du téléchargement de la facture ---------- */
+.facture-cellule { display: flex; align-items: center; gap: 0.625rem; white-space: nowrap; }
+.paiement-en-ligne { display: inline-flex; }

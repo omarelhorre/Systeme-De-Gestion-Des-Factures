@@ -72,7 +72,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                         <p class="legende" style="margin-top: 0.125rem"><span class="etat alerte"><?= (int)$impayes['nombre'] ?> impayée<?= $impayes['nombre'] > 1 ? 's' : '' ?> · <?= nombreFr($impayes['montant'], 2) ?> DH</span></p>
                     <?php } ?>
                 </div>
-                <a class="bouton contour petit" href="<?= link ?>declaration/ajouter">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton contour petit" href="<?= link ?>declaration/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <?php if ($tableau['factures']) { ?>
                 <ul class="lignes">
@@ -83,7 +83,8 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                                 <p class="ligne-detail"><?= $e(date('d/m/Y', strtotime($facture['dateGeneration']))) ?> · <?= $e($facture['adresse']) ?></p>
                             </div>
                             <span class="ligne-montant"><?= nombreFr($facture['prixTTC'], 2) ?> DH</span>
-                            <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
+                            <?php list($libelle, $classe) = etatFacture($facture['etat'], $facture['dateGeneration'], $facture['modePaiement']); ?><span class="etat <?= $classe ?>"><?= $libelle ?></span>
+                            <?php if ($facture['etat'] === 'Impayée') echo boutonPayerEnLigne($facture['id']); ?>
                             <a class="bouton-rond" href="<?= link ?>declaration/facture/<?= (int)$facture['idDeclaration'] ?>" title="Télécharger le PDF" aria-label="Télécharger la facture <?= (int)$facture['id'] ?>"><i class="fa-solid fa-download"></i></a>
                         </li>
                     <?php } ?>
