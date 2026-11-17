@@ -22,6 +22,13 @@ services:
     environment:
       mysql_password_root: ${mysql_root_password}
       SMTP_PASS: ${smtp}
+      # Mode démo : demo=1 dans .env affiche la barre de dates (18 du mois, mois suivant, fin d'année…).
+      # Sans demo=1, pas de barre et la vraie date partout.
+      DEMO: ${demo:-0}
+      LD_PRELOAD: /usr/local/lib/libfaketime.so.1
+      FAKETIME_TIMESTAMP_FILE: /tmp/fatourti-demo-date
+      FAKETIME_NO_CACHE: "1"   # relu à chaque fois : la nouvelle date vaut dès la page suivante
+      NO_FAKE_STAT: "1"        # les dates des fichiers restent vraies (sinon PHP ne voit plus les modifications du code)
     ports:
       - "8080:80"
     volumes:

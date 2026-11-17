@@ -274,7 +274,10 @@ if (!function_exists('miniCourbe')) {
 function horloge(): string
 {
     $mois = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
-    return '<span class="horloge" title="Heure de Rabat">'
+    // data-serveur : l'heure de Rabat calculée par PHP (suit le mode démo et le fuseau du Maroc),
+    // pour ne pas dépendre des fuseaux du navigateur
+    $rabat = new DateTimeImmutable('now', new DateTimeZone('Africa/Casablanca'));
+    return '<span class="horloge" title="Heure de Rabat" data-serveur="'.(($rabat->getTimestamp() + $rabat->getOffset()) * 1000).'">'
         .'<span class="horloge-date">'.(int)date('j').' '.$mois[(int)date('n')].' '.date('Y').'</span> · '
         .'<span class="horloge-heure">'.date('H:i:').'</span>'
         .'<span class="compteur" aria-hidden="true"></span></span>';

@@ -7,6 +7,7 @@
 // et la page définit $coqueActif (la clé de l'entrée active).
 $coqueNom = trim(($_SESSION['user']['prenom'] ?? '').' '.($_SESSION['user']['nom'] ?? ''));
 ?>
+<?php include ROOT.'IHM/commun/demo.php'; ?>
 <header class="barre">
     <a class="marque" href="<?= link.$coqueAccueil ?>">Fatourti</a>
     <div class="barre-droite">

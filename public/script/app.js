@@ -154,12 +154,12 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
 });
 
 // ---------- Horloge (sous le "Bonjour" des tableaux de bord) ----------
-// Date et heure de Rabat. Les deux chiffres des secondes sont des bandes 0…9 qui défilent
+// Date et heure de Rabat (donnée par le serveur). Les deux chiffres des secondes sont des bandes 0…9 qui défilent
 // vers le haut, comme les rouleaux d'un compteur d'eau ; après 9, la bande continue sur un 0
 // puis revient discrètement au début.
 document.querySelectorAll(".horloge").forEach((horloge) => {
     const format = new Intl.DateTimeFormat("fr-FR", {
-        timeZone: "Africa/Casablanca", day: "numeric", month: "long", year: "numeric",
+        timeZone: "UTC", day: "numeric", month: "long", year: "numeric",   // data-serveur est déjà à l'heure de Rabat
         hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
     });
     const jour = horloge.querySelector(".horloge-date");
@@ -197,12 +197,14 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
     }
 
     function maintenant() {
-        const p = Object.fromEntries(format.formatToParts(new Date()).map((x) => [x.type, x.value]));
+        const p = Object.fromEntries(format.formatToParts(new Date(Date.now() + ecart)).map((x) => [x.type, x.value]));
         jour.textContent = p.day + " " + p.month + " " + p.year;
         heure.textContent = p.hour + ":" + p.minute + ":";
         placer(rouleaux[0], Number(p.second[0]));
         placer(rouleaux[1], Number(p.second[1]));
     }
+    // l'heure part de celle du serveur (elle suit le mode démo), puis avance avec le navigateur
+    const ecart = Number(horloge.dataset.serveur || Date.now()) - Date.now();
     maintenant();
     setInterval(maintenant, 1000);
 });

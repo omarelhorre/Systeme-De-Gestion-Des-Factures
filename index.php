@@ -13,6 +13,7 @@ include_once(ROOT."/Traitement/fournisseur/anomaliesManip.php");
 include_once(ROOT."/Traitement/consommateur/declarationConsommation.php");
 include_once(ROOT."/Traitement/agent/importAnnuel.php");
 include_once(ROOT."/Traitement/fournisseur/bilanAnnuel.php");
+include_once(ROOT."/Traitement/demo.php");
 
 // Adresse inconnue : la page 404, et rien d'autre
 function introuvable()
@@ -169,6 +170,13 @@ else if($URL[0] == "contrat")
             {
                 resilier($id);
             }
+        else introuvable();
+    }
+
+else if($URL[0] == "demo")
+    {
+        // Mode démo uniquement : demo/aller/{18 du mois, fin-mois, mois-suivant, …, reel}
+        if(($URL[1] ?? '') == "aller" && isset($id)) demoAller($id);
         else introuvable();
     }
 
