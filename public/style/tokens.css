@@ -37,6 +37,10 @@
     --eau: #1F4E8C;            /* eau : texte et courbes */
     --eau-clair: #DCE8F5;      /* eau : aplat sous la courbe */
 
+    /* Traits des graphiques (validés : contraste, daltonisme, luminosité) */
+    --courbe-elec: #9A5B00;
+    --courbe-eau: #2A63A8;
+
     /* Polices (celles de Jamy / tp3parking) */
     --marque: "Outfit", Arial, sans-serif;
     --titre: "Barlow Condensed", "Arial Narrow", sans-serif;

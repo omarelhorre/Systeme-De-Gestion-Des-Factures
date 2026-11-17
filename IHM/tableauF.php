@@ -14,32 +14,9 @@ $nombre = function ($valeur, $decimales = 0) { return number_format((float)$vale
 $moisCourts = array('', 'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.');
 $moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
 
-// Dessine une courbe SVG (zone de 300 x 80) à partir d'une liste de valeurs.
-// Électricité : en escalier (angles droits). Eau : lissée (formes rondes).
-$courbe = function (array $valeurs, $escalier) {
-    $n = count($valeurs);
-    $max = max($valeurs) ?: 1;
-    $points = array();
-    foreach ($valeurs as $i => $v) {
-        $points[] = array(round($i * 300 / ($n - 1), 1), round(76 - ($v / $max) * 68, 1));
-    }
-    $d = 'M'.$points[0][0].' '.$points[0][1];
-    for ($i = 1; $i < $n; $i++) {
-        list($x, $y) = $points[$i];
-        list($xAvant, $yAvant) = $points[$i - 1];
-        $milieu = round(($xAvant + $x) / 2, 1);
-        $d .= $escalier
-            ? ' H'.$milieu.' V'.$y.' H'.$x                                   // palier, puis marche
-            : ' C'.$milieu.' '.$yAvant.' '.$milieu.' '.$y.' '.$x.' '.$y;     // courbe douce
-    }
-    return array('trait' => $d, 'aplat' => $d.' V80 H0 Z');
-};
-
 $afficherCourbes = count($consommation) >= 2;   // pas de courbe vide : il faut au moins 2 mois
 if ($afficherCourbes) {
     $dernier = end($consommation);
-    $traceElec = $courbe(array_map('floatval', array_column($consommation, 'electricite')), true);
-    $traceEau = $courbe(array_map('floatval', array_column($consommation, 'eau')), false);
 }
 ?>
 <!DOCTYPE html>
@@ -91,40 +68,19 @@ if ($afficherCourbes) {
             <p class="legende">relevé<?= $chiffres['anomalies'] > 1 ? 's' : '' ?> à corriger</p>
         </section>
 
-        <!-- Consommation : électricité en escalier, eau en courbe -->
+        <!-- Consommation : électricité et eau sur un seul graphique, valeurs au survol -->
         <section class="carte large haute">
             <div class="carte-entete">
-                <h2 class="titre-carte">Consommation</h2>
+                <div>
+                    <h2 class="titre-carte">Consommation</h2>
+                    <?php if ($afficherCourbes) { ?>
+                        <p class="legende" style="margin-top: 0.125rem"><?= $moisLongs[(int)substr($dernier['mois'], 5, 2)] ?> : <strong><?= $nombre($dernier['electricite']) ?> kWh</strong> · <strong><?= $nombre($dernier['eau'], 1) ?> m³</strong></p>
+                    <?php } ?>
+                </div>
                 <a class="bouton contour petit" href="<?= link ?>annuelle/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <?php if ($afficherCourbes) { ?>
-                <div class="courbes">
-                    <div class="courbe">
-                        <div class="courbe-entete">
-                            <span class="courbe-nom elec"><i class="fa-solid fa-bolt"></i> Électricité</span>
-                            <span class="courbe-valeur"><?= $nombre($dernier['electricite']) ?><span class="unite">kWh</span></span>
-                        </div>
-                        <svg class="elec" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true">
-                            <path class="aplat" d="<?= $traceElec['aplat'] ?>"/>
-                            <path class="trait" d="<?= $traceElec['trait'] ?>"/>
-                        </svg>
-                    </div>
-                    <div class="courbe">
-                        <div class="courbe-entete">
-                            <span class="courbe-nom eau"><i class="fa-solid fa-droplet"></i> Eau</span>
-                            <span class="courbe-valeur"><?= $nombre($dernier['eau'], 1) ?><span class="unite">m³</span></span>
-                        </div>
-                        <svg class="eau" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true">
-                            <path class="aplat" d="<?= $traceEau['aplat'] ?>"/>
-                            <path class="trait" d="<?= $traceEau['trait'] ?>"/>
-                        </svg>
-                    </div>
-                    <div class="mois">
-                        <?php foreach ($consommation as $ligne) { ?>
-                            <span><?= $moisCourts[(int)substr($ligne['mois'], 5, 2)] ?></span>
-                        <?php } ?>
-                    </div>
-                </div>
+                <?= graphiqueConsommation($consommation, '15rem') ?>
             <?php } else { ?>
                 <p class="vide">Les courbes apparaîtront après deux mois de relevés validés.</p>
             <?php } ?>

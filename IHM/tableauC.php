@@ -53,18 +53,11 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                 $dernier = end($mois);
                 $elec = array_column($mois, 'electricite');
                 $eau = array_column($mois, 'eau'); ?>
-                <p class="legende">Dernier mois · relevé du <?= $e(date('d/m/Y', strtotime($dernier['date']))) ?></p>
-                <div class="pile" style="margin-top: 1.25rem; gap: 1rem">
-                    <div class="tendance grande elec">
-                        <?= miniCourbe($elec, true) ?>
-                        <span class="tendance-valeur"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> <?= nombreFr($dernier['electricite']) ?> kWh <?= variationConsommation($elec) ?></span>
-                    </div>
-                    <div class="tendance grande eau">
-                        <?= miniCourbe($eau, false) ?>
-                        <span class="tendance-valeur"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> <?= nombreFr($dernier['eau'], 1) ?> m³ <?= variationConsommation($eau) ?></span>
-                    </div>
+                <p class="legende">Dernier relevé du <?= $e(date('d/m/Y', strtotime($dernier['date']))) ?> : <strong><?= nombreFr($dernier['electricite']) ?> kWh</strong> <?= variationConsommation($elec) ?> · <strong><?= nombreFr($dernier['eau'], 1) ?> m³</strong> <?= variationConsommation($eau) ?></p>
+                <div class="graphe-remplir" style="margin-top: 0.75rem; flex: 1; display: flex; flex-direction: column">
+                    <?php $points = array(); foreach ($mois as $cle => $valeurs) $points[] = array('mois' => $cle, 'electricite' => $valeurs['electricite'], 'eau' => $valeurs['eau']); ?>
+                    <?= graphiqueConsommation($points, '7rem') ?>
                 </div>
-                <p class="note" style="margin-top: auto; padding-top: 1rem">Sur les <?= count($mois) ?> derniers mois relevés. La variation compare au mois précédent.</p>
             <?php } else { ?>
                 <p class="vide">Vos courbes apparaîtront après deux relevés facturés.</p>
             <?php } ?>

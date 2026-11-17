@@ -292,3 +292,77 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
         if (!document.hidden && formulaire.hidden) charger();
     }, RAFRAICHIR_MS);
 })();
+
+// ---------- Graphique de consommation : survol ----------
+// Un trait vertical suit le pointeur et se cale sur le mois le plus proche ;
+// l'infobulle donne les vraies valeurs (kWh et m³) des deux services pour ce mois.
+// Au clavier : les flèches gauche / droite font la même chose.
+document.querySelectorAll(".graphe").forEach((graphe) => {
+    const mois = JSON.parse(graphe.dataset.graphe);
+    const zone = graphe.querySelector(".graphe-zone");
+    const guide = zone.querySelector(".graphe-guide");
+    const pointElec = zone.querySelector(".graphe-point.elec");
+    const pointEau = zone.querySelector(".graphe-point.eau");
+    const bulle = zone.querySelector(".graphe-bulle");
+    let actif = -1;
+
+    // une ligne de l'infobulle : trait de couleur, valeur en gras, nom du service
+    function ligne(classe, valeur, nom) {
+        const div = document.createElement("div");
+        div.className = "bulle-ligne";
+        const cle = document.createElement("span");
+        cle.className = "cle " + classe;
+        const fort = document.createElement("strong");
+        fort.textContent = valeur;
+        const libelle = document.createElement("span");
+        libelle.textContent = nom;
+        div.append(cle, fort, libelle);
+        return div;
+    }
+
+    function montrer(i) {
+        actif = i;
+        const m = mois[i];
+        guide.style.left = m.x + "%";
+        pointElec.style.left = m.x + "%";
+        pointElec.style.top = m.elec + "%";
+        pointEau.style.left = m.x + "%";
+        pointEau.style.top = m.eau + "%";
+
+        const titre = document.createElement("div");
+        titre.className = "bulle-titre";
+        titre.textContent = m.mois;
+        bulle.replaceChildren(titre, ligne("elec", m.kwh, "Électricité"), ligne("eau", m.m3, "Eau"));
+
+        // l'infobulle se place du côté où il reste de la place
+        const aDroite = m.x < 60;
+        bulle.style.left = aDroite ? "calc(" + m.x + "% + 0.75rem)" : "auto";
+        bulle.style.right = aDroite ? "auto" : "calc(" + (100 - m.x) + "% + 0.75rem)";
+
+        guide.hidden = pointElec.hidden = pointEau.hidden = bulle.hidden = false;
+    }
+
+    function cacher() {
+        actif = -1;
+        guide.hidden = pointElec.hidden = pointEau.hidden = bulle.hidden = true;
+    }
+
+    // le mois le plus proche de la position du pointeur
+    function plusProche(clientX) {
+        const cadre = zone.getBoundingClientRect();
+        const x = (clientX - cadre.left) / cadre.width * 100;
+        let meilleur = 0;
+        mois.forEach((m, i) => { if (Math.abs(m.x - x) < Math.abs(mois[meilleur].x - x)) meilleur = i; });
+        return meilleur;
+    }
+
+    zone.addEventListener("pointermove", (evenement) => montrer(plusProche(evenement.clientX)));
+    zone.addEventListener("pointerleave", cacher);
+    zone.addEventListener("focus", () => montrer(actif >= 0 ? actif : mois.length - 1));
+    zone.addEventListener("blur", cacher);
+    zone.addEventListener("keydown", (evenement) => {
+        if (evenement.key === "ArrowLeft") { montrer(Math.max(0, actif - 1)); evenement.preventDefault(); }
+        if (evenement.key === "ArrowRight") { montrer(Math.min(mois.length - 1, actif + 1)); evenement.preventDefault(); }
+        if (evenement.key === "Escape") zone.blur();
+    });
+});

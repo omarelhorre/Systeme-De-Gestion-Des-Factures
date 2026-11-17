@@ -44,6 +44,118 @@ if (!function_exists('miniCourbe')) {
         return number_format((float)$valeur, $decimales, ',', "\u{00A0}");
     }
 
+    // Graphique de consommation : électricité et eau sur UN seul tracé.
+    // Les deux unités (kWh, m³) ne se comparent pas : chaque série est ramenée à un indice
+    // (100 = sa propre moyenne sur la période), ce qui permet un seul axe. L'infobulle donne les vraies valeurs.
+    // $points : [['mois' => 'AAAA-MM', 'electricite' => kWh, 'eau' => m³], ...] dans l'ordre chronologique.
+    // $hauteur : hauteur de la zone de tracé (ex. '12rem').
+    function graphiqueConsommation(array $points, $hauteur = '12rem')
+    {
+        $points = array_values($points);
+        $n = count($points);
+        if ($n < 2) return '';
+        $moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
+        $moisCourts = array('', 'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.');
+        $e = function ($t) { return htmlspecialchars((string)$t, ENT_QUOTES, 'UTF-8'); };
+
+        // Indice de chaque mois par rapport à la moyenne de la série
+        $indices = array();
+        foreach (array('electricite', 'eau') as $serie) {
+            $valeurs = array_map('floatval', array_column($points, $serie));
+            $moyenne = array_sum($valeurs) / $n;
+            $indices[$serie] = array_map(function ($v) use ($moyenne) { return $moyenne > 0 ? $v / $moyenne * 100 : 100; }, $valeurs);
+        }
+
+        // Axe : de part et d'autre de 100, par pas réguliers
+        $tous = array_merge($indices['electricite'], $indices['eau']);
+        $etendue = max(max($tous) - min($tous), 1);
+        $pas = $etendue <= 40 ? 10 : ($etendue <= 120 ? 25 : 50);
+        $bas = floor(min(min($tous), 100) / $pas) * $pas;
+        $haut = ceil(max(max($tous), 100) / $pas) * $pas;
+        if ($haut == $bas) $haut = $bas + $pas;
+        $y = function ($indice) use ($bas, $haut) { return round(100 - ($indice - $bas) / ($haut - $bas) * 100, 2); };
+        $x = function ($i) use ($n) { return round($i * 100 / ($n - 1), 2); };
+
+        // Courbe douce à travers les points (coordonnées en % de la zone)
+        $trace = function (array $serie) use ($x, $y, $n) {
+            $d = 'M'.$x(0).' '.$y($serie[0]);
+            for ($i = 1; $i < $n; $i++) {
+                $milieu = round(($x($i - 1) + $x($i)) / 2, 2);
+                $d .= ' C'.$milieu.' '.$y($serie[$i - 1]).' '.$milieu.' '.$y($serie[$i]).' '.$x($i).' '.$y($serie[$i]);
+            }
+            return $d;
+        };
+
+        // Étiquettes au bout des courbes : écartées si les deux courbes finissent trop près l'une de l'autre
+        $finElec = $y(end($indices['electricite']));
+        $finEau = $y(end($indices['eau']));
+        $ecartMin = 16;   // en % de la hauteur
+        if (abs($finElec - $finEau) < $ecartMin) {
+            $milieu = ($finElec + $finEau) / 2;
+            $elecAuDessus = $finElec <= $finEau;
+            $finElec = round($milieu + ($elecAuDessus ? -1 : 1) * $ecartMin / 2, 2);
+            $finEau = round($milieu + ($elecAuDessus ? 1 : -1) * $ecartMin / 2, 2);
+        }
+
+        // Données lues par app.js pour l'infobulle
+        $donnees = array();
+        foreach ($points as $i => $p) {
+            list($annee, $m) = explode('-', $p['mois']);
+            $donnees[] = array(
+                'mois' => $moisLongs[(int)$m].' '.$annee,
+                'x' => $x($i),
+                'elec' => $y($indices['electricite'][$i]), 'eau' => $y($indices['eau'][$i]),
+                'kwh' => nombreFr($p['electricite']).' kWh', 'm3' => nombreFr($p['eau'], 1).' m³',
+            );
+        }
+
+        ob_start(); ?>
+        <figure class="graphe" data-graphe="<?= $e(json_encode($donnees)) ?>" style="--hauteur-graphe: <?= $e($hauteur) ?>">
+            <figcaption class="graphe-legende">
+                <span><span class="cle elec"></span>Électricité</span>
+                <span><span class="cle eau"></span>Eau</span>
+                <span class="note">Indice 100 = moyenne de chaque service sur la période</span>
+            </figcaption>
+            <div class="graphe-corps">
+                <div class="graphe-axe" aria-hidden="true">
+                    <?php for ($t = $bas; $t <= $haut; $t += $pas) { ?>
+                        <span style="top: <?= $y($t) ?>%"><?= (int)$t ?></span>
+                    <?php } ?>
+                </div>
+                <div class="graphe-zone" tabindex="0" aria-label="Consommation mois par mois : survolez ou utilisez les flèches pour lire les valeurs">
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                        <?php for ($t = $bas; $t <= $haut; $t += $pas) { ?>
+                            <line class="<?= $t == 100 ? 'reference' : '' ?>" x1="0" x2="100" y1="<?= $y($t) ?>" y2="<?= $y($t) ?>"/>
+                        <?php } ?>
+                        <path class="trait-elec" d="<?= $trace($indices['electricite']) ?>"/>
+                        <path class="trait-eau" d="<?= $trace($indices['eau']) ?>"/>
+                    </svg>
+                    <!-- étiquettes directes au bout de chaque courbe -->
+                    <span class="graphe-etiquette elec" style="top: <?= $finElec ?>%">Électricité</span>
+                    <span class="graphe-etiquette eau" style="top: <?= $finEau ?>%">Eau</span>
+                    <span class="graphe-guide" hidden></span>
+                    <span class="graphe-point elec" hidden></span>
+                    <span class="graphe-point eau" hidden></span>
+                    <div class="graphe-bulle" role="status" hidden></div>
+                </div>
+            </div>
+            <div class="graphe-mois" aria-hidden="true">
+                <?php foreach ($points as $i => $p) { ?>
+                    <span style="left: <?= $x($i) ?>%"><?= $moisCourts[(int)substr($p['mois'], 5, 2)] ?></span>
+                <?php } ?>
+            </div>
+            <!-- les mêmes valeurs en tableau, pour les lecteurs d'écran -->
+            <table class="sr-only">
+                <caption>Consommation par mois</caption>
+                <tr><th>Mois</th><th>Électricité</th><th>Eau</th></tr>
+                <?php foreach ($donnees as $d) { ?>
+                    <tr><td><?= $e($d['mois']) ?></td><td><?= $e($d['kwh']) ?></td><td><?= $e($d['m3']) ?></td></tr>
+                <?php } ?>
+            </table>
+        </figure>
+        <?php return ob_get_clean();
+    }
+
     // Nombre de jours entiers entre une date (AAAA-MM-JJ) et aujourd'hui
     function joursDepuis($date)
     {

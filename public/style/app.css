@@ -1025,3 +1025,131 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 /* mini-courbes plus grandes (tableau de bord du client) */
 .tendance.grande svg { width: 10rem; height: 2.5rem; }
 .tendance.grande .tendance-valeur { font-size: 1rem; }
+
+/* =========================================================
+   Graphique de consommation : un seul tracé, indice 100 = moyenne
+   ========================================================= */
+.graphe { display: flex; flex-direction: column; gap: 0.75rem; margin: 0; }
+
+.graphe-legende {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem 1rem;
+    color: var(--attenue);
+    font-size: 0.8125rem;
+}
+.graphe-legende > span { display: inline-flex; align-items: center; gap: 0.375rem; }
+.graphe-legende .note { margin-left: auto; font-size: 0.75rem; }
+
+/* clé de légende : un trait, comme la marque */
+.cle { display: inline-block; width: 1rem; height: 2px; border-radius: 1px; }
+.cle.elec { background: var(--courbe-elec); }
+.cle.eau { background: var(--courbe-eau); }
+
+.graphe-corps { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.5rem; }
+
+.graphe-axe { position: relative; height: var(--hauteur-graphe); }
+.graphe-axe span {
+    position: absolute;
+    right: 0;
+    transform: translateY(-50%);
+    color: var(--gris);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.graphe-zone {
+    position: relative;
+    height: var(--hauteur-graphe);
+    margin-right: 4.5rem;          /* place pour les étiquettes au bout des courbes */
+    cursor: crosshair;
+    outline: none;
+}
+.graphe-zone:focus-visible { box-shadow: 0 0 0 2px var(--vert); border-radius: 0.25rem; }
+
+.graphe-zone svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.graphe-zone line { stroke: var(--trait); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.graphe-zone line.reference { stroke: var(--bordure); stroke-dasharray: 4 4; }
+.graphe-zone path { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.graphe-zone .trait-elec { stroke: var(--courbe-elec); }
+.graphe-zone .trait-eau { stroke: var(--courbe-eau); }
+
+.graphe-etiquette {
+    position: absolute;
+    left: calc(100% + 0.5rem);
+    transform: translateY(-50%);
+    color: var(--attenue);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* survol : trait vertical, points sur les deux courbes, infobulle */
+.graphe-guide {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--bordure);
+    pointer-events: none;
+}
+.graphe-point {
+    position: absolute;
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 2px solid var(--cadre);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+.graphe-point.elec { background: var(--courbe-elec); }
+.graphe-point.eau { background: var(--courbe-eau); }
+
+.graphe-bulle {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    min-width: 9rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--bordure);
+    border-radius: 1rem;
+    background: var(--cadre);
+    pointer-events: none;
+}
+.graphe-bulle .bulle-titre { color: var(--attenue); font-size: 0.75rem; margin-bottom: 0.25rem; }
+.graphe-bulle .bulle-ligne { display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; }
+.graphe-bulle .bulle-ligne strong { font-variant-numeric: tabular-nums; }
+.graphe-bulle .bulle-ligne span:last-child { color: var(--attenue); font-size: 0.75rem; }
+
+.graphe-mois { position: relative; height: 1rem; margin: 0 4.5rem 0 2.5rem; }
+.graphe-mois span {
+    position: absolute;
+    transform: translateX(-50%);
+    color: var(--gris);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* texte réservé aux lecteurs d'écran */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .graphe-legende .note { margin-left: 0; }
+    .graphe-zone { margin-right: 0; }
+    .graphe-mois { margin-right: 0; }
+    .graphe-etiquette { display: none; }
+}
+
+/* dans une carte, le graphique occupe toute la hauteur restante */
+.carte > .graphe, .carte .graphe-remplir > .graphe { flex: 1; }
+.graphe .graphe-corps { flex: 1; min-height: var(--hauteur-graphe); }
+.graphe .graphe-axe, .graphe .graphe-zone { height: auto; min-height: var(--hauteur-graphe); }
+/* le tracé suit la taille de sa zone (sinon le SVG prend une forme carrée) */
+.graphe-zone svg { position: absolute; inset: 0; }
