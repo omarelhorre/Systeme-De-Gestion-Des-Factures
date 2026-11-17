@@ -108,7 +108,8 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
                                 <tr>
                                     <td><div class="tronque fort"><?= $e($compteur['adresse']) ?></div><small>Compteur N° <?= (int)$compteur['id'] ?></small></td>
                                     <td class="secondaire"><span class="tag"><?= $e($compteur['categorie']) ?></span></td>
-                                    <td><span class="etat <?= $compteur['contrat'] === 'actif' ? 'ok' : '' ?>"><?= $compteur['contrat'] === null ? 'Sans contrat' : ($compteur['contrat'] === 'actif' ? 'Actif' : 'Résilié') ?></span></td>
+                                    <?php $etatContrat = $compteur['contrat'] === null ? array('Sans contrat', '') : ($compteur['contrat'] === 'actif' ? array('Actif', 'ok') : ($compteur['contrat'] === 'en résiliation' ? array('En résiliation', 'attente') : array('Résilié', ''))); ?>
+                                    <td><span class="etat <?= $etatContrat[1] ?>"><?= $etatContrat[0] ?></span></td>
                                     <td class="secondaire nombre"><?= $jour($compteur['dateSaisie']) ?></td>
                                     <td class="fin nombre cache-mobile"><?= $compteur['indexEau'] === null ? '—' : nombreFr($compteur['indexEau'], 1).' m³' ?></td>
                                     <td class="fin nombre cache-mobile"><?= $compteur['indexElectricite'] === null ? '—' : nombreFr($compteur['indexElectricite']).' kWh' ?></td>

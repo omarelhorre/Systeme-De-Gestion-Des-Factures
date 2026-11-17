@@ -219,8 +219,11 @@
         }
     }
 
-    // Résilier des contrats d'un client. $id est l'identifiant du CLIENT :
-    // GET affiche la liste de ses contrats actifs, POST résilie ceux qui sont cochés.
+    // Résilier des contrats d'un client. $id est l'identifiant du CLIENT.
+    // GET : la liste de ses contrats actifs (à résilier) et de ceux déjà "en résiliation" (en attente du relevé final).
+    // POST action=resilier : les contrats cochés passent "en résiliation" ; le client doit déclarer son relevé final,
+    //                        qui crée sa facture finale puis ferme le contrat (voir declarationConsommation.php).
+    // POST action=cloturer : ferme tout de suite un contrat en résiliation (si le client ne déclare pas).
     function resilier($id)
     {
         if (!ctype_digit((string)$id)) {
@@ -233,26 +236,37 @@
         if (empty($_SESSION['csrf_resiliation'])) {
             $_SESSION['csrf_resiliation'] = bin2hex(random_bytes(32));
         }
-        // Seuls les contrats encore actifs peuvent être résiliés
-        $contratsActifs = array_values(array_filter(contratsDuConsommateur($id), function ($c) { return $c['statut'] === 'actif'; }));
+        $contrats = contratsDuConsommateur($id);
+        $contratsActifs = array_values(array_filter($contrats, function ($c) { return $c['statut'] === 'actif'; }));
+        $contratsEnResiliation = array_values(array_filter($contrats, function ($c) { return $c['statut'] === CONTRAT_EN_RESILIATION; }));
         $erreur = '';
         if($_SERVER["REQUEST_METHOD"] =="POST")
             {
+                $action = (string)($_POST['action'] ?? 'resilier');
                 $choisis = is_array($_POST['contrats'] ?? null) ? array_map('intval', $_POST['contrats']) : [];
-                $permis = array_map('intval', array_column($contratsActifs, 'id'));
+                $permis = array_map('intval', array_column($action === 'cloturer' ? $contratsEnResiliation : $contratsActifs, 'id'));
                 if (!hash_equals($_SESSION['csrf_resiliation'], (string)($_POST['csrf'] ?? ''))) {
                     $erreur = 'Session expirée : rechargez la page.';
                 } else if (!$choisis) {
-                    $erreur = 'Cochez au moins un contrat à résilier.';
+                    $erreur = 'Cochez au moins un contrat.';
                 } else if (array_diff($choisis, $permis)) {
-                    // un identifiant qui n'est pas un contrat actif de ce client
+                    // un identifiant qui n'est pas un contrat (dans le bon état) de ce client
                     $erreur = 'Sélection invalide : rechargez la page.';
                 } else {
+                    $parId = array_column($contrats, null, 'id');
                     foreach ($choisis as $idContrat) {
-                        resilier_BDD($idContrat);
+                        $contrat = $parId[$idContrat];
+                        $idAdresse = (int)$contrat['idAdresseCompteur'];
+                        if ($action === 'cloturer') {
+                            // fermeture sans relevé final : la demande faite au client est close
+                            resilier_BDD($idContrat);
+                            resoudreNotification((int)$id, 'contrat_fin', $idAdresse);
+                            notifier((int)$id, 'contrat_resilie', 'Contrat résilié', 'Votre contrat pour '.$contrat['adresse'].' est terminé.', 'consommateur/tableauDeBord', array('idObjet' => $idAdresse, 'email' => true));
+                        } else if (demarrerResiliation($idContrat)) {
+                            notifier((int)$id, 'contrat_fin', 'Déclarez votre relevé final', 'Votre contrat pour '.$contrat['adresse'].' est en cours de résiliation. Votre dernier relevé permet d\'établir la facture finale.', 'declaration/all/'.$idAdresse, array('aTraiter' => true, 'idObjet' => $idAdresse, 'email' => true));
+                        }
                     }
                     unset($_SESSION['csrf_resiliation']);
-                    notifier((int)$id, 'contrat_resilie', count($choisis) > 1 ? count($choisis).' contrats résiliés' : 'Contrat résilié', 'Votre fournisseur a mis fin à '.(count($choisis) > 1 ? 'ces contrats' : 'ce contrat').'.', 'consommateur/tableauDeBord');
                     header("Location:".link."consommateur/modifier/".$id);
                     exit;
                 }

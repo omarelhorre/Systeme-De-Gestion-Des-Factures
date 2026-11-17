@@ -17,7 +17,7 @@
     {
         $compteurs = compteLignes(
             "SELECT a.id, a.adresse, a.categorie,
-                    (SELECT k.statut FROM contrat k WHERE k.idAdresseCompteur=a.id ORDER BY k.statut='actif' DESC, k.id DESC LIMIT 1) AS contrat,
+                    (SELECT k.statut FROM contrat k WHERE k.idAdresseCompteur=a.id ORDER BY k.statut='actif' DESC, k.statut='en résiliation' DESC, k.id DESC LIMIT 1) AS contrat,
                     d.dateSaisie, d.indexEau, d.indexElectricite
              FROM adresseCompteur a
              LEFT JOIN declaration d ON d.id = (SELECT d2.id FROM declaration d2 WHERE d2.idAdresseCompteur=a.id

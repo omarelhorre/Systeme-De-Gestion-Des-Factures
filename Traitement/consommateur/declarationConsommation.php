@@ -76,13 +76,17 @@ function traiterConsommation($action, $id = null)
         }
         if (!$adresseChoisie) { http_response_code(403); echo 'Adresse non autorisée.'; return; }
         $client['adresse'] = $adresseChoisie['adresse'];
+        // Contrat de ce compteur : "en résiliation" = relevé final attendu (possible tout de suite),
+        // "resilié" = plus aucune déclaration sur ce compteur.
+        $statutContrat = statutContratAdresse($idAdresseCompteur);
         $date = dateConsommation();
         $message = '';
         $erreur = '';
         if ($action === 'ajouter' && $method === 'POST') {
             try {
                 if (empty($_SESSION['csrf_consommation']) || !isset($_POST['csrf']) || !is_string($_POST['csrf']) || !hash_equals($_SESSION['csrf_consommation'], $_POST['csrf'])) throw new InvalidArgumentException('Session expirée : rechargez la page.');
-                if (!declarationOuverte($date)) throw new InvalidArgumentException('Les déclarations ouvrent le 18 de chaque mois.');
+                if ($statutContrat === 'resilié') throw new InvalidArgumentException('Le contrat de ce compteur est résilié : il ne reçoit plus de déclaration.');
+                if (!declarationOuverte($date) && $statutContrat !== CONTRAT_EN_RESILIATION) throw new InvalidArgumentException('Les déclarations ouvrent le 18 de chaque mois.');
                 $eau = lireIndex($_POST['indexEau'] ?? null);
                 $electricite = lireIndex($_POST['indexElectricite'] ?? null);
                 photoValide($_FILES['photoEau'] ?? array());
@@ -115,6 +119,14 @@ function traiterConsommation($action, $id = null)
                     // Notifications : facture disponible, ou anomalie signalée au client et à son fournisseur.
                     if ($calcul['statut'] === 'Validée') {
                         notifier($idClient, 'facture', 'Votre facture n° '.$idFacture.' est disponible', 'Montant : '.number_format((float)$calcul['ttc'], 2, ',', ' ').' DH TTC.', 'declaration/all/'.$idAdresseCompteur, array('idObjet' => $idFacture, 'email' => true));
+                        // Relevé final d'un contrat en résiliation : la facture finale existe, le contrat se ferme.
+                        if ($statutContrat === CONTRAT_EN_RESILIATION && cloturerContratAdresse($idAdresseCompteur)) {
+                            resoudreNotification($idClient, 'contrat_fin', $idAdresseCompteur);
+                            notifier($idClient, 'contrat_resilie', 'Contrat résilié', 'Votre contrat pour '.$client['adresse'].' est terminé. Facture finale : n° '.$idFacture.'.', 'declaration/all/'.$idAdresseCompteur, array('idObjet' => $idAdresseCompteur, 'email' => true));
+                            notifier((int)$client['idFournisseur'], 'contrat_resilie', 'Contrat résilié : '.$client['prenom'].' '.$client['nom'], 'Relevé final reçu, facture finale n° '.$idFacture.'. Le compteur peut être attribué à un autre client.', 'consommateur/modifier/'.$idClient, array('idObjet' => $idAdresseCompteur));
+                            $_SESSION['message_consommation'] = 'Relevé final enregistré : votre facture finale est créée et le contrat est résilié.';
+                            header('Location: '.link.'declaration/all/'.$idAdresseCompteur, true, 303); exit;
+                        }
                     } elseif ($calcul['statut'] === 'Anomalie') {
                         notifier($idClient, 'anomalie', 'Votre relevé présente une anomalie', 'Votre fournisseur va le vérifier. Aucune facture n\'est créée pour le moment.', 'declaration/all/'.$idAdresseCompteur, array('idObjet' => $idDeclaration, 'email' => true));
                         notifier((int)$client['idFournisseur'], 'anomalie_a_corriger', 'Relevé anormal à corriger', $client['prenom'].' '.$client['nom'].', déclaration n° '.$idDeclaration.'.', 'declaration/corriger/'.$idDeclaration, array('aTraiter' => true, 'idObjet' => $idDeclaration));

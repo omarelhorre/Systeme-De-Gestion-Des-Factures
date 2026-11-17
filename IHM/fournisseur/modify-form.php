@@ -7,11 +7,13 @@ $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UT
 // Un contrat par adresse de compteur : on range les contrats par adresse pour les afficher à côté.
 $contratParAdresse = array();
 $nbActifs = 0;
+$nbEnResiliation = 0;
 foreach ($contrats as $ligneContrat) {
     if ($ligneContrat['statut'] === 'actif') $nbActifs++;
+    if ($ligneContrat['statut'] === CONTRAT_EN_RESILIATION) $nbEnResiliation++;
     // si une adresse a plusieurs contrats, on garde l'actif, sinon le plus récent
     $cle = (int)$ligneContrat['idAdresseCompteur'];
-    if (!isset($contratParAdresse[$cle]) || $ligneContrat['statut'] === 'actif') $contratParAdresse[$cle] = $ligneContrat;
+    if (!isset($contratParAdresse[$cle]) || in_array($ligneContrat['statut'], array('actif', CONTRAT_EN_RESILIATION), true)) $contratParAdresse[$cle] = $ligneContrat;
 }
 ?>
 <!DOCTYPE html>
@@ -55,7 +57,7 @@ foreach ($contrats as $ligneContrat) {
                     <input type="tel" name="telephone" placeholder="0612345678" maxlength="16" pattern="(\+212|0)[5-7][0-9 ]{8,12}" value="<?= $e($result["telephone"] ?? '') ?>">
                 </label>
                 <div class="entier actions fin">
-                    <?php if ($nbActifs > 0): ?>
+                    <?php if ($nbActifs + $nbEnResiliation > 0): ?>
                         <a class="bouton danger" href="<?= link ?>contrat/resilier/<?= (int)$result["id"] ?>"><i class="fa-solid fa-xmark"></i> Résilier <?= $nbActifs > 1 ? 'des contrats' : 'le contrat' ?></a>
                     <?php endif; ?>
                     <button class="bouton accent" type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
@@ -76,7 +78,8 @@ foreach ($contrats as $ligneContrat) {
                         <?php if ($contratAdresse === null) { ?>
                             <span class="pill">Sans contrat</span>
                         <?php } else { ?>
-                            <span class="pill <?= $contratAdresse['statut'] === 'actif' ? 'ok' : '' ?>">Contrat N° <?= (int)$contratAdresse['id'] ?> <?= $e($contratAdresse['statut']) ?></span>
+                            <?php $classeContrat = $contratAdresse['statut'] === 'actif' ? 'ok' : ($contratAdresse['statut'] === CONTRAT_EN_RESILIATION ? 'attente' : ''); ?>
+                            <span class="etat <?= $classeContrat ?>">Contrat N° <?= (int)$contratAdresse['id'] ?> <?= $e($contratAdresse['statut'] === CONTRAT_EN_RESILIATION ? 'en résiliation (relevé final attendu)' : $contratAdresse['statut']) ?></span>
                         <?php } ?>
                     </li>
                 <?php endforeach; ?>

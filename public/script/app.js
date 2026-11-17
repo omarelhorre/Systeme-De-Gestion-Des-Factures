@@ -121,6 +121,7 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
         reclamation_reponse: { icone: "fa-comment-dots",         action: "Voir la réponse" },
         annuel:              { icone: "fa-calendar-check",       action: "Ouvrir le bilan" },
         contrat_resilie:     { icone: "fa-file-circle-xmark",    action: "Ouvrir" },
+        contrat_fin:         { icone: "fa-file-signature",       action: "Déclarer mon relevé final" },
     };
 
     // Petits outils pour créer des éléments sans jamais insérer de HTML venant des données

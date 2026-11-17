@@ -2,7 +2,10 @@
 require_once ROOT.'IHM/commun/outils.php';
 function h($valeur) { return htmlspecialchars((string)$valeur, ENT_QUOTES, 'UTF-8'); }
 $url = link . 'declaration/';
-$ouvert = declarationOuverte($date);
+// Un contrat en résiliation attend le relevé final : la saisie est ouverte tout de suite, quel que soit le jour.
+$enResiliation = ($statutContrat ?? null) === CONTRAT_EN_RESILIATION;
+$contratResilie = ($statutContrat ?? null) === 'resilié';
+$ouvert = declarationOuverte($date) || $enResiliation;
 $dejaFait = false;
 foreach ($declarations as $ligne) if ((int)$ligne['idAdresseCompteur'] === $idAdresseCompteur && substr($ligne['dateSaisie'], 0, 7) === $date->format('Y-m')) $dejaFait = true;
 
@@ -66,7 +69,13 @@ $pillReleve = function ($statut) {
                 <p class="legende">Votre premier relevé servira de référence. Il ne donnera pas lieu à une facture.</p>
             <?php endif; ?>
 
-            <?php if (!$ouvert): ?>
+            <?php if ($enResiliation): ?>
+                <p class="erreur-bloc" style="margin: 1rem 0 0; color: var(--texte)"><i class="fa-solid fa-file-signature" style="color: var(--attente)"></i><span>Votre contrat pour ce compteur est en cours de résiliation. Déclarez votre <strong>relevé final</strong> : votre facture finale sera créée et le contrat se fermera.</span></p>
+            <?php endif; ?>
+
+            <?php if ($contratResilie): ?>
+                <p class="bloc" style="margin-top: 1rem">Le contrat de ce compteur est résilié : il ne reçoit plus de déclaration. Vos anciens relevés et factures restent disponibles ci-dessous.</p>
+            <?php elseif (!$ouvert): ?>
                 <p class="bloc" style="margin-top: 1rem">La déclaration est ouverte du 18 au dernier jour de chaque mois. Vous pouvez consulter vos anciens relevés et factures ci-dessous.</p>
             <?php elseif ($dejaFait): ?>
                 <p class="bloc" style="margin-top: 1rem">Vous avez déjà envoyé votre déclaration ce mois-ci.</p>
