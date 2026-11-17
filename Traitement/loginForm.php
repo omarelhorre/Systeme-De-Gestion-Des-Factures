@@ -61,6 +61,11 @@ function authentification()
 
     function redirectToIndexC()
     {
+        // Dernières factures et réclamations du client connecté (lecture seule) avant d'afficher la page.
+        require_once ROOT."BD/tableauConsommateur.php";
+        $tableau = tableauConsommateur(connexion(), (int)($_SESSION["user"]["id"] ?? 0));
+        // Sa consommation des derniers mois (même calcul que la liste des clients du fournisseur)
+        $tableau['consommation'] = consommationRecenteClients()[(int)($_SESSION["user"]["id"] ?? 0)] ?? array();
         include_once(ROOT."/IHM/tableauC.php");
     }
 

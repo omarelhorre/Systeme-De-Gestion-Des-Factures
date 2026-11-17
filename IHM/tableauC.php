@@ -1,5 +1,9 @@
 <?php
-// Tableau de bord du consommateur : trois raccourcis vers ses pages.
+// Tableau de bord du consommateur : la déclaration du mois, ses dernières factures et réclamations.
+// $tableau est préparé par redirectToIndexC() (voir BD/tableauConsommateur.php).
+require_once ROOT.'IHM/commun/outils.php';
+$e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
+$impayes = $tableau['impayes'];
 $coqueTitre = 'Tableau de bord';
 $coqueActif = 'tableau';
 $moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
@@ -32,6 +36,26 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                     La déclaration ouvre du <strong>18 au <?= date('t').' '.$moisLongs[(int)date('n')] ?></strong>.
                 <?php } ?>
             </p>
+
+            <!-- Sa consommation récente : de quoi comparer avant sa prochaine déclaration -->
+            <?php $mois = $tableau['consommation']; if ($mois) {
+                $dernier = end($mois);
+                $elec = array_column($mois, 'electricite');
+                $eau = array_column($mois, 'eau'); ?>
+                <div class="pile" style="margin-top: 1.75rem; gap: 1rem">
+                    <p class="libelle">Consommation du dernier mois · relevé du <?= $e(date('d/m/Y', strtotime($dernier['date']))) ?></p>
+                    <div class="tendance grande elec">
+                        <?= miniCourbe($elec, true) ?>
+                        <span class="tendance-valeur"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> <?= nombreFr($dernier['electricite']) ?> kWh <?= variationConsommation($elec) ?></span>
+                    </div>
+                    <div class="tendance grande eau">
+                        <?= miniCourbe($eau, false) ?>
+                        <span class="tendance-valeur"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> <?= nombreFr($dernier['eau'], 1) ?> m³ <?= variationConsommation($eau) ?></span>
+                    </div>
+                    <p class="note">Sur les <?= count($mois) ?> derniers mois relevés. La variation compare au mois précédent.</p>
+                </div>
+            <?php } ?>
+
             <div class="carte-pied">
                 <p class="legende">
                     <i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Index d'eau &nbsp;
@@ -41,20 +65,57 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
             </div>
         </section>
 
+        <!-- Ses dernières factures, avec le PDF à portée de clic -->
         <section class="carte large">
             <div class="carte-entete">
-                <h2 class="titre-carte">Relevés et factures</h2>
-                <a class="bouton-rond" href="<?= link ?>declaration/all" aria-label="Voir mes relevés et factures"><i class="fa-solid fa-arrow-right"></i></a>
+                <div>
+                    <h2 class="titre-carte">Dernières factures</h2>
+                    <?php if ($impayes['nombre'] > 0) { ?>
+                        <p class="legende" style="margin-top: 0.125rem"><span class="etat alerte"><?= (int)$impayes['nombre'] ?> impayée<?= $impayes['nombre'] > 1 ? 's' : '' ?> · <?= nombreFr($impayes['montant'], 2) ?> DH</span></p>
+                    <?php } ?>
+                </div>
+                <a class="bouton contour petit" href="<?= link ?>declaration/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
-            <p class="legende">Retrouvez l'historique de vos index, les photos de vos compteurs et vos factures en PDF.</p>
+            <?php if ($tableau['factures']) { ?>
+                <ul class="lignes">
+                    <?php foreach ($tableau['factures'] as $facture) { ?>
+                        <li class="ligne">
+                            <div class="ligne-texte">
+                                <p class="ligne-nom">Facture N° <?= (int)$facture['id'] ?></p>
+                                <p class="ligne-detail"><?= $e(date('d/m/Y', strtotime($facture['dateGeneration']))) ?> · <?= $e($facture['adresse']) ?></p>
+                            </div>
+                            <span class="ligne-montant"><?= nombreFr($facture['prixTTC'], 2) ?> DH</span>
+                            <span class="etat <?= $facture['etat'] === 'Payée' ? 'ok' : 'alerte' ?>"><?= $e($facture['etat']) ?></span>
+                            <a class="bouton-rond" href="<?= link ?>declaration/facture/<?= (int)$facture['idDeclaration'] ?>" title="Télécharger le PDF" aria-label="Télécharger la facture <?= (int)$facture['id'] ?>"><i class="fa-solid fa-download"></i></a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            <?php } else { ?>
+                <p class="vide">Aucune facture pour le moment.</p>
+            <?php } ?>
         </section>
 
+        <!-- Ses dernières réclamations et leur statut -->
         <section class="carte large">
             <div class="carte-entete">
-                <h2 class="titre-carte">Réclamations</h2>
-                <a class="bouton-rond" href="<?= link ?>reclamations.php" aria-label="Voir mes réclamations"><i class="fa-solid fa-arrow-right"></i></a>
+                <h2 class="titre-carte">Mes réclamations</h2>
+                <a class="bouton contour petit" href="<?= link ?>reclamations.php">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
-            <p class="legende">Signalez une fuite ou un problème de facture et suivez la réponse de votre fournisseur.</p>
+            <?php if ($tableau['reclamations']) { ?>
+                <ul class="lignes">
+                    <?php foreach ($tableau['reclamations'] as $reclamation) { ?>
+                        <li class="ligne">
+                            <div class="ligne-texte">
+                                <p class="ligne-nom"><?= $e($reclamation['description']) ?></p>
+                                <p class="ligne-detail">N° <?= (int)$reclamation['idReclamation'] ?> · <?= $e(date('d/m/Y', strtotime($reclamation['dateCreation']))) ?><?= trim((string)$reclamation['reponse']) !== '' ? ' · Réponse : '.$e($reclamation['reponse']) : '' ?></p>
+                            </div>
+                            <span class="etat <?= $reclamation['statut'] === 'Traitée' ? 'ok' : '' ?>"><?= $e($reclamation['statut']) ?></span>
+                        </li>
+                    <?php } ?>
+                </ul>
+            <?php } else { ?>
+                <p class="vide">Aucune réclamation. Signalez une fuite ou un problème de facture depuis la page Réclamations.</p>
+            <?php } ?>
         </section>
     </div>
 </main>

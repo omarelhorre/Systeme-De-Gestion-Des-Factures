@@ -132,7 +132,7 @@ if ($afficherCourbes) {
         <section class="carte large">
             <div class="carte-entete">
                 <h2 class="titre-carte">Réclamations ouvertes</h2>
-                <a class="bouton-rond" href="<?= link ?>reclamation/all" aria-label="Voir les réclamations"><i class="fa-solid fa-arrow-right"></i></a>
+                <a class="bouton contour petit" href="<?= link ?>reclamation/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <?php if ($tableau['reclamations']) { ?>
                 <ul class="lignes">
@@ -142,7 +142,7 @@ if ($afficherCourbes) {
                                 <p class="ligne-nom"><?= $e($reclamation['prenom'].' '.$reclamation['nom']) ?></p>
                                 <p class="ligne-detail"><?= $e($reclamation['description']) ?></p>
                             </div>
-                            <span class="pill"><?= $e($reclamation['statut']) ?></span>
+                            <span class="etat"><?= $e($reclamation['statut']) ?></span>
                         </li>
                     <?php } ?>
                 </ul>
@@ -154,6 +154,7 @@ if ($afficherCourbes) {
         <section class="carte large">
             <div class="carte-entete">
                 <h2 class="titre-carte">Dernières factures</h2>
+                <a class="bouton contour petit" href="<?= link ?>facture/all">Voir tout <i class="fa-solid fa-arrow-right"></i></a>
             </div>
             <?php if ($tableau['factures']) { ?>
                 <ul class="lignes">
@@ -164,7 +165,7 @@ if ($afficherCourbes) {
                                 <p class="ligne-detail">N° <?= (int)$facture['id'] ?> · <?= $e(date('d/m/Y', strtotime($facture['dateGeneration']))) ?></p>
                             </div>
                             <span class="ligne-montant"><?= $nombre($facture['prixTTC'], 2) ?> DH</span>
-                            <span class="pill <?= $facture['etat'] === 'Payée' ? 'ok' : '' ?>"><?= $e($facture['etat']) ?></span>
+                            <span class="etat <?= $facture['etat'] === 'Payée' ? 'ok' : 'alerte' ?>"><?= $e($facture['etat']) ?></span>
                         </li>
                     <?php } ?>
                 </ul>

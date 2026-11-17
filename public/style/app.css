@@ -1018,3 +1018,7 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 
 /* photos du relevé précédent (formulaire de déclaration) : vignettes de hauteur fixe */
 .photos-releve img { aspect-ratio: auto; height: 9rem; object-fit: contain; background: var(--page); }
+
+/* mini-courbes plus grandes (tableau de bord du client) */
+.tendance.grande svg { width: 10rem; height: 2.5rem; }
+.tendance.grande .tendance-valeur { font-size: 1rem; }
