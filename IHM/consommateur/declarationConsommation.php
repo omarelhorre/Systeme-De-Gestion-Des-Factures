@@ -51,7 +51,7 @@ $relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statut
                 : il clôt le contrat et crée la facture finale.</span></p>
     <?php endif; ?>
 
-    <section class="carte">
+    <section class="liste">
         <?php if (!$declarations): ?>
             <p class="vide">Aucun relevé pour le moment.</p>
         <?php else: ?>

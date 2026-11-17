@@ -34,7 +34,7 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
         <section class="carte"><h2 class="titre-carte">En cours</h2><p class="chiffre" style="margin-top: 0.75rem"><?= (int)$statistiques['encours'] ?></p></section>
         <section class="carte"><h2 class="titre-carte">Traitées</h2><p class="chiffre" style="margin-top: 0.75rem"><?= (int)$statistiques['traitee'] ?></p></section>
 
-        <section class="carte" style="grid-column: 1 / -1">
+        <section class="liste" style="grid-column: 1 / -1">
             <!-- Barre d'outils : le statut est un lien (reclamation/all/attente…) ;
                  la recherche (Entrée) et le type (dès qu'on le change) sont envoyés en POST sur la même adresse -->
             <?php $adresseStatut = link.'reclamation/all'.($filtreStatut !== '' ? '/'.$filtreStatut : ''); ?>

@@ -32,7 +32,7 @@ $jourFacture = function ($date) { return $date ? date('d/m/Y', strtotime($date))
         </nav>
     </header>
 
-    <section class="carte">
+    <section class="liste">
         <?php if ($data) { ?>
             <table class="tableau">
                 <thead>

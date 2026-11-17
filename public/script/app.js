@@ -74,7 +74,8 @@ document.querySelectorAll("table.tableau").forEach((table) => {
 // Sous la liste : "1 à 8 sur 23 résultats" à gauche ; à droite le nombre de lignes par page,
 // "Page 1 sur 3" et les flèches (première, précédente, suivante, dernière).
 document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
-    const lire = () => Array.from(liste.children).filter((ligne) => !ligne.classList.contains("vide"));
+    // lignes à paginer : sans la ligne "vide" ni celles écartées par la recherche
+    const lire = () => Array.from(liste.children).filter((ligne) => !ligne.classList.contains("vide") && !ligne.classList.contains("exclue"));
     let lignes = lire();
     if (lignes.length === 0) return;
 
@@ -127,12 +128,15 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
     function afficher() {
         if (page > nbPages()) page = nbPages();
         const debut = (page - 1) * parPage;
+        // les lignes écartées par la recherche restent cachées
+        liste.querySelectorAll(":scope > .exclue").forEach((ligne) => { ligne.hidden = true; ligne.classList.remove("derniere"); });
         lignes.forEach((ligne, i) => {
             ligne.hidden = i < debut || i >= debut + parPage;
             // la dernière ligne visible n'a pas de filet : le cadre du tableau ferme
             ligne.classList.toggle("derniere", i === Math.min(debut + parPage, lignes.length) - 1);
         });
-        resume.textContent = (debut + 1) + " à " + Math.min(debut + parPage, lignes.length) + " sur " + lignes.length + " résultat" + (lignes.length > 1 ? "s" : "");
+        resume.textContent = lignes.length === 0 ? "Aucun résultat"
+            : (debut + 1) + " à " + Math.min(debut + parPage, lignes.length) + " sur " + lignes.length + " résultat" + (lignes.length > 1 ? "s" : "");
         position.textContent = "Page " + page + " sur " + nbPages();
         position.hidden = pages.hidden = nbPages() <= 1;
         fleches[0].disabled = fleches[1].disabled = page <= 1;
@@ -145,12 +149,40 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
         try { localStorage.setItem(cle, parPage); } catch (e) {}
         afficher();
     });
-    // après un tri, l'ordre des lignes a changé
+    // après un tri (ordre changé) ou une recherche (lignes écartées) : on repart de la page 1
     liste.addEventListener("trie", () => { lignes = lire(); page = 1; afficher(); });
+    liste.addEventListener("filtre", () => { lignes = lire(); page = 1; afficher(); });
 
     // après le tableau entier si la liste est un <tbody>, sinon après la liste
     (liste.closest("table") || liste).after(zone);
     afficher();
+});
+
+// ---------- Recherche dans les listes ----------
+// Au-dessus de chaque tableau de liste (section .liste) : un champ "Rechercher" (loupe, sans libellé)
+// qui garde les lignes contenant tous les mots tapés, sans tenir compte des accents ni des majuscules.
+// Pas ajouté si la page a déjà sa propre barre de recherche (ex. réclamations du fournisseur).
+document.querySelectorAll(".liste > table.tableau").forEach((table) => {
+    const corps = table.tBodies[0];
+    if (!corps || !corps.hasAttribute("data-pagine") || table.parentElement.querySelector(".barre-outils")) return;
+    const simple = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+    const barre = document.createElement("div");
+    barre.className = "barre-outils";
+    barre.innerHTML = '<label class="outil"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>'
+        + '<input type="search" placeholder="Rechercher" aria-label="Rechercher dans le tableau"></label>';
+    table.before(barre);
+
+    barre.querySelector("input").addEventListener("input", (evenement) => {
+        const mots = simple(evenement.target.value).split(/\s+/).filter(Boolean);
+        Array.from(corps.rows).forEach((ligne) => {
+            const texte = simple(ligne.textContent);
+            const garde = mots.every((mot) => texte.includes(mot));
+            ligne.classList.toggle("exclue", !garde);
+            if (garde) ligne.hidden = false;
+        });
+        corps.dispatchEvent(new Event("filtre"));
+    });
 });
 
 // ---------- Horloge (sous le "Bonjour" des tableaux de bord) ----------

@@ -1320,3 +1320,12 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 }
 .bouton-payer:hover { background: var(--trait); }
 .bouton-payer i { color: var(--vert); }
+
+/* ---------- Listes (factures, clients, réclamations, relevés…) : le tableau est posé sur la page ----------
+   Pas de grande carte blanche arrondie autour : la barre de recherche, le tableau à fond blanc et
+   son pied de pagination suffisent. */
+.liste { display: flex; flex-direction: column; min-width: 0; }
+.liste > .vide { padding: 2.5rem 0; }
+.tableau { background: var(--cadre); }
+/* mode démo : de la place sous le contenu pour que la barre flottante ne cache pas la pagination */
+body:has(.demo) .contenu { padding-bottom: 5rem; }

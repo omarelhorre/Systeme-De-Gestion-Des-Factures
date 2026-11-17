@@ -36,7 +36,7 @@ $coqueActif = 'reclamations';
 
     <?php if ($message): ?><p class="message" role="status"><i class="fa-solid fa-circle-check"></i><span><?= texteReclamation($message) ?></span></p><?php endif; ?>
 
-    <section class="carte">
+    <section class="liste">
         <?php if (!$reclamations): ?>
             <p class="vide">Aucune réclamation. Signalez une fuite ou un problème de facture avec le bouton ci-dessus.</p>
         <?php else: ?>

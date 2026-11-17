@@ -27,7 +27,7 @@ $totalImpaye = array_sum(array_map(function ($r) { return (float)$r['impaye']; }
         <a class="bouton accent" href="<?= link ?>consommateur/ajouter"><i class="fa-solid fa-plus"></i> Ajouter un client</a>
     </header>
 
-    <section class="carte">
+    <section class="liste">
         <?php if ($data) { ?>
             <table class="tableau">
                 <thead>

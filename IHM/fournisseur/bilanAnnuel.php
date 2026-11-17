@@ -33,7 +33,7 @@ $iconeElec = '<i class="fa-solid fa-bolt" style="color: var(--elec)"></i>';
         </nav>
     </header>
 
-    <section class="carte">
+    <section class="liste">
         <?php if ($data): ?>
             <table class="tableau">
                 <thead>

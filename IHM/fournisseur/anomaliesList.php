@@ -26,7 +26,7 @@ $jourAnomalie = function ($date) { return $date ? date('d/m/Y', strtotime($date)
             <p class="sous-titre">Consultez les photos avant de corriger les index.</p>
         </header>
 
-        <section class="carte">
+        <section class="liste">
             <?php if ($data): ?>
                 <table class="tableau">
                     <thead>
