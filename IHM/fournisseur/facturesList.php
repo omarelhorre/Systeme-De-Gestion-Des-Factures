@@ -26,8 +26,8 @@ $jourFacture = function ($date) { return $date ? date('d/m/Y', strtotime($date))
             <p class="sous-titre">Consultez les factures et enregistrez les paiements reçus en espèces.</p>
         </div>
         <nav class="filtres" aria-label="Filtrer les factures">
-            <?php foreach (['' => 'Toutes', 'Payée' => 'Payées', 'Impayée' => 'Impayées'] as $valeur => $libelle) { ?>
-                <a class="<?= $etat === $valeur ? 'actif' : '' ?>" href="<?= link ?>facture/all?etat=<?= rawurlencode($valeur) ?>" <?= $etat === $valeur ? 'aria-current="page"' : '' ?>><?= $libelle ?></a>
+            <?php foreach (['' => ['Toutes', ''], 'Payée' => ['Payées', '/payees'], 'Impayée' => ['Impayées', '/impayees']] as $valeur => list($libelle, $chemin)) { ?>
+                <a class="<?= $etat === $valeur ? 'actif' : '' ?>" href="<?= link ?>facture/all<?= $chemin ?>" <?= $etat === $valeur ? 'aria-current="page"' : '' ?>><?= $libelle ?></a>
             <?php } ?>
         </nav>
     </header>

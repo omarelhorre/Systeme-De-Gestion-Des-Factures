@@ -1,3 +1,4 @@
 RewriteEngine ON
-# QSA : garder les paramètres de l'adresse (ex. facture/all?etat=Impayée) en plus de url=
-RewriteRule ^([A-Za-z0-9\-_\/]*)$ index.php?url=$1 [QSA,L]
+RewriteRule ^public/ - [L]
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

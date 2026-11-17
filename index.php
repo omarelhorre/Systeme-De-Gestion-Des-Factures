@@ -1,4 +1,6 @@
-<?php 
+<?php
+// Routeur unique de l'application : TOUTES les adresses passent ici (voir .htaccess),
+// sous la forme table/action/id. Seuls les fichiers de public/ (CSS, JS) sont servis directement.
 define('ROOT',str_replace('index.php','',$_SERVER["SCRIPT_FILENAME"]));
 define('link',"http://localhost:8080/");
 define('dir',"");
@@ -12,11 +14,18 @@ include_once(ROOT."/Traitement/consommateur/declarationConsommation.php");
 include_once(ROOT."/Traitement/agent/importAnnuel.php");
 include_once(ROOT."/Traitement/fournisseur/bilanAnnuel.php");
 
+// Adresse inconnue : la page 404, et rien d'autre
+function introuvable()
+{
+    http_response_code(404);
+    include ROOT.'IHM/404.php';
+    exit;
+}
 
+$URL = explode('/', trim($_GET['url'] ?? '', '/'));
+$id = $URL[2] ?? null;
 
 // Vérifier la connexion avant d'afficher le tableau de bord fournisseur.
-$URL = explode('/', trim($_GET['url'] ?? '', '/'));
-
 if (($URL[0] ?? '') === 'fournisseur'
     && ($URL[1] ?? '') === 'tableauDeBord'
     && count($URL) === 2
@@ -25,61 +34,65 @@ if (($URL[0] ?? '') === 'fournisseur'
     exit;
 }
 
-
-
-if($URL[0] == "utilisateur" )
+// Adresse vide (http://localhost:8080/) : la connexion
+if($URL[0] == "")
     {
-        if($URL[1] == "authentification")
+        header('Location: '.link.'utilisateur/authentification');
+        exit;
+    }
+
+else if($URL[0] == "utilisateur" )
+    {
+        if(($URL[1] ?? '') == "authentification")
             {
                 authentification();
             }
-        else if($URL[1] == "deconnexion")
+        else if(($URL[1] ?? '') == "deconnexion")
             {
                 deconnexion();
             }
-        else if(in_array($URL[1], ["profil", "modifierEmail", "modifierMotDePasse", "modifierSeuils"], true))
+        else if(in_array($URL[1] ?? '', ["profil", "modifierEmail", "modifierMotDePasse", "modifierSeuils"], true))
             {
                 profil($URL[1]);
             }
+        else introuvable();
     }
 
 else if($URL[0] == "consommateur")
     {
-        if($URL[1] == "tableauDeBord")
+        if(($URL[1] ?? '') == "tableauDeBord")
             {
                 redirectToIndexC();
             }
-        else if($URL[1] == "all")
+        else if(($URL[1] ?? '') == "all")
             {
                afficherClients();
             }
-        else if($URL[1] == "ajouter")
+        else if(($URL[1] ?? '') == "ajouter")
             {
                add();
             }
-        else if($URL[1] == "ajouterAdresse" && isset($URL[2]))
+        else if(($URL[1] ?? '') == "ajouterAdresse" && isset($id))
             {
-                ajouterAdresse($URL[2]);
+                ajouterAdresse($id);
             }
-         else if($URL[1] == "modifier")
+        else if(($URL[1] ?? '') == "modifier" && isset($id))
             {
-                modify($URL[2]);
+                modify($id);
             }
-         else if($URL[1] == "supprimer" && isset($URL[2]))
+        else if(($URL[1] ?? '') == "supprimer" && isset($id))
             {
-                supprimer($URL[2]);
+                supprimer($id);
             }
+        else introuvable();
     }
 else if($URL[0] == "fournisseur")
     {
-        if($URL[1] == "tableauDeBord")
+        if(($URL[1] ?? '') == "tableauDeBord")
             {
                 redirectToIndexF();
             }
-         if($URL[1] == "clients")
-            {
-                
-            }
+        else introuvable();
     }
 else if($URL[0] == "agent")
     {
@@ -91,46 +104,51 @@ else if($URL[0] == "agent")
                 }
                 traiterImportAnnuel();
             }
+        else introuvable();
     }
 else if($URL[0] == "annuelle")
     {
-        if(($URL[1] ?? '') == 'all') afficherBilanAnnuel($URL[2] ?? null);
-        else if(($URL[1] ?? '') == 'regler' && isset($URL[2])) reglerBilanAnnuel((int)$URL[2]);
+        // annuelle/all/{année}, annuelle/regler/{id}
+        if(($URL[1] ?? '') == 'all') afficherBilanAnnuel($id);
+        else if(($URL[1] ?? '') == 'regler' && isset($id)) reglerBilanAnnuel((int)$id);
+        else introuvable();
     }
 else if($URL[0] == "declaration")
     {
-        if(($URL[1] ?? '') == 'all') traiterConsommation('all', $URL[2] ?? null);
-        else if(($URL[1] ?? '') == 'ajouter') traiterConsommation('ajouter', $URL[2] ?? null);   // formulaire, sur la page du compteur choisi
+        if(($URL[1] ?? '') == 'all') traiterConsommation('all', $id);
+        else if(($URL[1] ?? '') == 'ajouter') traiterConsommation('ajouter', $id);   // formulaire, sur la page du compteur choisi
         else if(($URL[1] ?? '') == 'anomalies') traiterAnomaliesFournisseur('anomalies');
-        else if(in_array($URL[1] ?? '', ['corriger', 'photoEau', 'photoElectricite'], true) && isset($URL[2]) && ctype_digit($URL[2]) && (int)$URL[2] > 0)
-            traiterAnomaliesFournisseur($URL[1], (int)$URL[2]);
-        else if(in_array($URL[1] ?? '', ['facture', 'eau', 'electricite'], true) && isset($URL[2]) && ctype_digit($URL[2]) && (int)$URL[2] > 0)
-            traiterConsommation($URL[1], (int)$URL[2]);
+        else if(in_array($URL[1] ?? '', ['corriger', 'photoEau', 'photoElectricite'], true) && isset($id) && ctype_digit($id) && (int)$id > 0)
+            traiterAnomaliesFournisseur($URL[1], (int)$id);
+        else if(in_array($URL[1] ?? '', ['facture', 'eau', 'electricite'], true) && isset($id) && ctype_digit($id) && (int)$id > 0)
+            traiterConsommation($URL[1], (int)$id);
+        else introuvable();
     }
 else if($URL[0] == "facture")
     {
-        if(($URL[1] ?? '') == 'all') afficherFacturesFournisseur('liste');
-        else if(in_array($URL[1] ?? '', ['detail', 'payer', 'pdf'], true) && isset($URL[2]) && ctype_digit($URL[2]) && (int)$URL[2] > 0)
-            afficherFacturesFournisseur($URL[1], (int)$URL[2]);
+        // facture/all, facture/all/payees, facture/all/impayees : la liste, filtrée par le 3e morceau
+        // facture/detail|payer|pdf|telecharger/{id}
+        $filtresFactures = array('payees' => 'Payée', 'impayees' => 'Impayée');
+        if(($URL[1] ?? '') == 'all' && (!isset($id) || isset($filtresFactures[$id])))
+            afficherFacturesFournisseur('liste', null, isset($id) ? $filtresFactures[$id] : '');
+        else if(in_array($URL[1] ?? '', ['detail', 'payer', 'pdf', 'telecharger'], true) && isset($id) && ctype_digit($id) && (int)$id > 0)
+            afficherFacturesFournisseur($URL[1], (int)$id);
+        else introuvable();
     }
 else if($URL[0] == "reclamation")
     {
-        // Un consommateur : reclamation/all = ses réclamations + le formulaire pour en déposer une (POST sur la même adresse).
-        // Un fournisseur : la gestion des réclamations de ses clients (all, detail/{id}, traiter/{id}).
+        // Un consommateur : reclamation/all = ses réclamations, reclamation/ajouter = le formulaire.
+        // Un fournisseur : la gestion des réclamations de ses clients
+        //   (all, all/{attente|encours|traitee}, detail/{id}, traiter/{id}).
         if (isset($_SESSION['user']) && checkConsommateur($_SESSION['user']['id']))
             {
-                // reclamation/all : ses réclamations ; reclamation/ajouter : le formulaire pour en déposer une
-                if (in_array($URL[1] ?? '', ['all', 'ajouter'], true))
+                if (in_array($URL[1] ?? '', ['all', 'ajouter'], true) && !isset($id))
                     {
                         require_once ROOT.'BD/reclamationsConsommateur.php';
                         require_once ROOT.'Traitement/consommateur/reclamations.php';
                         traiterReclamationsConsommateur($URL[1]);
                     }
-                else
-                    {
-                        header('Location: '.link.'reclamation/all');
-                        exit;
-                    }
+                else introuvable();
             }
         else
             {
@@ -142,27 +160,17 @@ else if($URL[0] == "reclamation")
 else if($URL[0] == "notification")
     {
         // Routes AJAX de la cloche : notification/all, notification/lire/{id}, notification/toutLire
-        notifications($URL[1] ?? '', $URL[2] ?? null);
+        notifications($URL[1] ?? '', $id);
     }
 
 else if($URL[0] == "contrat")
     {
-        if($URL[1] == "resilier")
+        if(($URL[1] ?? '') == "resilier" && isset($id))
             {
-                resilier($URL[2]);
+                resilier($id);
             }
+        else introuvable();
     }
-// Activer le lien des réclamations dans les menus fournisseur existants.
-$pagesNavigationReclamations = [
-    'fournisseur/tableauDeBord', 'consommateur/all',
-    'consommateur/ajouter', 'consommateur/modifier',
-    'facture/all', 'facture/detail',
-    'declaration/anomalies', 'declaration/corriger'
-];
-$pageNavigationReclamations = ($URL[0] ?? '').'/'.($URL[1] ?? '');
-if ($_SERVER['REQUEST_METHOD'] === 'GET'
-    && isset($_SESSION['user'])
-    && in_array($pageNavigationReclamations, $pagesNavigationReclamations, true)) {
-    include ROOT.'IHM/fournisseur/navigationReclamations.php';
-}
+
+else introuvable();
 ?>

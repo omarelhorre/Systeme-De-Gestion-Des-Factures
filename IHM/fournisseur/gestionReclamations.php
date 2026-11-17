@@ -35,8 +35,10 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
         <section class="carte"><h2 class="titre-carte">Traitées</h2><p class="chiffre" style="margin-top: 0.75rem"><?= (int)$statistiques['traitee'] ?></p></section>
 
         <section class="carte" style="grid-column: 1 / -1">
-            <!-- Barre d'outils : la recherche part avec Entrée, le type et le statut dès qu'on les change -->
-            <form class="barre-outils" method="get" action="<?= link ?>reclamation/all">
+            <!-- Barre d'outils : le statut est un lien (reclamation/all/attente…) ;
+                 la recherche (Entrée) et le type (dès qu'on le change) sont envoyés en POST sur la même adresse -->
+            <?php $adresseStatut = link.'reclamation/all'.($filtreStatut !== '' ? '/'.$filtreStatut : ''); ?>
+            <form class="barre-outils" method="post" action="<?= $adresseStatut ?>">
                 <label class="outil"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     <input type="search" name="recherche" maxlength="200" value="<?= gestionReclamationsTexte($recherche) ?>" placeholder="Rechercher" aria-label="Rechercher un client ou un numéro de réclamation">
                 </label>
@@ -48,12 +50,12 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
                         <?php } ?>
                     </select>
                 </label>
-                <div class="filtres dans-carte" role="radiogroup" aria-label="Statut">
+                <nav class="filtres dans-carte" aria-label="Statut">
                     <?php foreach ($statuts as $valeur => $libelle) { ?>
-                    <label><input type="radio" name="statut" value="<?= $valeur ?>" <?= $filtreStatut === $valeur ? 'checked' : '' ?> onchange="this.form.submit()"> <?= $libelle ?></label>
+                    <a class="<?= $filtreStatut === $valeur ? 'actif' : '' ?>" href="<?= link ?>reclamation/all<?= $valeur !== '' ? '/'.$valeur : '' ?>" <?= $filtreStatut === $valeur ? 'aria-current="page"' : '' ?>><?= $libelle ?></a>
                     <?php } ?>
-                </div>
-                <?php if ($recherche !== '' || $type !== '' || $filtreStatut !== array_key_first($statuts)) { ?>
+                </nav>
+                <?php if ($recherche !== '' || $type !== '' || $filtreStatut !== '') { ?>
                 <a class="lien-discret" href="<?= link ?>reclamation/all">Réinitialiser <i class="fa-solid fa-xmark" aria-hidden="true"></i></a>
                 <?php } ?>
             </form>

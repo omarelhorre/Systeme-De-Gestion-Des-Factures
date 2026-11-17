@@ -42,7 +42,8 @@ function envoyerPdfFacture($facture, $telecharger)
     exit;
 }
 
-function afficherFacturesFournisseur($action, $id = null)
+// $etat : filtre de la liste, lu dans l'adresse (facture/all/payees, facture/all/impayees) par index.php
+function afficherFacturesFournisseur($action, $id = null, $etat = '')
 {
     if (session_status() !== PHP_SESSION_ACTIVE) session_start();
     header('Cache-Control: no-store, private');
@@ -55,14 +56,13 @@ function afficherFacturesFournisseur($action, $id = null)
         $db = connexion();
         mysqli_set_charset($db, 'utf8mb4');
         if (!verifierFournisseurFactures($db, $fournisseur)) erreurFacture(403, 'Accès réservé aux fournisseurs.');
-        if (!in_array($action, ['liste', 'detail', 'payer', 'pdf'], true)) erreurFacture(404, 'Page introuvable.');
+        if (!in_array($action, ['liste', 'detail', 'payer', 'pdf', 'telecharger'], true)) erreurFacture(404, 'Page introuvable.');
         $methode = $_SERVER['REQUEST_METHOD'];
         if (($action === 'payer' && $methode !== 'POST') || ($action !== 'payer' && $methode !== 'GET')) {
             header('Allow: '.($action === 'payer' ? 'POST' : 'GET'));
             erreurFacture(405, 'Méthode non autorisée.');
         }
         if (empty($_SESSION['csrf_factures'])) $_SESSION['csrf_factures'] = bin2hex(random_bytes(32));
-        $etat = $_GET['etat'] ?? '';
         if (!is_string($etat) || !in_array($etat, ['', 'Payée', 'Impayée'], true)) erreurFacture(400, 'Filtre invalide.');
         $facture = null;
         if ($action !== 'liste') {
@@ -82,7 +82,7 @@ function afficherFacturesFournisseur($action, $id = null)
             header('Location: '.link.'facture/detail/'.$id, true, 303);
             exit;
         }
-        if ($action === 'pdf') envoyerPdfFacture($facture, ($_GET['telecharger'] ?? '') === '1');
+        if ($action === 'pdf' || $action === 'telecharger') envoyerPdfFacture($facture, $action === 'telecharger');
         $data = $action === 'liste' ? selectFacturesFournisseur($db, $fournisseur, $etat) : [];
         $message = $_SESSION['message_factures'] ?? '';
         unset($_SESSION['message_factures']);

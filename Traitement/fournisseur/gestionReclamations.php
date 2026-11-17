@@ -48,12 +48,13 @@ function gestionReclamationsAfficher($route)
     if (!in_array($action, ['all', 'detail', 'traiter'], true)) {
         gestionReclamationsErreur(404, 'Page introuvable.');
     }
-    $methode = $action === 'traiter' ? 'POST' : 'GET';
+    // all : GET pour afficher, POST pour la recherche (l'adresse reste reclamation/all/{statut})
+    $methode = $action === 'traiter' ? 'POST' : ($action === 'all' && $_SERVER['REQUEST_METHOD'] === 'POST' ? 'POST' : 'GET');
     if ($_SERVER['REQUEST_METHOD'] !== $methode) {
         header('Allow: '.$methode);
         gestionReclamationsErreur(405, 'Méthode non autorisée.');
     }
-    if (count($route) !== ($action === 'all' ? 2 : 3)) {
+    if ($action === 'all' ? count($route) > 3 : count($route) !== 3) {
         gestionReclamationsErreur(404, 'Page introuvable.');
     }
     $id = null;
@@ -132,13 +133,11 @@ function gestionReclamationsAfficher($route)
         }
         $types = ['Fuite externe', 'Fuite interne', 'Facture', 'Autre', 'Fuite (non précisée)'];
         $statuts = ['' => 'Toutes', 'attente' => 'En attente', 'encours' => 'En cours', 'traitee' => 'Traitées'];
-        // Le .htaccess existant ne conserve pas les paramètres de recherche.
-        // Les lire depuis l'URL d'origine, sans modifier ce fichier existant.
-        $filtres = [];
-        parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?? '', $filtres);
-        $recherche = $filtres['recherche'] ?? '';
-        $type = $filtres['type'] ?? '';
-        $filtreStatut = $filtres['statut'] ?? '';
+        // Filtres : le statut est dans l'adresse (reclamation/all/attente), la recherche et le type
+        // arrivent du formulaire en POST. Aucune adresse avec "?".
+        $recherche = $action === 'all' ? ($_POST['recherche'] ?? '') : '';
+        $type = $action === 'all' ? ($_POST['type'] ?? '') : '';
+        $filtreStatut = $action === 'all' ? ($route[2] ?? '') : '';
         if (!is_string($recherche) || strlen($recherche) > 200 || !preg_match('//u', $recherche)
             || !is_string($type) || ($type !== '' && !in_array($type, $types, true))
             || !is_string($filtreStatut) || !array_key_exists($filtreStatut, $statuts)) {

@@ -28,7 +28,7 @@
             <h2 class="titre-carte">Document</h2>
             <div class="actions" style="margin-top: 1rem">
                 <a class="bouton contour" target="_blank" rel="noopener" href="<?= link ?>facture/pdf/<?= (int)$facture['id'] ?>"><i class="fa-solid fa-file-pdf"></i> Ouvrir le PDF</a>
-                <a class="bouton contour" href="<?= link ?>facture/pdf/<?= (int)$facture['id'] ?>?telecharger=1"><i class="fa-solid fa-download"></i> Télécharger</a>
+                <a class="bouton contour" href="<?= link ?>facture/telecharger/<?= (int)$facture['id'] ?>"><i class="fa-solid fa-download"></i> Télécharger</a>
             </div>
         </section>
 
