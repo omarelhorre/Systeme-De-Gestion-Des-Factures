@@ -116,6 +116,7 @@
     padding: 1.5rem;
     border-radius: 1.75rem;
     background: var(--cadre);
+    box-shadow: var(--ombre);          /* légère profondeur : les widgets se détachent du fond */
 }
 
 .carte.large { grid-column: span 2; }
@@ -1408,3 +1409,9 @@ body:has(.demo) .contenu { padding-bottom: 5rem; }
 /* page de l'agent : barre d'import (fichier + bouton + format attendu) */
 .barre-import { margin-bottom: 0.5rem; }
 .barre-import code { font-family: var(--mono); font-size: 0.75rem; color: var(--texte); }
+
+/* même ombre légère pour les blocs blancs posés sur la page : tableaux de liste, messages */
+.liste > .tableau,
+.message,
+.erreur-bloc { box-shadow: var(--ombre); }
+.carte .liste > .tableau { box-shadow: none; }   /* tableau déjà dans un widget : pas d'ombre en double */
