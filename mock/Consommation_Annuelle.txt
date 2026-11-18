@@ -1,2 +1,0 @@
-ID_Client ID_Agent ConsommationEau ConsommationElect Annee Date_Saisie
-9107 22 142.0000 2480.0000 2026 2026-11-14
