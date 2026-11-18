@@ -6,12 +6,10 @@
     include_once(ROOT."/BD/contrat.php");
     $link = connexion();
 
-    // Numéro d'identité : 1 ou 2 lettres puis 4 à 8 chiffres (ex. BL175578)
     function cinValide($cin)
     {
         return preg_match('/^[A-Z]{1,2}\d{4,8}$/', $cin) === 1;
     }
-    // Téléphone marocain : 0 ou +212, puis 9 chiffres commençant par 5, 6 ou 7
     function telephoneValide($telephone)
     {
         return preg_match('/^(\+212|0)[5-7]\d{8}$/', $telephone) === 1;
@@ -25,7 +23,6 @@
         {
             $data[] = $ligne;
         }
-        // Informations en plus pour le tableau (lecture seule) : contact, contrats, impayés, consommation récente
         $resume = resumeClients();
         $series = consommationRecenteClients();
         include_once(ROOT."/IHM/fournisseur/clientsList.php");
@@ -46,7 +43,6 @@
             }
             if ($role === 'consommateur') {
                 $adresses = $_POST['adresse'] ?? [];
-                // Chaque compteur est dans un quartier ; le type d'activité vient du quartier
                 $quartiersChoisis = $_POST['quartier'] ?? [];
                 $eaux = $_POST['indexPrecendentEau'] ?? [];
                 $elects = $_POST['indexPrecendentElec'] ?? [];
@@ -66,7 +62,6 @@
                     }
                     $points[] = [$adresse, $quartier['typeActivite'], (float)$idxEau, (float)$idxElec, (int)$quartier['id']];
                 }
-                // Numéro d'identité (ex. BL175578) et téléphone (ex. 0612345678 ou +212612345678)
                 $cin = strtoupper(trim($_POST['cin'] ?? ''));
                 $telephone = str_replace(' ', '', trim($_POST['telephone'] ?? ''));
                 if (!cinValide($cin) || !telephoneValide($telephone)) {
@@ -107,7 +102,6 @@
                 : 'Votre mot de passe de connexion à votre espace client';
             $email->Body = "Votre mot de passe est: ". $password . ". Ne le partager avec personne";
             if ($role === 'consommateur') {
-            // Un contrat par adresse de compteur : un PDF chacun, tous joints au même email.
             include_once(ROOT."/Traitement/domPDFTraitement.php");
             foreach ($points as $i => $point) {
                 $Client = ["nom" => $_POST["nom"],
@@ -147,7 +141,6 @@
             }
         else if ($_SERVER["REQUEST_METHOD"] == "POST")
             {
-                // Les anciens clients n'ont pas encore ces deux champs : vides acceptés, sinon format vérifié.
                 $cin = strtoupper(trim($_POST['cin'] ?? ''));
                 $telephone = str_replace(' ', '', trim($_POST['telephone'] ?? ''));
                 if (($cin !== '' && !cinValide($cin)) || ($telephone !== '' && !telephoneValide($telephone))) {
@@ -180,20 +173,16 @@
             http_response_code(400); echo 'Adresse, quartier ou index invalide.'; return;
         }
         $idAdresse = insertAdresseCompteur($id, $_SESSION['user']['id'], $adresse, $quartier['typeActivite'], (float)$eau, (float)$electricite, (int)$quartier['id']);
-        // La nouvelle adresse reçoit son propre contrat (PDF enregistré comme les autres).
         include_once(ROOT."/Traitement/domPDFTraitement.php");
         $pdf = genererPdfContrat(["nom" => $client["nom"], "prenom" => $client["prenom"], "adresse" => $adresse]);
         $nomFichier = 'contrat-'.(int)$id.'-'.$idAdresse.'.pdf';
         $cheminGeneration = ROOT.'stockageContrats/'.$nomFichier;
         file_put_contents($cheminGeneration,$pdf);
         ajouterContrat($id,$cheminGeneration,$idAdresse);
-        // Comme à la création du client : le contrat lui est envoyé par email.
         envoyerContratParEmail($client, $pdf, $nomFichier, $adresse);
         header('Location:'.link.'consommateur/modifier/'.$id); exit;
     }
 
-    // Envoie un contrat (PDF déjà généré) au client, avec le même compte SMTP que la création de client.
-    // Un échec d'envoi n'annule pas le contrat : il est noté dans le journal d'erreurs.
     function envoyerContratParEmail($client, $pdf, $nomFichier, $adresse)
     {
         if (!getenv('SMTP_PASS') || !filter_var($client['email'] ?? '', FILTER_VALIDATE_EMAIL)) return false;
@@ -219,11 +208,6 @@
         }
     }
 
-    // Résilier des contrats d'un client. $id est l'identifiant du CLIENT.
-    // GET : la liste de ses contrats actifs (à résilier) et de ceux déjà "en résiliation" (en attente du relevé final).
-    // POST action=resilier : les contrats cochés passent "en résiliation" ; le client doit déclarer son relevé final,
-    //                        qui crée sa facture finale puis ferme le contrat (voir declarationConsommation.php).
-    // POST action=cloturer : ferme tout de suite un contrat en résiliation (si le client ne déclare pas).
     function resilier($id)
     {
         if (!ctype_digit((string)$id)) {
@@ -250,7 +234,6 @@
                 } else if (!$choisis) {
                     $erreur = 'Cochez au moins un contrat.';
                 } else if (array_diff($choisis, $permis)) {
-                    // un identifiant qui n'est pas un contrat (dans le bon état) de ce client
                     $erreur = 'Sélection invalide : rechargez la page.';
                 } else {
                     $parId = array_column($contrats, null, 'id');
@@ -258,7 +241,6 @@
                         $contrat = $parId[$idContrat];
                         $idAdresse = (int)$contrat['idAdresseCompteur'];
                         if ($action === 'cloturer') {
-                            // fermeture sans relevé final : la demande faite au client est close
                             resilier_BDD($idContrat);
                             resoudreNotification((int)$id, 'contrat_fin', $idAdresse);
                             notifier((int)$id, 'contrat_resilie', 'Contrat résilié', 'Votre contrat pour '.$contrat['adresse'].' est terminé.', 'consommateur/tableauDeBord', array('idObjet' => $idAdresse, 'email' => true));
@@ -274,7 +256,6 @@
         include_once(ROOT."IHM/validerModal.php");
     }
 
-    // Supprimer un client : GET affiche la confirmation, POST supprime.
     function supprimer($id)
     {
         if (!ctype_digit((string)$id)) {

@@ -76,8 +76,6 @@ function traiterConsommation($action, $id = null)
         }
         if (!$adresseChoisie) { http_response_code(403); echo 'Adresse non autorisée.'; return; }
         $client['adresse'] = $adresseChoisie['adresse'];
-        // Contrat de ce compteur : "en résiliation" = relevé final attendu (possible tout de suite),
-        // "resilié" = plus aucune déclaration sur ce compteur.
         $statutContrat = statutContratAdresse($idAdresseCompteur);
         $date = dateConsommation();
         $message = '';
@@ -99,15 +97,11 @@ function traiterConsommation($action, $id = null)
                 try {
                     if (!verrouillerClient($db, $idClient)) throw new RuntimeException('Client introuvable.');
                     if ($statutContrat === CONTRAT_EN_RESILIATION) {
-                        // Relevé final : permis même si le relevé du mois a déjà été envoyé (donc au plus deux ce mois-là),
-                        // mais un seul à la fois : s'il est en anomalie, on attend la correction du fournisseur.
                         if (anomalieEnAttente($db, $idAdresseCompteur)) throw new InvalidArgumentException('Votre relevé final est en cours de vérification par votre fournisseur.');
                     } else if (releveClientDuMois($db, $idAdresseCompteur, $premier, $suivant)) {
-                        // Relevé régulier : un par compteur et par mois (le relevé de départ du compteur ne compte pas)
                         throw new InvalidArgumentException('Vous avez déjà envoyé le relevé de ce compteur ce mois-ci.');
                     }
                     $precedente = derniereDeclarationValide($db, $idAdresseCompteur);
-                    // Seuils d'anomalie choisis par le fournisseur du client
                     $calcul = calculerDeclaration($eau, $electricite, $precedente, false, seuilsFournisseur($db, (int)$client['idFournisseur']));
                     $statut = $calcul['statut'] === 'Anomalie' ? 'Anomalie : '.$calcul['motif'] : $calcul['statut'];
                     $photoEau = sauverPhoto($_FILES['photoEau']); $sauves[] = ROOT.$photoEau;
@@ -123,10 +117,8 @@ function traiterConsommation($action, $id = null)
                         creerPdfFacture(ROOT.$pdfRelatif, $idFacture, $client, $precedente, $courante, $calcul, ROOT.$photoEau, ROOT.$photoElectricite, $jour);
                     }
                     mysqli_commit($db);
-                    // Notifications : facture disponible, ou anomalie signalée au client et à son fournisseur.
                     if ($calcul['statut'] === 'Validée') {
                         notifier($idClient, 'facture', 'Votre facture n° '.$idFacture.' est disponible', 'Montant : '.number_format((float)$calcul['ttc'], 2, ',', ' ').' DH TTC.', 'declaration/all/'.$idAdresseCompteur, array('idObjet' => $idFacture, 'email' => true));
-                        // Relevé final d'un contrat en résiliation : la facture finale existe, le contrat se ferme.
                         if ($statutContrat === CONTRAT_EN_RESILIATION && cloturerContratAdresse($idAdresseCompteur)) {
                             resoudreNotification($idClient, 'contrat_fin', $idAdresseCompteur);
                             notifier($idClient, 'contrat_resilie', 'Contrat résilié', 'Votre contrat pour '.$client['adresse'].' est terminé. Facture finale : n° '.$idFacture.'.', 'declaration/all/'.$idAdresseCompteur, array('idObjet' => $idAdresseCompteur, 'email' => true));
@@ -157,7 +149,6 @@ function traiterConsommation($action, $id = null)
         $precedente = derniereDeclarationValide($db, $idAdresseCompteur);
         $declarations = declarationsDuClient($db, $idClient);
         if (empty($_SESSION['csrf_consommation'])) $_SESSION['csrf_consommation'] = bin2hex(random_bytes(32));
-        // declaration/ajouter : la page du formulaire ; sinon la liste des relevés (avec l'état du contrat de chaque compteur)
         if ($action === 'ajouter') {
             include ROOT.'IHM/consommateur/declarationForm.php';
         } else {

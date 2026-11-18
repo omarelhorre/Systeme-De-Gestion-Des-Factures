@@ -1,5 +1,5 @@
 <?php if (!isset($facture) || !$facture) { http_response_code(404); exit; } ?>
-<?php // Détail d'une facture, inclus par facturesList.php. ?>
+<?php ?>
 <a class="lien-retour" href="<?= link ?>facture/all"><i class="fa-solid fa-arrow-left"></i> Retour aux factures</a>
 <header class="entete ligne">
     <div>

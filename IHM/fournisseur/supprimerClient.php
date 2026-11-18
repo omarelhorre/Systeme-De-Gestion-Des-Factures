@@ -1,6 +1,4 @@
 <?php
-// Confirmation avant de supprimer un client. Variables fournies par supprimer() :
-// $client, $historique (relevés, factures, réclamations), $contrat.
 $coqueTitre = 'Supprimer un client';
 $coqueActif = 'clients';
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };

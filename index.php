@@ -1,6 +1,4 @@
 <?php
-// Routeur unique de l'application : TOUTES les adresses passent ici (voir .htaccess),
-// sous la forme table/action/id. Seuls les fichiers de public/ (CSS, JS) sont servis directement.
 define('ROOT',str_replace('index.php','',$_SERVER["SCRIPT_FILENAME"]));
 define('link',"http://localhost:8080/");
 define('dir',"");
@@ -16,7 +14,6 @@ include_once(ROOT."/Traitement/fournisseur/bilanAnnuel.php");
 include_once(ROOT."/Traitement/demo.php");
 include_once(ROOT."/Traitement/paiement.php");
 
-// Adresse inconnue : la page 404, et rien d'autre
 function introuvable()
 {
     http_response_code(404);
@@ -27,7 +24,6 @@ function introuvable()
 $URL = explode('/', trim($_GET['url'] ?? '', '/'));
 $id = $URL[2] ?? null;
 
-// Vérifier la connexion avant d'afficher le tableau de bord fournisseur.
 if (($URL[0] ?? '') === 'fournisseur'
     && ($URL[1] ?? '') === 'tableauDeBord'
     && count($URL) === 2
@@ -36,7 +32,6 @@ if (($URL[0] ?? '') === 'fournisseur'
     exit;
 }
 
-// Adresse vide (http://localhost:8080/) : la connexion
 if($URL[0] == "")
     {
         header('Location: '.link.'utilisateur/authentification');
@@ -110,7 +105,6 @@ else if($URL[0] == "agent")
     }
 else if($URL[0] == "annuelle")
     {
-        // annuelle/all/{année}, annuelle/regler/{id}
         if(($URL[1] ?? '') == 'all') afficherBilanAnnuel($id);
         else if(($URL[1] ?? '') == 'regler' && isset($id)) reglerBilanAnnuel((int)$id);
         else introuvable();
@@ -118,7 +112,7 @@ else if($URL[0] == "annuelle")
 else if($URL[0] == "declaration")
     {
         if(($URL[1] ?? '') == 'all') traiterConsommation('all', $id);
-        else if(($URL[1] ?? '') == 'ajouter') traiterConsommation('ajouter', $id);   // formulaire, sur la page du compteur choisi
+        else if(($URL[1] ?? '') == 'ajouter') traiterConsommation('ajouter', $id);
         else if(($URL[1] ?? '') == 'anomalies') traiterAnomaliesFournisseur('anomalies');
         else if(in_array($URL[1] ?? '', ['corriger', 'photoEau', 'photoElectricite'], true) && isset($id) && ctype_digit($id) && (int)$id > 0)
             traiterAnomaliesFournisseur($URL[1], (int)$id);
@@ -128,8 +122,6 @@ else if($URL[0] == "declaration")
     }
 else if($URL[0] == "facture")
     {
-        // facture/all, facture/all/payees, facture/all/impayees : la liste, filtrée par le 3e morceau
-        // facture/detail|payer|pdf|telecharger/{id}
         $filtresFactures = array('payees' => 'Payée', 'impayees' => 'Impayée');
         if(($URL[1] ?? '') == 'all' && (!isset($id) || isset($filtresFactures[$id])))
             afficherFacturesFournisseur('liste', null, isset($id) ? $filtresFactures[$id] : '');
@@ -139,9 +131,6 @@ else if($URL[0] == "facture")
     }
 else if($URL[0] == "reclamation")
     {
-        // Un consommateur : reclamation/all = ses réclamations, reclamation/ajouter = le formulaire.
-        // Un fournisseur : la gestion des réclamations de ses clients
-        //   (all, all/{attente|encours|traitee}, detail/{id}, traiter/{id}).
         if (isset($_SESSION['user']) && checkConsommateur($_SESSION['user']['id']))
             {
                 if (in_array($URL[1] ?? '', ['all', 'ajouter'], true) && !isset($id))
@@ -161,7 +150,6 @@ else if($URL[0] == "reclamation")
 
 else if($URL[0] == "notification")
     {
-        // Routes AJAX de la cloche : notification/all, notification/lire/{id}, notification/toutLire
         notifications($URL[1] ?? '', $id);
     }
 
@@ -176,14 +164,12 @@ else if($URL[0] == "contrat")
 
 else if($URL[0] == "paiement")
     {
-        // Paiement en ligne d'une facture : Stripe (payer, retour, annule) ou CMI (ok, echec, callback, recu, refuse)
         if(in_array($URL[1] ?? '', ['payer', 'retour', 'annule', 'ok', 'echec', 'callback', 'recu', 'refuse'], true) && isset($id)) paiement($URL[1], $id);
         else introuvable();
     }
 
 else if($URL[0] == "demo")
     {
-        // Mode démo uniquement : demo/aller/{18 du mois, fin-mois, mois-suivant, …, reel}
         if(($URL[1] ?? '') == "aller" && isset($id)) demoAller($id);
         else introuvable();
     }

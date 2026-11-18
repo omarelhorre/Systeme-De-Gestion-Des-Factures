@@ -21,7 +21,6 @@ function authentification()
                     if(password_verify($password,$passwordHashed))
                     {
                         $_SESSION["user"] = $user;
-                        // Notification de bienvenue, envoyée une seule fois (première connexion).
                         accueillirUtilisateur($user[0]);
                         $fournisseur = checkFournisseur($user[0]);
                         $consommateur = checkConsommateur($user[0]);
@@ -53,7 +52,6 @@ function authentification()
         }
     function redirectToIndexF()
     {
-    // Charger les chiffres du tableau de bord (lecture seule) avant d'afficher la page.
     require_once ROOT."BD/tableauFournisseur.php";
     $tableau = tableauFournisseur(connexion(), (int)$_SESSION["user"]["id"]);
     include_once(ROOT."/IHM/tableauF.php");
@@ -61,10 +59,8 @@ function authentification()
 
     function redirectToIndexC()
     {
-        // Dernières factures et réclamations du client connecté (lecture seule) avant d'afficher la page.
         require_once ROOT."BD/tableauConsommateur.php";
         $tableau = tableauConsommateur(connexion(), (int)($_SESSION["user"]["id"] ?? 0));
-        // Sa consommation des derniers mois (même calcul que la liste des clients du fournisseur)
         $tableau['consommation'] = consommationRecenteClients()[(int)($_SESSION["user"]["id"] ?? 0)] ?? array();
         include_once(ROOT."/IHM/tableauC.php");
     }

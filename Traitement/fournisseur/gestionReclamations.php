@@ -17,7 +17,6 @@ function gestionReclamationsErreur($code, $message)
 
 function gestionReclamationsStatut($statut)
 {
-    // Accepter aussi les anciennes écritures présentes en base.
     $valeur = strtolower(strtr(trim($statut), ['É' => 'e', 'é' => 'e', 'È' => 'e', 'è' => 'e']));
     if (in_array($valeur, ['traitee', 'traite', 'traitees'], true)) return 'traitee';
     if ($valeur === 'en cours') return 'encours';
@@ -48,7 +47,6 @@ function gestionReclamationsAfficher($route)
     if (!in_array($action, ['all', 'detail', 'traiter'], true)) {
         gestionReclamationsErreur(404, 'Page introuvable.');
     }
-    // all : GET pour afficher, POST pour la recherche (l'adresse reste reclamation/all/{statut})
     $methode = $action === 'traiter' ? 'POST' : ($action === 'all' && $_SERVER['REQUEST_METHOD'] === 'POST' ? 'POST' : 'GET');
     if ($_SERVER['REQUEST_METHOD'] !== $methode) {
         header('Allow: '.$methode);
@@ -113,11 +111,9 @@ function gestionReclamationsAfficher($route)
                 mysqli_commit($db);
                 $transaction = false;
                 mysqli_close($db);
-                // Envoyer après validation en base : un échec mail n'efface pas le traitement.
                 $message = 'Aucun changement : ce traitement est déjà enregistré. Aucun nouvel e-mail envoyé.';
                 $avertissement = false;
                 if ($modifie) {
-                    // Notifications : le client voit la réponse dans sa cloche (l'email part juste après, comme avant).
                     notifier((int)$reclamation['id'], 'reclamation_reponse', 'Réclamation n° '.$id.' : '.$statut, mb_substr($reponse, 0, 200), 'reclamation/all', array('idObjet' => $id));
                     if ($statut === 'Traitée') resoudreNotification($fournisseur, 'reclamation_nouvelle', $id);
                     $envoye = gestionReclamationsNotifier($reclamation, $statut, $reponse);
@@ -133,8 +129,6 @@ function gestionReclamationsAfficher($route)
         }
         $types = ['Fuite externe', 'Fuite interne', 'Facture', 'Autre', 'Fuite (non précisée)'];
         $statuts = ['' => 'Toutes', 'attente' => 'En attente', 'encours' => 'En cours', 'traitee' => 'Traitées'];
-        // Filtres : le statut est dans l'adresse (reclamation/all/attente), la recherche et le type
-        // arrivent du formulaire en POST. Aucune adresse avec "?".
         $recherche = $action === 'all' ? ($_POST['recherche'] ?? '') : '';
         $type = $action === 'all' ? ($_POST['type'] ?? '') : '';
         $filtreStatut = $action === 'all' ? ($route[2] ?? '') : '';

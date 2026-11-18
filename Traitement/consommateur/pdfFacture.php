@@ -1,6 +1,4 @@
 <?php
-// Petite bibliothèque PDF locale, sans dépendance ajoutée à Composer.
-// Entrées photographiques JPEG contrôlées avant l'appel.
 class PdfFacture
 {
     private $lignes = array();
@@ -56,7 +54,6 @@ class PdfFacture
     }
 }
 
-// $dateFacture : date de la facture (AAAA-MM-JJ) ; sans valeur, la date du jour.
 function creerPdfFacture($chemin, $numero, $client, $precedente, $courante, $calcul, $photoEau, $photoElectricite, $dateFacture = null)
 {
     $montant = function ($valeur) { return number_format((float)$valeur, 2, ',', ' ').' MAD'; };
@@ -71,7 +68,6 @@ function creerPdfFacture($chemin, $numero, $client, $precedente, $courante, $cal
     $pdf->texte(40, 143, 10, 'Adresse : '.$client['adresse']);
     $pdf->texte(40, 161, 10, 'Période : du '.$jour($precedente['dateSaisie']).' au '.$jour($courante['dateSaisie']));
 
-    // Une colonne par service : index, consommation, puis le prix de chaque tranche utilisée
     $services = array(
         array(40, 'ÉLECTRICITÉ', 'kWh', 'indexElectricite', $calcul['electricite'], $calcul['detailElectricite'] ?? array(), $calcul['htElectricite'] ?? null),
         array(305, 'EAU', 'm³', 'indexEau', $calcul['eau'], $calcul['detailEau'] ?? array(), $calcul['htEau'] ?? null),

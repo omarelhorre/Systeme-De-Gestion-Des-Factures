@@ -113,10 +113,8 @@ function traiterAnomaliesFournisseur(string $action, ?int $id = null): void
                         ['indexEau' => $eau, 'indexElectricite' => $electricite,
                          'dateSaisie' => $anomalie['dateSaisie']], $calcul, $photoEau, $photoElectricite, $dateFacture);
                     $db->commit();
-                    // Notifications : le client est prévenu, et la demande du fournisseur est marquée traitée.
                     notifier($clientId, 'anomalie_corrigee', 'Votre relevé a été corrigé', 'La facture n° '.$factureId.' est disponible : '.number_format((float)$calcul['ttc'], 2, ',', ' ').' DH TTC.', 'declaration/all/'.(int)$anomalie['idAdresseCompteur'], array('idObjet' => $factureId, 'email' => true));
                     resoudreNotification($fournisseur, 'anomalie_a_corriger', $id);
-                    // C'était le relevé final d'un contrat en résiliation : la facture finale existe, le contrat se ferme.
                     $idAdresseAnomalie = (int)$anomalie['idAdresseCompteur'];
                     if (statutContratAdresse($idAdresseAnomalie) === CONTRAT_EN_RESILIATION && cloturerContratAdresse($idAdresseAnomalie)) {
                         resoudreNotification($clientId, 'contrat_fin', $idAdresseAnomalie);

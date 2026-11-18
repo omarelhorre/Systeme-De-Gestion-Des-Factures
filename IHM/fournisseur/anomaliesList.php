@@ -1,6 +1,5 @@
 <?php if (!isset($data, $action, $message, $erreur)) { http_response_code(404); exit; } ?>
 <?php
-// Déclarations anormales : liste, ou correction d'une déclaration ($action === 'corriger').
 $coqueTitre = 'Anomalies';
 $coqueActif = 'anomalies';
 $jourAnomalie = function ($date) { return $date ? date('d/m/Y', strtotime($date)) : '—'; };

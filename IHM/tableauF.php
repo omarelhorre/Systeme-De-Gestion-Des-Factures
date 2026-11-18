@@ -1,20 +1,17 @@
 <?php
-// Tableau de bord fournisseur.
 require_once ROOT.'IHM/commun/outils.php';
-// $tableau est préparé par redirectToIndexF() (voir BD/tableauFournisseur.php).
 $chiffres = $tableau['chiffres'];
 $consommation = $tableau['consommation'];
 $coqueActif = 'tableau';
 $coqueTitre = 'Tableau de bord';
 
-// Petites fonctions d'affichage, propres à cette page
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
 $nombre = function ($valeur, $decimales = 0) { return number_format((float)$valeur, $decimales, ',', "\u{00A0}"); };
 
 $moisCourts = array('', 'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.');
 $moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
 
-$afficherCourbes = count($consommation) >= 2;   // pas de courbe vide : il faut au moins 2 mois
+$afficherCourbes = count($consommation) >= 2;
 if ($afficherCourbes) {
     $dernier = end($consommation);
 }
@@ -35,7 +32,6 @@ if ($afficherCourbes) {
 
     <div class="grille">
 
-        <!-- Widget principal : l'argent à encaisser -->
         <section class="carte large">
             <h2 class="titre-carte">À encaisser</h2>
             <p class="chiffre geant"><?= $nombre($chiffres['montantImpaye'], 2) ?><span class="unite">DH</span></p>
@@ -68,7 +64,6 @@ if ($afficherCourbes) {
             <p class="legende">relevé<?= $chiffres['anomalies'] > 1 ? 's' : '' ?> à corriger</p>
         </section>
 
-        <!-- Consommation : électricité et eau sur un seul graphique, valeurs au survol -->
         <section class="carte large haute">
             <div class="carte-entete">
                 <div>

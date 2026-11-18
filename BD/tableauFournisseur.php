@@ -1,11 +1,8 @@
 <?php
-// Données du tableau de bord fournisseur.
-// Lecture seule : aucune écriture en base, uniquement les clients du fournisseur connecté.
 
 require_once __DIR__.'/facturesFournisseur.php';
 require_once __DIR__.'/reclamationsFournisseur.php';
 
-// Exécute une requête préparée qui ne prend que l'identifiant du fournisseur (répété $fois)
 function tableauFournisseurLire($db, $sql, $fournisseur, $fois = 1)
 {
     $q = mysqli_prepare($db, $sql);
@@ -17,7 +14,6 @@ function tableauFournisseurLire($db, $sql, $fournisseur, $fois = 1)
     return $lignes;
 }
 
-// Les chiffres clés : clients, factures, anomalies, réclamations
 function tableauFournisseurChiffres($db, $fournisseur)
 {
     $sql = "SELECT
@@ -36,8 +32,6 @@ function tableauFournisseurChiffres($db, $fournisseur)
     return tableauFournisseurLire($db, $sql, $fournisseur, 6)[0];
 }
 
-// Consommation validée par mois (6 derniers mois).
-// La base garde des index cumulés : la consommation d'un relevé = index - index précédent du même compteur.
 function tableauFournisseurConsommation($db, $fournisseur)
 {
     $sql = "SELECT DATE_FORMAT(x.dateSaisie, '%Y-%m') AS mois,
@@ -56,7 +50,6 @@ function tableauFournisseurConsommation($db, $fournisseur)
     return tableauFournisseurLire($db, $sql, $fournisseur);
 }
 
-// Tout ce que la page affiche, en un seul appel
 function tableauFournisseur($db, $fournisseur)
 {
     $reclamations = array_filter(

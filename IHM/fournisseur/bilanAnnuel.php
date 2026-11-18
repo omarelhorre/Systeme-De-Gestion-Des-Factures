@@ -1,6 +1,5 @@
 <?php function texteBilan($value) { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); } ?>
 <?php
-// Vérification annuelle : consommation déclarée par le client comparée au relevé de l'agent.
 $coqueTitre = 'Bilan annuel';
 $coqueActif = 'annuel';
 $jourBilan = function ($date) { return $date ? date('d/m/Y', strtotime($date)) : '—'; };

@@ -1,5 +1,4 @@
 <?php
-// Données du tableau de bord consommateur. Lecture seule, uniquement les données du client connecté.
 
 function tableauConsommateurLire($db, $sql, $id)
 {
@@ -11,7 +10,6 @@ function tableauConsommateurLire($db, $sql, $id)
     return $lignes;
 }
 
-// Ses 4 dernières factures, le total impayé, et ses 3 dernières réclamations
 function tableauConsommateur($db, $id)
 {
     $factures = tableauConsommateurLire($db,

@@ -19,12 +19,10 @@ function consommationsDeclareesAnnee($db, $annee)
     return $totaux;
 }
 
-// coutEauMensuel() et coutElectriciteMensuel() : même grille que les factures mensuelles
 require_once ROOT.'Traitement/consommateur/reglesConsommation.php';
 
 function estimerRegularisationAnnuelle($agentEau, $agentElectricite, $clientEau, $clientElectricite)
 {
-    // Estimation : répartir les totaux annuels sur douze mois, appliquer les tranches du sujet, puis la TVA de 18 %.
     $agent = 12 * (coutEauMensuel($agentEau / 12) + coutElectriciteMensuel($agentElectricite / 12));
     $client = 12 * (coutEauMensuel($clientEau / 12) + coutElectriciteMensuel($clientElectricite / 12));
     return round(max(0, $agent - $client) * 1.18, 2);

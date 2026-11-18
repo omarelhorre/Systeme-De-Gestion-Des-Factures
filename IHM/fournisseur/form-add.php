@@ -1,5 +1,4 @@
 <?php
-// Formulaire d'ajout d'un client (ou d'un agent). Les noms des champs sont ceux attendus par add().
 $coqueTitre = 'Ajouter un client';
 $coqueActif = 'clients';
 ?>
@@ -41,7 +40,6 @@ $coqueActif = 'clients';
                 <input type="tel" name="telephone" placeholder="0612345678" maxlength="16" pattern="(\+212|0)[5-7][0-9 ]{8,12}" required>
             </label>
 
-            <!-- Une ou plusieurs adresses, chacune avec ses compteurs (seulement pour un consommateur) -->
             <div class="client-field entier pile" id="adresses">
                 <div class="adresse-compteur bloc">
                     <p class="bloc-titre">Adresse et compteurs</p>
@@ -82,14 +80,12 @@ $coqueActif = 'clients';
 </main>
 
 <script>
-    // Copie le premier bloc d'adresse, vidé, à la fin de la liste
     function ajouterAdresse() {
         const modele = document.querySelector('.adresse-compteur');
         const copie = modele.cloneNode(true);
         copie.querySelectorAll('input').forEach(function (input) { input.value = ''; });
         document.getElementById('adresses').appendChild(copie);
     }
-    // Un agent n'a pas d'adresse ni de compteur : on cache ces champs
     function changerRole() {
         const client = document.getElementById('role').value === 'consommateur';
         document.querySelectorAll('.client-field').forEach(function (field) {

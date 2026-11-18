@@ -1,7 +1,6 @@
 <?php if (!isset($reclamations)) { http_response_code(404); exit; } ?>
 <?php require_once ROOT.'IHM/commun/outils.php'; ?>
 <?php
-// Liste simple des réclamations (lecture seule).
 $coqueTitre = 'Réclamations';
 $coqueActif = 'reclamations';
 ?>

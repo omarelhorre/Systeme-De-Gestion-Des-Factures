@@ -1,12 +1,9 @@
 <?php
-    // Page "Mon compte" : chaque utilisateur peut changer son email ou son mot de passe.
-    // Le nom, le prénom, le numéro d'identité et le téléphone sont affichés mais non modifiables ici.
     include_once(ROOT."/BD/utilisateur.php");
     include_once(ROOT."/BD/fournisseur.php");
     include_once(ROOT."/BD/consommateur.php");
     include_once(ROOT."/BD/agent.php");
 
-    // $action : 'profil' (affichage), 'modifierEmail', 'modifierMotDePasse' ou 'modifierSeuils' (formulaires en POST)
     function profil($action)
     {
         if (!isset($_SESSION['user'])) {
@@ -26,7 +23,6 @@
                 if (!hash_equals($_SESSION['csrf_profil'], (string)($_POST['csrf'] ?? ''))) {
                     $erreur = 'Session expirée : rechargez la page.';
                 }
-                // Seuils d'anomalie : réservés au fournisseur, sans mot de passe (ce n'est pas une donnée de connexion)
                 else if ($action == 'modifierSeuils')
                     {
                         include_once(ROOT."/BD/compte.php");
@@ -42,7 +38,6 @@
                             $_SESSION['message_profil'] = 'Seuils d\'anomalie enregistrés. Ils s\'appliquent aux prochaines déclarations.';
                         }
                     }
-                // Toute autre modification demande le mot de passe actuel
                 else if (!password_verify($motDePasseActuel, $utilisateur['pass'])) {
                     $erreur = 'Mot de passe actuel incorrect.';
                 }
@@ -72,11 +67,9 @@
                             modifierMotDePasseUtilisateur($id, $hache);
                             $_SESSION['user']['pass'] = $hache;
                             $_SESSION['message_profil'] = 'Votre mot de passe a été modifié.';
-                            // La demande "changez votre mot de passe" du message de bienvenue est traitée.
                             resoudreNotification($id, 'bienvenue');
                         }
                     }
-                // Réussite : nouveau jeton, puis retour sur la page (évite de renvoyer le formulaire)
                 if ($erreur === '') {
                     $_SESSION['csrf_profil'] = bin2hex(random_bytes(32));
                     header("Location:".link."utilisateur/profil");
@@ -87,13 +80,11 @@
         $message = $_SESSION['message_profil'] ?? '';
         unset($_SESSION['message_profil']);
 
-        // Rôle de l'utilisateur : il décide du menu affiché et des champs en plus (consommateur)
         $consommateur = checkConsommateur($id);
         if ($consommateur) $role = 'consommateur';
         else if (checkAgent($id)) $role = 'agent';
         else $role = 'fournisseur';
 
-        // Cartes d'informations de la page, selon le rôle (lecture seule)
         include_once(ROOT."/BD/compte.php");
         if ($role === 'consommateur') $infosCompte = compteConsommateur($id);
         else if ($role === 'agent') $infosCompte = compteAgent($id);

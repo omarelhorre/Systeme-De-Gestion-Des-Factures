@@ -1,3 +1,23 @@
+DROP TABLE IF EXISTS notification;
+DROP TABLE IF EXISTS reclamationFacture;
+DROP TABLE IF EXISTS fuiteExterne;
+DROP TABLE IF EXISTS fuiteInterne;
+DROP TABLE IF EXISTS autre;
+DROP TABLE IF EXISTS reclamationFuite;
+DROP TABLE IF EXISTS reclamation;
+DROP TABLE IF EXISTS facture;
+DROP TABLE IF EXISTS declaration;
+DROP TABLE IF EXISTS regularisationAnnuelle;
+DROP TABLE IF EXISTS ConsommationAnuelle;
+DROP TABLE IF EXISTS fichierAnuelle;
+DROP TABLE IF EXISTS contrat;
+DROP TABLE IF EXISTS adresseCompteur;
+DROP TABLE IF EXISTS quartier;
+DROP TABLE IF EXISTS consommateur;
+DROP TABLE IF EXISTS fournisseur;
+DROP TABLE IF EXISTS agent;
+DROP TABLE IF EXISTS utilisateur;
+
 CREATE TABLE utilisateur
 (
     id int primary key AUTO_INCREMENT,
@@ -31,7 +51,6 @@ CREATE TABLE consommateur
     FOREIGN KEY (id) REFERENCES utilisateur(id)
 );
 
--- Un quartier est associé à un type d'activité ; un client peut avoir des compteurs (contrats) dans plusieurs quartiers
 CREATE TABLE quartier
 (
     id int primary key AUTO_INCREMENT,
@@ -50,7 +69,7 @@ CREATE TABLE adresseCompteur
     id int primary key AUTO_INCREMENT,
     idConsommateur int NOT NULL,
     adresse varchar(255) NOT NULL,
-    categorie varchar(50) NOT NULL,       -- copie du type d'activité du quartier
+    categorie varchar(50) NOT NULL,
     idQuartier int,
     FOREIGN KEY (idConsommateur) REFERENCES consommateur(id),
     FOREIGN KEY (idQuartier) REFERENCES quartier(id)
@@ -130,8 +149,8 @@ CREATE TABLE facture(
     idDeclaration int UNIQUE NOT NULL,
     etat varchar(20) DEFAULT 'Impayée' NOT NULL, 
     datePaiement DATE,
-    modePaiement varchar(20),             -- NULL = espèces chez le fournisseur, 'en ligne' = carte via CMI
-    referencePaiement varchar(64),        -- numéro de transaction CMI
+    modePaiement varchar(20),
+    referencePaiement varchar(64),
     cheminGenere varchar(255) NOT NULL,
     dateGeneration DATE DEFAULT (CURRENT_DATE()) NOT NULL,
     FOREIGN KEY (idDeclaration) REFERENCES declaration(id),
@@ -155,13 +174,11 @@ CREATE TABLE reclamationFuite(
     FOREIGN KEY (idReclamation) REFERENCES reclamation(idReclamation)
 );
 
-
 CREATE TABLE autre(
 
     idReclamation int primary key,
     FOREIGN KEY (idReclamation) REFERENCES reclamation(idReclamation)
 );
-
 
 CREATE TABLE fuiteInterne(
 
@@ -185,16 +202,19 @@ CREATE TABLE reclamationFacture(
 CREATE TABLE notification
 (
     id int primary key AUTO_INCREMENT,
-    idUtilisateur int NOT NULL,              -- le destinataire
-    type varchar(40) NOT NULL,               -- bienvenue, facture, anomalie, reclamation_nouvelle...
+    idUtilisateur int NOT NULL,
+    type varchar(40) NOT NULL,
     titre varchar(150) NOT NULL,
     detail varchar(255),
-    lien varchar(255),                       -- page à ouvrir, relative au site (ex. facture/detail/12)
-    aTraiter tinyint(1) DEFAULT 0 NOT NULL,  -- 1 = demande une action de l'utilisateur
-    idObjet int,                             -- la déclaration, facture ou réclamation concernée
+    lien varchar(255),
+    aTraiter tinyint(1) DEFAULT 0 NOT NULL,
+    idObjet int,
     dateCreation DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    dateLecture DATETIME,                    -- NULL = pas encore vue
-    dateResolution DATETIME,                 -- NULL = pas encore traitée (si aTraiter = 1)
+    dateLecture DATETIME,
+    dateResolution DATETIME,
     FOREIGN KEY (idUtilisateur) REFERENCES utilisateur(id),
     INDEX idx_notification_utilisateur (idUtilisateur, id)
 );
+
+INSERT INTO utilisateur (id, nom, prenom, email, pass) VALUES (1, 'Fatourti', 'Admin', 'admin@fatourti.local', '$2y$10$RafL1ygM55DWYU844p/r6uNCikqMgvMvRNBXVB28uZdX0vwttgWzC');
+INSERT INTO fournisseur (id) VALUES (1);

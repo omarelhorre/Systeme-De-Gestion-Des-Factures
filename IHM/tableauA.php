@@ -1,7 +1,5 @@
 <?php
-// Page de l'agent : dépôt du fichier annuel et liste des clients à relever.
-// Variables fournies par traiterImportAnnuel() : $annee, $agent, $message, $erreur, $fichierImporte, $clientsAgent, $declareAnnee.
-require_once ROOT.'IHM/commun/outils.php';   // indexFr()
+require_once ROOT.'IHM/commun/outils.php';
 $coqueTitre = 'Importation annuelle';
 $coqueActif = 'tableau';
 $coqueRole = 'Agent';
@@ -21,7 +19,7 @@ $coqueMenu = array(
 <main class="contenu entree">
     <header class="entete">
         <h1 class="titre">Consommation annuelle <?=$annee?></h1>
-        <?php if ($fichierImporte): ?><p class="sous-titre"><span class="etat ok">Fichier <?=$annee?> importé</span></p><?php endif; ?>
+        <?php if ($fichierImporte): ?><p class="sous-titre"><i class="fa-solid fa-circle-check" style="color: var(--vert)"></i> Fichier <?=$annee?> importé</p><?php endif; ?>
     </header>
 
     <?php if ($message): ?><p class="message" role="status"><i class="fa-solid fa-circle-check"></i><span><?=htmlspecialchars($message, ENT_QUOTES, 'UTF-8')?></span></p><?php endif; ?>
@@ -49,7 +47,6 @@ $coqueMenu = array(
             </section>
         <?php endif; ?>
 
-        <!-- Widget large : les clients, leur identifiant pour le fichier, et de quoi vérifier la tournée -->
         <section class="carte" style="grid-column: 1 / -1">
             <h2 class="titre-carte">Clients</h2>
             <?php if (!$clientsAgent): ?>

@@ -1,5 +1,4 @@
 <?php
-    // Page "Mon compte" : informations à afficher selon le rôle. Lecture seule.
     include_once(ROOT."BD/connexion.php");
     $link = connexion();
 
@@ -12,7 +11,6 @@
         return mysqli_fetch_all(mysqli_stmt_get_result($q), MYSQLI_ASSOC);
     }
 
-    // Consommateur : ses compteurs (avec contrat et dernier relevé), ses factures, ses réclamations, son fournisseur
     function compteConsommateur($id)
     {
         $compteurs = compteLignes(
@@ -38,7 +36,6 @@
                      'fournisseur' => $fournisseur ? $fournisseur[0] : null);
     }
 
-    // Fournisseur : les chiffres de son activité
     function compteFournisseur($id)
     {
         return compteLignes(
@@ -55,7 +52,6 @@
             'iiiiiiiii', $id, $id, $id, $id, $id, $id, $id, $id, $id)[0];
     }
 
-    // Seuils d'anomalie du fournisseur : au-delà, une déclaration devient une anomalie au lieu d'une facture
     function modifierSeuilsFournisseur($id, $seuilEau, $seuilElectricite)
     {
         global $link;
@@ -64,7 +60,6 @@
         return mysqli_stmt_execute($q);
     }
 
-    // Agent : ses importations annuelles
     function compteAgent($id)
     {
         return compteLignes(

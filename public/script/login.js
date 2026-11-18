@@ -1,5 +1,3 @@
-// Page de connexion Fatourti
-// Bouton œil : afficher / masquer le mot de passe
 document.querySelectorAll(".auth-oeil").forEach((bouton) => {
     bouton.addEventListener("click", () => {
         const champ = bouton.parentElement.querySelector("input");

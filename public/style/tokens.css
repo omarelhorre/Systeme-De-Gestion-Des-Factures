@@ -1,11 +1,4 @@
-/* =========================================================
-   FATOURTI — variables partagées
-   Couleurs "service public" (drapeau + papier officiel),
-   formes et espacements repris de tp3parking.
-   Chaque couleur a UN seul sens (voir les commentaires).
-   ========================================================= */
 
-/* Chiffres 7 segments, utilisés UNIQUEMENT pour les index d'électricité */
 @font-face {
     font-family: "DSEG7";
     src: url("https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2") format("woff2");
@@ -14,36 +7,31 @@
 }
 
 :root {
-    /* Papier et encre */
-    --page: #F6F4EF;           /* fond, comme un papier officiel */
-    --cadre: #FFFFFF;          /* cadre de page */
-    --carte: #F1EEE7;          /* blocs posés dans le cadre */
-    --trait: #E6E2D8;          /* bordure du cadre uniquement */
-    --bordure: #D9D4C8;        /* bordure des champs */
-    --ombre: 0 1px 2px rgba(14, 17, 22, 0.04), 0 6px 16px -4px rgba(14, 17, 22, 0.08);   /* ombre légère des widgets */
-    --survol: #FBFAF7;         /* survol d'une ligne de tableau */
+    --page: #F6F4EF;
+    --cadre: #FFFFFF;
+    --carte: #F1EEE7;
+    --trait: #E6E2D8;
+    --bordure: #D9D4C8;
+    --ombre: 0 1px 2px rgba(14, 17, 22, 0.04), 0 6px 16px -4px rgba(14, 17, 22, 0.08);
+    --survol: #FBFAF7;
     --texte: #0E1116;
-    --attenue: #6B6F76;        /* texte secondaire */
-    --gris: #A19E96;           /* moitié douce d'un titre, placeholders, icônes */
+    --attenue: #6B6F76;
+    --gris: #A19E96;
 
-    /* Couleurs institutionnelles */
-    --vert: #006233;           /* L'action principale de l'écran, validé, payé */
-    --rouge: #C1272D;          /* sceau, erreurs, factures en retard */
-    --attente: #D4911E;        /* en attente (réclamation), à régler avant l'échéance */
-    --encours: #2F6FB3;        /* réclamation en cours de traitement */
+    --vert: #006233;
+    --rouge: #C1272D;
+    --attente: #D4911E;
+    --encours: #2F6FB3;
 
-    /* Couleurs des services : uniquement pour les données */
-    --elec: #9A5B00;           /* électricité : texte */
-    --elec-vif: #F2B33D;       /* électricité : chiffres allumés */
-    --elec-clair: #FBEBC8;     /* électricité : aplat sous la courbe */
-    --eau: #1F4E8C;            /* eau : texte et courbes */
-    --eau-clair: #DCE8F5;      /* eau : aplat sous la courbe */
+    --elec: #9A5B00;
+    --elec-vif: #F2B33D;
+    --elec-clair: #FBEBC8;
+    --eau: #1F4E8C;
+    --eau-clair: #DCE8F5;
 
-    /* Traits des graphiques (validés : contraste, daltonisme, luminosité) */
     --courbe-elec: #9A5B00;
     --courbe-eau: #2A63A8;
 
-    /* Polices (celles de Jamy / tp3parking) */
     --marque: "Outfit", Arial, sans-serif;
     --titre: "Barlow Condensed", "Arial Narrow", sans-serif;
     --corps: "Inter", Arial, sans-serif;
@@ -73,5 +61,4 @@ button, input, select, textarea { font: inherit; color: inherit; }
 :lang(ar) { font-family: var(--arabe); }
 :lang(zgh) { font-family: var(--tifinagh); }
 
-/* Chiffres : zéro sans point */
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; font-feature-settings: "zero" 0; }

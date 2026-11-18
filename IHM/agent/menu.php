@@ -1,5 +1,4 @@
 <?php
-// Menu de l'agent. La page définit $coqueActif avant l'include : 'tableau'.
 $coqueRole = 'Agent';
 $coqueAccueil = 'agent/tableauDeBord';
 $coqueMenu = array(

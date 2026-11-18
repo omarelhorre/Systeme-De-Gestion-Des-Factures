@@ -1,13 +1,4 @@
 <?php
-// DONNÉES DE DÉMONSTRATION — à lancer une seule fois, dans le conteneur :
-//   docker exec php_backend_v2 php /var/www/html/mock/seed-omarelhorre.php
-//
-// Pour le client omarelhorre@gmail.com, sur sa première adresse de compteur :
-//   - relevé de référence en mai, puis un relevé validé par mois de juin à octobre 2026
-//   - une facture PDF par relevé (juin à août payées, septembre et octobre impayées)
-//   - 7 réclamations réparties sur les 6 derniers mois (traitées, en cours, en attente)
-//   - les notifications correspondantes (client et fournisseur)
-// Le script refuse de tourner deux fois (il s'arrête si le client a déjà des relevés validés).
 
 define('ROOT', __DIR__.'/../');
 define('link', 'http://localhost:8080/');
@@ -31,7 +22,6 @@ function ligne($db, $sql, $types = '', ...$valeurs)
     return $resultat ? mysqli_fetch_assoc($resultat) : null;
 }
 
-// ----- Le client, son fournisseur et sa première adresse -----
 $client = ligne($db, 'SELECT u.id, u.nom, u.prenom, c.idFournisseur FROM utilisateur u JOIN consommateur c ON c.id=u.id WHERE u.email=?', 's', EMAIL_CLIENT);
 if (!$client) exit("Client ".EMAIL_CLIENT." introuvable.\n");
 $idClient = (int)$client['id'];
@@ -46,7 +36,6 @@ if ((int)$deja['n'] > 0) exit("Le client a déjà des relevés validés : rien n
 mysqli_begin_transaction($db);
 $fichiersCrees = array();
 try {
-    // ----- Relevé de référence : placé le 20 mai 2026 -----
     $reference = ligne($db, "SELECT id, indexEau, indexElectricite FROM declaration WHERE idAdresseCompteur=? AND statut='Référence initiale' ORDER BY id LIMIT 1", 'i', $idAdresse);
     if ($reference) {
         $q = mysqli_prepare($db, "UPDATE declaration SET dateSaisie='2026-05-20', dateDebut='2026-05-20' WHERE id=?");
@@ -58,8 +47,6 @@ try {
         $precedente = array('indexEau' => 0.0, 'indexElectricite' => 0.0, 'dateSaisie' => '2026-05-20');
     }
 
-    // ----- Un relevé validé par mois, avec sa facture -----
-    // [mois, m³ d'eau consommés, kWh consommés, payée le (null = impayée)]
     $mois = array(
         array('2026-06', 11.5, 184.0, '2026-06-28'),
         array('2026-07', 14.2, 247.0, '2026-07-27'),
@@ -101,8 +88,6 @@ try {
         $precedente = $courante;
     }
 
-    // ----- Réclamations des 6 derniers mois -----
-    // [date, type, description, statut, réponse]
     $reclamations = array(
         array('2026-05-27', 'fuite_externe', "Fuite d'eau visible sur le trottoir devant le compteur depuis ce matin.", 'Traitée', "Une équipe est intervenue le 28 mai : le joint du raccord extérieur a été remplacé."),
         array('2026-06-24', 'autre', "Le capot du compteur d'électricité est cassé, l'écran est difficile à lire.", 'Traitée', "Capot remplacé lors du passage du technicien le 2 juillet."),
@@ -121,7 +106,6 @@ try {
         mysqli_stmt_execute($q);
         $idReclamation = mysqli_insert_id($db);
         if ($type === 'facture') {
-            // la facture du mois précédant la réclamation
             $cle = $date >= '2026-11-01' ? '2026-10' : ($date >= '2026-09-01' ? '2026-09' : '2026-07');
             $q = mysqli_prepare($db, 'INSERT INTO reclamationFacture (idReclamation, id) VALUES (?,?)');
             mysqli_stmt_bind_param($q, 'ii', $idReclamation, $factures[$cle]['id']);
@@ -134,7 +118,6 @@ try {
         $idsReclamations[] = array($idReclamation, $date, $statut, $reponse, $description);
     }
 
-    // ----- Notifications correspondantes (les anciennes sont déjà lues) -----
     $notif = mysqli_prepare($db, 'INSERT INTO notification (idUtilisateur, type, titre, detail, lien, aTraiter, idObjet, dateCreation, dateLecture, dateResolution) VALUES (?,?,?,?,?,?,?,?,?,?)');
     $ajouter = function ($utilisateur, $type, $titre, $detail, $lienNotif, $aTraiter, $objet, $creee, $lue, $resolue) use ($notif) {
         mysqli_stmt_bind_param($notif, 'issssiisss', $utilisateur, $type, $titre, $detail, $lienNotif, $aTraiter, $objet, $creee, $lue, $resolue);
@@ -163,7 +146,6 @@ try {
     exit('Erreur, rien n\'a été enregistré : '.$e->getMessage()."\n");
 }
 
-// ----- Résumé -----
 $impayees = array_filter($factures, function ($f) { return !$f['payeLe']; });
 echo "Client ".EMAIL_CLIENT." (n° $idClient), adresse n° $idAdresse : ".$adresse['adresse']."\n";
 echo count($factures)." relevés validés et factures, dont ".count($impayees)." impayées : ";

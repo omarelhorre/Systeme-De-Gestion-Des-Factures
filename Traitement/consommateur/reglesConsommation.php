@@ -1,15 +1,10 @@
 <?php
-// Règles de facturation (cahier des charges du TP).
-// Les prix par tranche sont ceux du sujet ; ils servent aux factures mensuelles ET au bilan annuel.
 
 const TVA_CONSOMMATION = 0.18;
 
-// Seuils d'anomalie par défaut : chaque fournisseur peut définir les siens (Mon compte).
-const SEUIL_ELECTRICITE_DEMO = 1000.0; // kWh par relevé
-const SEUIL_EAU_DEMO = 100.0;          // m3 par relevé
+const SEUIL_ELECTRICITE_DEMO = 1000.0;
+const SEUIL_EAU_DEMO = 100.0;
 
-// Prix unitaires selon la consommation mensuelle : [début, fin (null = sans limite), prix en DH].
-// Chaque tranche est facturée à son propre prix (ex. 192 kWh = 100 × 0,82 + 50 × 0,92 + 42 × 1,10).
 const TRANCHES_ELECTRICITE = array(
     array(0, 100, 0.82),
     array(100, 150, 0.92),
@@ -40,8 +35,6 @@ function lireIndex($valeur)
     return (float)str_replace(',', '.', trim($valeur));
 }
 
-// Détail du prix d'une consommation : une ligne par tranche utilisée.
-// Renvoie [['de' => 0, 'a' => 100, 'quantite' => 100, 'prix' => 0.82, 'montant' => 82.0], ...]
 function detailTranches($quantite, array $tranches)
 {
     $lignes = array();
@@ -65,8 +58,6 @@ function coutElectriciteMensuel($quantite)
     return array_sum(array_column(detailTranches($quantite, TRANCHES_ELECTRICITE), 'montant'));
 }
 
-// Nombre de mois couverts par un relevé : du mois du dernier relevé valide au mois actuel (au moins 1).
-// Ex. dernier relevé en septembre, nouveau en novembre (octobre oublié) = 2 mois.
 function moisCouverts($precedente)
 {
     $avant = new DateTimeImmutable(substr((string)$precedente['dateSaisie'], 0, 10));
@@ -76,14 +67,12 @@ function moisCouverts($precedente)
     return max(1, $mois);
 }
 
-// $seuils : ['eau' => m³, 'electricite' => kWh] du fournisseur ; sans valeur, les seuils par défaut.
 function calculerDeclaration($eau, $electricite, $precedente, $validationFournisseur = false, $seuils = null)
 {
     if ($precedente === null) {
         return array('statut' => 'Référence initiale', 'eau' => null, 'electricite' => null,
             'motif' => '', 'ht' => null, 'ttc' => null);
     }
-    // Les seuils sont mensuels : un relevé qui couvre plusieurs mois (mois oublié) a droit à autant de fois le seuil.
     $mois = moisCouverts($precedente);
     $seuilEau = (float)($seuils['eau'] ?? SEUIL_EAU_DEMO) * $mois;
     $seuilElectricite = (float)($seuils['electricite'] ?? SEUIL_ELECTRICITE_DEMO) * $mois;

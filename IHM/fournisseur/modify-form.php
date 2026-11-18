@@ -1,17 +1,14 @@
 <?php
-// Modification d'un client. Variables fournies par modify() : $result, $contrat, $contrats, $adressesCompteur.
 $coqueTitre = 'Modifier un client';
 $coqueActif = 'clients';
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
 
-// Un contrat par adresse de compteur : on range les contrats par adresse pour les afficher à côté.
 $contratParAdresse = array();
 $nbActifs = 0;
 $nbEnResiliation = 0;
 foreach ($contrats as $ligneContrat) {
     if ($ligneContrat['statut'] === 'actif') $nbActifs++;
     if ($ligneContrat['statut'] === CONTRAT_EN_RESILIATION) $nbEnResiliation++;
-    // si une adresse a plusieurs contrats, on garde l'actif, sinon le plus récent
     $cle = (int)$ligneContrat['idAdresseCompteur'];
     if (!isset($contratParAdresse[$cle]) || in_array($ligneContrat['statut'], array('actif', CONTRAT_EN_RESILIATION), true)) $contratParAdresse[$cle] = $ligneContrat;
 }

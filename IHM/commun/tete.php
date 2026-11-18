@@ -1,7 +1,4 @@
 <?php
-// Contenu commun du <head> des pages connectées.
-// Avant l'include, la page définit $coqueTitre (le titre de l'onglet).
-// ?v=... : date de modification du fichier, pour que le navigateur recharge les styles après chaque mise à jour.
 ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

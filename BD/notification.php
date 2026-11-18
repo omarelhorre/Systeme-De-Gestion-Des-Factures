@@ -1,5 +1,4 @@
 <?php
-    // Notifications : toutes les requêtes passent par mysqli_prepare.
     include_once(ROOT."BD/connexion.php");
     $link = connexion();
 
@@ -13,7 +12,6 @@
         return mysqli_insert_id($link);
     }
 
-    // Les 30 dernières notifications d'un utilisateur, les plus récentes d'abord
     function notificationsDe($idUtilisateur)
     {
         global $link;
@@ -33,14 +31,12 @@
         return (int)mysqli_fetch_row(mysqli_stmt_get_result($q))[0];
     }
 
-    // L'heure de la base, dans le même format que dateCreation
     function notificationMaintenant()
     {
         global $link;
         return mysqli_fetch_row(mysqli_query($link, "SELECT NOW()"))[0];
     }
 
-    // Vrai si l'utilisateur a déjà reçu une notification de ce type (ex. le message de bienvenue)
     function notificationExiste($idUtilisateur,$type)
     {
         global $link;
@@ -50,7 +46,6 @@
         return mysqli_fetch_row(mysqli_stmt_get_result($q)) !== null;
     }
 
-    // Marquer une notification comme vue (seulement si elle appartient à l'utilisateur)
     function notificationLire($id,$idUtilisateur)
     {
         global $link;
@@ -67,7 +62,6 @@
         return mysqli_stmt_execute($q);
     }
 
-    // Marquer comme traitées les notifications "à traiter" d'un type (et d'un objet, s'il est donné)
     function notificationResoudre($idUtilisateur,$type,$idObjet)
     {
         global $link;
@@ -83,9 +77,6 @@
         return mysqli_stmt_execute($q);
     }
 
-    // ----- Petites lectures utiles pour savoir à qui écrire -----
-
-    // Nom, prénom et email d'un utilisateur
     function notificationDestinataire($idUtilisateur)
     {
         global $link;
@@ -95,7 +86,6 @@
         return mysqli_fetch_assoc(mysqli_stmt_get_result($q));
     }
 
-    // Le fournisseur d'un consommateur
     function notificationFournisseurDe($idConsommateur)
     {
         global $link;
@@ -106,7 +96,6 @@
         return $ligne ? (int)$ligne[0] : null;
     }
 
-    // Le consommateur à qui appartient une facture
     function notificationConsommateurDeFacture($idFacture)
     {
         global $link;
@@ -117,7 +106,6 @@
         return $ligne ? (int)$ligne[0] : null;
     }
 
-    // Le consommateur à qui appartient une déclaration
     function notificationConsommateurDeDeclaration($idDeclaration)
     {
         global $link;
@@ -128,7 +116,6 @@
         return $ligne ? (int)$ligne[0] : null;
     }
 
-    // La dernière réclamation déposée par un consommateur
     function notificationDerniereReclamation($idConsommateur)
     {
         global $link;

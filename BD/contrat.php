@@ -9,7 +9,6 @@
         AND contrat.idConsommateur = ".(int)$id;
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
-    // Un contrat par adresse de compteur : $idAdresseCompteur relie le contrat à son compteur.
     function ajouterContrat($id,$cheminGeneration,$idAdresseCompteur=null)
     {
         global $link;
@@ -18,7 +17,6 @@
         return mysqli_query($link,$sql);
     }
 
-    // Tous les contrats d'un client, avec l'adresse du compteur de chacun
     function contratsDuConsommateur($id)
     {
         global $link;
@@ -37,9 +35,6 @@
                 return mysqli_query($link,$sql);
     }
 
-    // ----- Résiliation en deux temps -----
-    // 1. Le fournisseur lance la résiliation : le contrat passe "en résiliation" (il n'est pas encore fermé).
-    // 2. Le client déclare son relevé final : sa facture finale est créée, puis le contrat passe "resilié".
     const CONTRAT_EN_RESILIATION = 'en résiliation';
 
     function demarrerResiliation($id)
@@ -52,8 +47,6 @@
         return mysqli_stmt_affected_rows($q) === 1;
     }
 
-    // État du contrat d'un compteur : 'actif', 'en résiliation', 'resilié', ou null s'il n'a pas de contrat.
-    // Si le compteur a plusieurs contrats, le plus "vivant" compte (actif, puis en résiliation, puis le dernier).
     function statutContratAdresse($idAdresseCompteur)
     {
         global $link;
@@ -66,7 +59,6 @@
         return $ligne ? $ligne[0] : null;
     }
 
-    // Ferme le contrat "en résiliation" d'un compteur (après son relevé final). Renvoie l'id du contrat fermé, ou null.
     function cloturerContratAdresse($idAdresseCompteur)
     {
         global $link;

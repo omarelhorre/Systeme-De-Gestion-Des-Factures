@@ -42,7 +42,6 @@ function envoyerPdfFacture($facture, $telecharger)
     exit;
 }
 
-// $etat : filtre de la liste, lu dans l'adresse (facture/all/payees, facture/all/impayees) par index.php
 function afficherFacturesFournisseur($action, $id = null, $etat = '')
 {
     if (session_status() !== PHP_SESSION_ACTIVE) session_start();
@@ -75,7 +74,6 @@ function afficherFacturesFournisseur($action, $id = null, $etat = '')
             if (!is_string($_POST['csrf'] ?? null) || !hash_equals($_SESSION['csrf_factures'], $_POST['csrf'])) erreurFacture(403, 'Confirmation expirée. Rechargez la facture.');
             if (($_POST['confirmation'] ?? '') !== 'oui') erreurFacture(400, 'Confirmez la réception du paiement en espèces.');
             $paye = payerFactureFournisseur($db, $fournisseur, $id);
-            // Notification : le client est prévenu que sa facture est payée.
             if ($paye) notifier(notificationConsommateurDeFacture($id), 'facture_payee', 'Paiement reçu pour la facture n° '.$id, 'Votre paiement en espèces a été enregistré.', 'declaration/all', array('idObjet' => $id, 'email' => true));
             $_SESSION['message_factures'] = $paye
                 ? 'Paiement en espèces enregistré.' : 'Aucun changement : paiement déjà enregistré ou état incompatible.';

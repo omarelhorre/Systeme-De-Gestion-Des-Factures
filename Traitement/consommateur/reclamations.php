@@ -26,7 +26,6 @@ function validerReclamationConsommateur(array $donnees): array
     return [$type, $description, $idFacture];
 }
 
-// $vue : 'all' (la liste) ou 'ajouter' (le formulaire). Le formulaire est envoyé en POST.
 function traiterReclamationsConsommateur(string $vue = 'all'): void
 {
     $methode = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -70,7 +69,6 @@ function traiterReclamationsConsommateur(string $vue = 'all'): void
                 }
                 [$type, $description, $idFacture] = validerReclamationConsommateur($_POST);
                 enregistrerReclamationConsommateur($db, $idConsommateur, $type, $description, $idFacture);
-                // Notification : le fournisseur du client est prévenu de la nouvelle réclamation.
                 $idNouvelle = notificationDerniereReclamation($idConsommateur);
                 notifier(notificationFournisseurDe($idConsommateur), 'reclamation_nouvelle', 'Nouvelle réclamation n° '.$idNouvelle, mb_substr($description, 0, 200), 'reclamation/detail/'.$idNouvelle, array('aTraiter' => true, 'idObjet' => $idNouvelle));
                 $_SESSION['csrf_reclamations'] = bin2hex(random_bytes(32));
@@ -85,7 +83,6 @@ function traiterReclamationsConsommateur(string $vue = 'all'): void
         unset($_SESSION['message_reclamations']);
         $factures = facturesDuConsommateur($db, $idConsommateur);
         $reclamations = historiqueReclamationsConsommateur($db, $idConsommateur);
-        // Formulaire demandé, ou renvoyé avec une erreur ; sinon la liste
         include ROOT . ($vue === 'ajouter' || $erreur !== '' ? 'IHM/consommateur/reclamationForm.php' : 'IHM/consommateur/reclamations.php');
     } catch (Throwable $exception) {
         error_log('Fatourti réclamations : ' . $exception->getMessage());

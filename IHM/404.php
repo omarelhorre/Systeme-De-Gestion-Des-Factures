@@ -1,5 +1,4 @@
 <?php
-// Page introuvable : un grand 404 au milieu, et le lien pour repartir.
 $coqueTitre = 'Page introuvable';
 ?>
 <!DOCTYPE html>

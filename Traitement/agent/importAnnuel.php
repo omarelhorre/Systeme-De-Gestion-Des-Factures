@@ -78,7 +78,6 @@ function traiterImportAnnuel()
                 throw $e;
             }
             $envoyes = envoyerRappelsAnnuels($db);
-            // Notification : chaque fournisseur concerné est prévenu, une seule fois.
             $fournisseursPrevenus = array();
             foreach ($lignes as $ligneAnnuelle) {
                 $idFournisseurAnnuel = notificationFournisseurDe((int)$ligneAnnuelle[0]);
@@ -104,7 +103,6 @@ function traiterImportAnnuel()
     $message = $_SESSION['message_annuel'] ?? '';
     unset($_SESSION['message_annuel']);
     $fichierImporte = fichierAnnuelDeAgent($db, $agent, $annee);
-    // Tableau des clients sous l'import : pour vérifier les identifiants et comparer avec la tournée
     $clientsAgent = clientsPourAgent($db, $annee);
     $declareAnnee = consommationsDeclareesAnnee($db, $annee);
     include ROOT.'IHM/tableauA.php';

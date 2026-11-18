@@ -1,6 +1,3 @@
-/* Page de connexion Fatourti.
-   Structure et espacements identiques à la page d'auth de tp3parking,
-   couleurs depuis tokens.css. */
 
 .page-auth {
     min-height: 100vh;
@@ -22,7 +19,6 @@
     border-radius: 1.75rem;
 }
 
-/* ---------- En-tête : la marque seule ---------- */
 .marque {
     font-family: var(--marque);
     font-weight: 800;
@@ -31,7 +27,6 @@
     line-height: 1.05;
 }
 
-/* ---------- Corps : visuel | formulaire ---------- */
 .auth-corps {
     flex: 1;
     display: grid;
@@ -55,7 +50,6 @@
     object-fit: cover;
 }
 
-/* ---------- Formulaire (copie de tp3parking) ---------- */
 .auth-cote {
     display: flex;
     align-items: center;
@@ -80,7 +74,6 @@
 .auth-titre > span { display: block; }
 .auth-titre .gris { color: var(--gris); }
 
-/* Le "é" d'électricité clignote comme un voyant : allumé / éteint, sans fondu */
 .lettre-elec {
     color: var(--elec-vif);
     animation: clignote 1.6s steps(1) infinite;
@@ -94,17 +87,13 @@
     70%  { color: var(--elec-vif); }
 }
 
-/* Le "u" d'Eau est un récipient : l'eau monte dans son creux, avec une vague en surface.
-   Le bloc bleu est placé derrière la lettre ; ses bords sont cachés sous les traits du "u".
-   Les valeurs en em viennent de la mesure du "u" d'Outfit 600 :
-   traits de 0.13em, creux de 0.175em à 0.35em, haut du "u" à 0.4125em du haut de la ligne. */
 @property --vague-x { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @property --niveau  { syntax: "<length>"; inherits: false; initial-value: 100px; }
 
 .lettre-eau {
     position: relative;
     display: inline-block;
-    isolation: isolate;          /* pour que le bloc bleu passe derrière la lettre seulement */
+    isolation: isolate;
 }
 
 .lettre-eau::before {
@@ -126,12 +115,10 @@
     animation: vague 1.4s linear infinite, remplir 6s ease-in-out infinite;
 }
 
-/* la vague glisse d'une période, en boucle */
 @keyframes vague {
     to { --vague-x: 0.25em; }
 }
 
-/* vide -> plein (juste sous le bord) -> reste plein -> se vide */
 @keyframes remplir {
     0%, 8%   { --niveau: 0.45em; }
     55%, 85% { --niveau: 0.02em; }
@@ -155,7 +142,6 @@
     display: block;
 }
 
-/* icônes Font Awesome dans les champs */
 .auth-icone {
     position: absolute;
     top: 50%;
@@ -178,7 +164,6 @@
 .auth-champ input::placeholder { color: var(--gris); }
 .auth-champ input:focus { outline: none; border-color: var(--vert); }
 
-/* Remplissage automatique du navigateur : garder le fond du cadre (pas de bleu) */
 .auth-champ input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 2rem var(--cadre) inset;
     -webkit-text-fill-color: var(--texte);
@@ -229,7 +214,6 @@
     text-align: center;
 }
 
-/* ---------- Entrée en flou ---------- */
 .entree { animation: apparition 0.4s ease both; }
 
 @keyframes apparition {
@@ -242,7 +226,6 @@
     .lettre-eau::before { animation: none; --niveau: 0em; }
 }
 
-/* ---------- Mobile (comme tp3parking) ---------- */
 @media (max-width: 900px) {
     .page-auth { padding: 0; }
 

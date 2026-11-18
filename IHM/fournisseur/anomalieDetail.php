@@ -1,4 +1,4 @@
-<?php // Correction d'une déclaration anormale, incluse par anomaliesList.php. ?>
+<?php ?>
 <a class="lien-retour" href="<?= link ?>declaration/anomalies"><i class="fa-solid fa-arrow-left"></i> Retour aux anomalies</a>
 <header class="entete ligne">
     <div>

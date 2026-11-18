@@ -1,7 +1,4 @@
 <?php
-// Mes relevés : l'historique des relevés et des factures du client.
-// Le formulaire est sur sa propre page (declaration/ajouter), comme "Ajouter un client".
-// Variables fournies par traiterConsommation() : $client, $adresses, $declarations, $statutsAdresses, $date, $message, $erreur.
 require_once ROOT.'IHM/commun/outils.php';
 function h($valeur) { return htmlspecialchars((string)$valeur, ENT_QUOTES, 'UTF-8'); }
 $url = link . 'declaration/';
@@ -9,12 +6,10 @@ $coqueTitre = 'Mes relevés';
 $coqueActif = 'releves';
 $moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
 $jourReleve = function ($jour) { return $jour ? date('d/m/Y', strtotime($jour)) : '—'; };
-// Couleur du point selon le statut : validée = vert, anomalie = rouge, le reste = gris
 $etatReleve = function ($statut) {
     if ($statut === 'Validée') return 'ok';
     return strpos($statut, 'Anomalie') === 0 ? 'alerte' : '';
 };
-// Compteurs dont le relevé final est attendu (contrat en résiliation)
 $relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statutsAdresses) { return ($statutsAdresses[(int)$a['id']] ?? null) === CONTRAT_EN_RESILIATION; }));
 ?>
 <!DOCTYPE html>
@@ -44,7 +39,6 @@ $relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statut
     <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?=h($erreur)?></span></p><?php endif; ?>
 
     <?php if ($relevesFinaux): ?>
-        <!-- Contrat en résiliation : le relevé final peut être déclaré tout de suite -->
         <p class="message" role="status"><i class="fa-solid fa-file-signature" style="color: var(--attente)"></i>
             <span>Relevé final attendu pour
                 <?php foreach ($relevesFinaux as $i => $adresse): ?><?= $i > 0 ? ', ' : '' ?><a class="fort" style="text-decoration: underline" href="<?= $url ?>ajouter/<?= (int)$adresse['id'] ?>"><?= h($adresse['adresse']) ?></a><?php endforeach; ?>
@@ -83,7 +77,6 @@ $relevesFinaux = array_values(array_filter($adresses, function ($a) use ($statut
                             <?php list($libelle, $classe) = etatFacture($ligne['etat'], $ligne['dateSaisie']); ?><small><span class="etat <?= $classe ?>"><?= $libelle ?></span></small>
                         <?php else: ?><span class="note">—</span><?php endif; ?>
                     </td>
-                    <!-- Paiement en ligne : seulement pour une facture impayée -->
                     <td class="nombre">
                         <?php if ($ligne['idFacture'] && $ligne['etat'] === 'Impayée'): ?>
                             <?= boutonPayerEnLigne($ligne['idFacture'], $ligne['prixTTC']) ?>

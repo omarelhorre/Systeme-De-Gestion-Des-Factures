@@ -1,6 +1,4 @@
 <?php
-// Menu du consommateur. La page définit $coqueActif avant l'include :
-// 'tableau', 'releves' ou 'reclamations'.
 $coqueRole = 'Consommateur';
 $coqueAccueil = 'consommateur/tableauDeBord';
 $coqueMenu = array(

@@ -1,6 +1,4 @@
 <?php
-// Mes réclamations : la liste et leur suivi. Le formulaire est sur sa propre page (reclamation/ajouter).
-// Variables fournies par traiterReclamationsConsommateur('all') : $reclamations, $message, $erreur.
 require_once ROOT.'IHM/commun/outils.php';
 function texteReclamation($valeur): string
 {

@@ -3,7 +3,6 @@
     {
         $pass = getenv('mysql_password_root');
         $lien = mysqli_connect($serv,$user,$pass,$bd);
-        // Mode démo : MySQL prend la même date que PHP (NOW(), CURDATE()), voir Traitement/demo.php
         if ($lien && is_file('/tmp/fatourti-demo-date')) mysqli_query($lien, 'SET timestamp = '.time());
         return $lien;
     }

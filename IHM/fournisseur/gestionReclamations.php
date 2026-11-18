@@ -1,10 +1,8 @@
 <?php if (!isset($action, $statistiques, $reclamations)) { http_response_code(404); exit; } ?>
 <?php
-// Réclamations des clients : liste avec recherche ($action === 'all'), ou traitement d'une réclamation.
 $coqueTitre = 'Réclamations';
 $coqueActif = 'reclamations';
-// "Traitée" = vert, le reste = neutre
-require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
+require_once ROOT.'IHM/commun/outils.php';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -34,8 +32,6 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
         <section class="carte"><h2 class="titre-carte">Traitées</h2><p class="chiffre" style="margin-top: 0.75rem"><?= (int)$statistiques['traitee'] ?></p></section>
 
         <section class="liste" style="grid-column: 1 / -1">
-            <!-- Barre d'outils : le statut est un lien (reclamation/all/attente…) ;
-                 la recherche (Entrée) et le type (dès qu'on le change) sont envoyés en POST sur la même adresse -->
             <?php $adresseStatut = link.'reclamation/all'.($filtreStatut !== '' ? '/'.$filtreStatut : ''); ?>
             <form class="barre-outils" method="post" action="<?= $adresseStatut ?>">
                 <label class="outil"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>

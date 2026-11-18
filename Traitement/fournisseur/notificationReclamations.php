@@ -1,7 +1,6 @@
 <?php
 function gestionReclamationsNotifier($client, $statut, $reponse)
 {
-    // Réutiliser PHPMailer et le compte SMTP déjà employés par le projet.
     if (!getenv('SMTP_PASS') || !filter_var($client['email'], FILTER_VALIDATE_EMAIL)) {
         return false;
     }

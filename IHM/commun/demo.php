@@ -1,6 +1,4 @@
 <?php
-// Barre du mode démo (en bas de l'écran) : la date affichée et des raccourcis pour la changer.
-// Incluse par coque.php, seulement si DEMO=1. Voir Traitement/demo.php.
 if (!function_exists('demoActive') || !demoActive()) return;
 $demoMois = array('', 'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.');
 $demoJour = new DateTimeImmutable('now', new DateTimeZone('Africa/Casablanca'));
@@ -14,7 +12,6 @@ $demoDecale = demoDecalage() !== 0;
     <?php foreach (demoRaccourcis() as $cle => $raccourci) { ?>
         <button type="submit" formaction="<?= link ?>demo/aller/<?= $cle ?>"><?= $raccourci[0] ?></button>
     <?php } ?>
-    <!-- n'importe quelle date : le bouton ouvre le calendrier du navigateur -->
     <input type="date" name="date" id="demo-date" tabindex="-1" aria-hidden="true" onchange="this.form.submit()">
     <button type="button" onclick="document.getElementById('demo-date').showPicker()">Autre date…</button>
     <?php if ($demoDecale) { ?>

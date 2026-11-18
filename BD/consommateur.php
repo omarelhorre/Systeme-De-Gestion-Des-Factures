@@ -8,7 +8,6 @@
                 WHERE id=".(int)$ID;
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
-    // Les clients d'UN fournisseur (chaque fournisseur ne voit que les siens)
     function selectAll($idFournisseur)
     {
         global $link;
@@ -23,13 +22,11 @@
                 VALUES (".(int)$lastUser.",".(int)$idFournisseur.",'".mysqli_real_escape_string($link,$adresse)."','".mysqli_real_escape_string($link,$cin)."','".mysqli_real_escape_string($link,$telephone)."')";
         mysqli_query($link,$sql);
     }
-    // Les quartiers (table quartier) : chacun a un type d'activité
     function quartiers()
     {
         global $link;
         return mysqli_fetch_all(mysqli_query($link, "SELECT id, nom, typeActivite FROM quartier ORDER BY typeActivite, nom"), MYSQLI_ASSOC);
     }
-    // Les quartiers rangés par catégorie (type d'activité), pour les listes déroulantes
     function quartiersParCategorie()
     {
         $groupes = array();
@@ -42,7 +39,6 @@
         return mysqli_fetch_assoc(mysqli_query($link, "SELECT id, nom, typeActivite FROM quartier WHERE id=".(int)$id));
     }
 
-    // $categorie : le type d'activité du quartier choisi ; $idQuartier : le quartier de ce compteur
     function insertAdresseCompteur($idConsommateur,$idFournisseur,$adresse,$categorie,$idxEau,$idxElec,$idQuartier=null)
     {
         global $link;
@@ -53,7 +49,6 @@
         $sql = "INSERT INTO declaration(idConsommateur,idFournisseur,idAdresseCompteur,indexEau,indexElectricite,statut)
                 VALUES (".(int)$idConsommateur.",".(int)$idFournisseur.",".(int)$idAdresseCompteur.",".(float)$idxEau.",".(float)$idxElec.",'Référence initiale')";
         mysqli_query($link,$sql);
-        // Renvoie l'identifiant de la nouvelle adresse : le contrat de ce compteur y est rattaché.
         return $idAdresseCompteur;
     }
 
@@ -86,10 +81,6 @@
             return mysqli_query($link,$sql);
         }
 
-        // ----- Liste des clients : informations en plus, en lecture seule -----
-
-        // Pour chaque client : email, CIN, téléphone, compteurs, contrats actifs, montant impayé.
-        // Renvoie un tableau indexé par l'identifiant du client.
         function resumeClients()
         {
             global $link;
@@ -108,9 +99,6 @@
             return $resume;
         }
 
-        // Consommation de chaque client, mois par mois (relevés validés, tous compteurs additionnés).
-        // Les index sont cumulés : la consommation d'un relevé = index - index précédent du même compteur.
-        // Renvoie [idClient => [ 'AAAA-MM' => ['eau' => m³, 'electricite' => kWh, 'date' => dernier relevé] ]], les 6 derniers mois.
         function consommationRecenteClients()
         {
             global $link;
@@ -137,7 +125,6 @@
             return $series;
         }
 
-        // Compter ce que le client a déjà : relevés (hors référence initiale), factures, réclamations.
         function historiqueConsommateur($id)
         {
             global $link;
@@ -149,8 +136,6 @@
             return mysqli_fetch_assoc(mysqli_query($link,$sql));
         }
 
-        // Supprimer un client et tout ce qui lui est lié, dans une seule transaction.
-        // L'ordre suit les clés étrangères : on supprime d'abord ce qui dépend du reste.
         function supprimerConsommateur($id)
         {
             global $link;
@@ -160,20 +145,16 @@
             $factures = "SELECT f.id FROM facture f JOIN declaration d ON d.id=f.idDeclaration WHERE d.idConsommateur=".$id;
             $annuelles = "SELECT id FROM ConsommationAnuelle WHERE idConsommateur=".$id;
             $requetes = array(
-                // réclamations et leurs sous-types
                 "DELETE FROM reclamationFacture WHERE idReclamation IN (".$reclamations.") OR id IN (SELECT id FROM (".$factures.") AS f)",
                 "DELETE FROM fuiteInterne WHERE idReclamation IN (".$reclamations.")",
                 "DELETE FROM fuiteExterne WHERE idReclamation IN (".$reclamations.")",
                 "DELETE FROM reclamationFuite WHERE idReclamation IN (".$reclamations.")",
                 "DELETE FROM autre WHERE idReclamation IN (".$reclamations.")",
                 "DELETE FROM reclamation WHERE id=".$id,
-                // factures puis relevés
                 "DELETE FROM facture WHERE idDeclaration IN (".$declarations.")",
                 "DELETE FROM declaration WHERE idConsommateur=".$id,
-                // bilan annuel
                 "DELETE FROM regularisationAnnuelle WHERE idConsommationAnuelle IN (".$annuelles.")",
                 "DELETE FROM ConsommationAnuelle WHERE idConsommateur=".$id,
-                // contrat, adresses, puis le client et son compte utilisateur
                 "DELETE FROM contrat WHERE idConsommateur=".$id,
                 "DELETE FROM adresseCompteur WHERE idConsommateur=".$id,
                 "DELETE FROM notification WHERE idUtilisateur=".$id,

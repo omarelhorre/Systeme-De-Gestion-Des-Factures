@@ -13,8 +13,6 @@ function clientsAnnuels($db)
     return array_column(mysqli_fetch_all($result, MYSQLI_ASSOC), 'id');
 }
 
-// Page de l'agent : chaque client avec ce qu'il faut pour remplir et vérifier le fichier annuel
-// (identifiant, identité, fournisseur, compteurs et quartiers, relevé annuel déjà importé).
 function clientsPourAgent($db, $annee)
 {
     $q = mysqli_prepare($db, "SELECT c.id, u.nom, u.prenom, c.cin, c.telephone,

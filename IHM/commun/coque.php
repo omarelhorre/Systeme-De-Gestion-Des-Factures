@@ -1,23 +1,15 @@
 <?php
-// Barre du haut + menu d'icônes, communs à tous les rôles.
-// Les fichiers menu.php de chaque rôle définissent :
-//   $coqueMenu    : liste de [clé, adresse, icône Font Awesome, libellé]
-//   $coqueRole    : nom du rôle affiché à droite
-//   $coqueAccueil : adresse du tableau de bord du rôle
-// et la page définit $coqueActif (la clé de l'entrée active).
 $coqueNom = trim(($_SESSION['user']['prenom'] ?? '').' '.($_SESSION['user']['nom'] ?? ''));
 ?>
 <?php include ROOT.'IHM/commun/demo.php'; ?>
 <header class="barre">
     <a class="marque" href="<?= link.$coqueAccueil ?>">Fatourti</a>
     <div class="barre-droite">
-        <!-- Cloche des notifications : la liste est chargée et rafraîchie en AJAX par app.js -->
         <button class="cloche" type="button" id="cloche" aria-label="Notifications" aria-expanded="false" aria-controls="notifs" data-site="<?= link ?>">
             <i class="fa-solid fa-bell"></i>
             <span class="cloche-nombre" id="cloche-nombre" hidden></span>
         </button>
 
-        <!-- Le nom mène à la page "Mon compte" ; l'avatar est l'icône par défaut de Font Awesome -->
         <a class="compte" href="<?= link ?>utilisateur/profil" title="Mon compte">
             <span class="compte-texte">
                 <span class="compte-nom"><?= htmlspecialchars($coqueNom, ENT_QUOTES, 'UTF-8') ?></span>
@@ -27,9 +19,7 @@ $coqueNom = trim(($_SESSION['user']['prenom'] ?? '').' '.($_SESSION['user']['nom
         </a>
     </div>
 
-    <!-- Fenêtre des notifications (cachée tant qu'on n'a pas cliqué sur la cloche) -->
     <section class="notifs" id="notifs" aria-label="Notifications" hidden>
-        <!-- Vue 1 : la liste -->
         <div id="notifs-liste-vue">
             <div class="carte-entete">
                 <h2 class="titre-carte">Notifications</h2>
@@ -48,7 +38,6 @@ $coqueNom = trim(($_SESSION['user']['prenom'] ?? '').' '.($_SESSION['user']['nom
             </div>
         </div>
 
-        <!-- Vue 2 : répondre à une réclamation sans quitter la page (fournisseur) -->
         <form id="notifs-reponse" method="post" hidden>
             <button class="notifs-lien" type="button" id="notifs-retour"><i class="fa-solid fa-arrow-left"></i> Notifications</button>
             <h2 class="titre-carte" id="notifs-reponse-titre"></h2>
@@ -79,7 +68,6 @@ $coqueNom = trim(($_SESSION['user']['prenom'] ?? '').' '.($_SESSION['user']['nom
             </a>
         <?php } ?>
     </div>
-    <!-- Mon compte, juste au-dessus de la déconnexion -->
     <a class="<?= ($coqueActif ?? '') === 'profil' ? 'actif' : '' ?>" href="<?= link ?>utilisateur/profil" title="Mon compte" aria-label="Mon compte">
         <i class="fa-solid fa-user-gear"></i>
     </a>

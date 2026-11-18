@@ -1,7 +1,4 @@
 <?php
-// Déclarer ma consommation : le formulaire, sur sa propre page (comme "Ajouter un client").
-// Variables fournies par traiterConsommation('ajouter') : $client, $adresses, $idAdresseCompteur,
-// $precedente, $declarations, $statutContrat, $date, $erreur.
 require_once ROOT.'IHM/commun/outils.php';
 function h($valeur) { return htmlspecialchars((string)$valeur, ENT_QUOTES, 'UTF-8'); }
 $url = link . 'declaration/';
@@ -9,11 +6,6 @@ $coqueTitre = 'Déclarer ma consommation';
 $coqueActif = 'releves';
 $jourReleve = function ($jour) { return $jour ? date('d/m/Y', strtotime($jour)) : '—'; };
 
-// Mêmes règles que le serveur :
-//  - relevé régulier : du 18 à la fin du mois, un par compteur et par mois (le relevé de départ ne compte pas) ;
-//  - relevé final (contrat en résiliation) : tout de suite, même si le relevé du mois est déjà envoyé,
-//    sauf si un relevé de ce compteur attend la correction d'une anomalie ;
-//  - contrat résilié : plus de relevé.
 $enResiliation = $statutContrat === CONTRAT_EN_RESILIATION;
 $releveDuMois = false;
 $anomalieEnCours = false;
@@ -44,7 +36,6 @@ else $bloque = '';
 
     <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?=h($erreur)?></span></p><?php endif; ?>
 
-    <!-- Choisir le compteur recharge la page sur ce compteur -->
     <div class="barre-outils">
         <label class="outil outil-large"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>
             <select aria-label="Compteur" onchange="window.location.href='<?= $url ?>ajouter/' + this.value">
@@ -56,7 +47,6 @@ else $bloque = '';
     </div>
 
     <?php
-    // Une ligne par service : [champ index, champ photo, libellé, unité, icône, couleur, dernier index, route de la photo]
     $services = array(
         array('indexEau', 'photoEau', 'Eau', 'm³', 'fa-droplet', 'var(--eau)',
               $precedente ? $precedente['indexEau'] : null, $precedente && $precedente['cheminCompteurEauImg'] ? $url.'eau/'.(int)$precedente['id'] : null),
@@ -65,7 +55,6 @@ else $bloque = '';
     );
     $saisie = $bloque === '';
     ?>
-    <!-- Le relevé comme une facture : dernier index, nouvel index, consommation calculée pendant la saisie -->
     <form class="liste" method="post" action="<?=$url?>ajouter" enctype="multipart/form-data">
         <?php if ($saisie): ?>
         <input type="hidden" name="csrf" value="<?=h($_SESSION['csrf_consommation'])?>">
@@ -125,7 +114,6 @@ else $bloque = '';
         <?php endif; ?>
     </form>
 
-    <!-- Photo d'un relevé précédent, ouverte par "voir la photo" -->
     <dialog class="visionneuse" id="visionneuse">
         <div class="visionneuse-entete"><span id="visionneuse-titre"></span>
             <button type="button" class="bouton-rond" onclick="this.closest('dialog').close()" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>

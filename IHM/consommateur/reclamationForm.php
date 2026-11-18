@@ -1,6 +1,4 @@
 <?php
-// Nouvelle réclamation : le formulaire, sur sa propre page (comme "Ajouter un client").
-// Variables fournies par traiterReclamationsConsommateur('ajouter') : $factures, $valeurs, $erreur.
 require_once ROOT.'IHM/commun/outils.php';
 if (!function_exists('texteReclamation')) {
     function texteReclamation($valeur): string

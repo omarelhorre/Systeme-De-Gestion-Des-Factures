@@ -1,6 +1,5 @@
 <?php if (!isset($data, $action, $message)) { http_response_code(404); exit; } ?>
 <?php
-// Factures du fournisseur : liste filtrable, ou détail d'une facture ($action === 'detail').
 require_once ROOT.'IHM/commun/outils.php';
 $coqueTitre = 'Factures';
 $coqueActif = 'factures';

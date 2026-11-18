@@ -11,7 +11,6 @@ function estFournisseurReclamation($db, $id)
 
 function listeReclamationsFournisseur($db, $idFournisseur)
 {
-    // Chaque fournisseur consulte seulement les réclamations de ses clients.
     $sql = 'SELECT r.idReclamation, r.description, r.dateCreation,
                    r.statut, r.reponse, u.nom, u.prenom
             FROM reclamation r

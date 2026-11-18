@@ -1,9 +1,6 @@
 <?php
-// Petites fonctions d'affichage partagées par les pages (aucun accès à la base ici).
 
 if (!function_exists('miniCourbe')) {
-    // Mini-courbe SVG (zone 72 x 24) pour une liste de valeurs.
-    // Électricité : en escalier (angles droits). Eau : douce (formes rondes).
     function miniCourbe(array $valeurs, $escalier)
     {
         $valeurs = array_values($valeurs);
@@ -28,7 +25,6 @@ if (!function_exists('miniCourbe')) {
         return '<svg viewBox="0 0 72 24" preserveAspectRatio="none" aria-hidden="true"><path d="'.$d.'"/></svg>';
     }
 
-    // Variation en % entre les deux dernières valeurs : "+12 %" (hausse = rouge), "−6 %" (baisse = vert)
     function variationConsommation(array $valeurs)
     {
         $valeurs = array_values($valeurs);
@@ -44,11 +40,6 @@ if (!function_exists('miniCourbe')) {
         return number_format((float)$valeur, $decimales, ',', "\u{00A0}");
     }
 
-    // Graphique de consommation : électricité et eau sur UN seul tracé.
-    // Les deux unités (kWh, m³) ne se comparent pas : chaque série est ramenée à un indice
-    // (100 = sa propre moyenne sur la période), ce qui permet un seul axe. L'infobulle donne les vraies valeurs.
-    // $points : [['mois' => 'AAAA-MM', 'electricite' => kWh, 'eau' => m³], ...] dans l'ordre chronologique.
-    // $hauteur : hauteur de la zone de tracé (ex. '12rem').
     function graphiqueConsommation(array $points, $hauteur = '12rem')
     {
         $points = array_values($points);
@@ -58,7 +49,6 @@ if (!function_exists('miniCourbe')) {
         $moisCourts = array('', 'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.');
         $e = function ($t) { return htmlspecialchars((string)$t, ENT_QUOTES, 'UTF-8'); };
 
-        // Indice de chaque mois par rapport à la moyenne de la série
         $indices = array();
         foreach (array('electricite', 'eau') as $serie) {
             $valeurs = array_map('floatval', array_column($points, $serie));
@@ -66,7 +56,6 @@ if (!function_exists('miniCourbe')) {
             $indices[$serie] = array_map(function ($v) use ($moyenne) { return $moyenne > 0 ? $v / $moyenne * 100 : 100; }, $valeurs);
         }
 
-        // Axe : de part et d'autre de 100, par pas réguliers
         $tous = array_merge($indices['electricite'], $indices['eau']);
         $etendue = max(max($tous) - min($tous), 1);
         $pas = $etendue <= 40 ? 10 : ($etendue <= 120 ? 25 : 50);
@@ -76,7 +65,6 @@ if (!function_exists('miniCourbe')) {
         $y = function ($indice) use ($bas, $haut) { return round(100 - ($indice - $bas) / ($haut - $bas) * 100, 2); };
         $x = function ($i) use ($n) { return round($i * 100 / ($n - 1), 2); };
 
-        // Courbe douce à travers les points (coordonnées en % de la zone)
         $trace = function (array $serie) use ($x, $y, $n) {
             $d = 'M'.$x(0).' '.$y($serie[0]);
             for ($i = 1; $i < $n; $i++) {
@@ -86,10 +74,9 @@ if (!function_exists('miniCourbe')) {
             return $d;
         };
 
-        // Étiquettes au bout des courbes : écartées si les deux courbes finissent trop près l'une de l'autre
         $finElec = $y(end($indices['electricite']));
         $finEau = $y(end($indices['eau']));
-        $ecartMin = 16;   // en % de la hauteur
+        $ecartMin = 16;
         if (abs($finElec - $finEau) < $ecartMin) {
             $milieu = ($finElec + $finEau) / 2;
             $elecAuDessus = $finElec <= $finEau;
@@ -97,7 +84,6 @@ if (!function_exists('miniCourbe')) {
             $finEau = round($milieu + ($elecAuDessus ? 1 : -1) * $ecartMin / 2, 2);
         }
 
-        // Données lues par app.js pour l'infobulle
         $donnees = array();
         foreach ($points as $i => $p) {
             list($annee, $m) = explode('-', $p['mois']);
@@ -129,7 +115,6 @@ if (!function_exists('miniCourbe')) {
                         <path class="trait-elec" d="<?= $trace($indices['electricite']) ?>"/>
                         <path class="trait-eau" d="<?= $trace($indices['eau']) ?>"/>
                     </svg>
-                    <!-- étiquettes directes au bout de chaque courbe -->
                     <span class="graphe-etiquette elec" style="top: <?= $finElec ?>%">Électricité</span>
                     <span class="graphe-etiquette eau" style="top: <?= $finEau ?>%">Eau</span>
                     <span class="graphe-guide" hidden></span>
@@ -143,7 +128,6 @@ if (!function_exists('miniCourbe')) {
                     <span style="left: <?= $x($i) ?>%"><?= $moisCourts[(int)substr($p['mois'], 5, 2)] ?></span>
                 <?php } ?>
             </div>
-            <!-- les mêmes valeurs en tableau, pour les lecteurs d'écran -->
             <table class="sr-only">
                 <caption>Consommation par mois</caption>
                 <tr><th>Mois</th><th>Électricité</th><th>Eau</th></tr>
@@ -155,8 +139,6 @@ if (!function_exists('miniCourbe')) {
         <?php return ob_get_clean();
     }
 
-    // Version compacte du graphique, pour une ligne de tableau : les deux courbes indexées (100 = moyenne),
-    // sans axe ni légende ; le survol (ou le focus clavier) affiche le mois et les vraies valeurs.
     function miniGraphiqueConsommation(array $points)
     {
         $points = array_values($points);
@@ -168,14 +150,13 @@ if (!function_exists('miniCourbe')) {
         $indices = array();
         foreach (array('electricite', 'eau') as $serie) {
             $valeurs = array_map('floatval', array_column($points, $serie));
-            $moyenne = array_sum($valeurs) / $n;   // 100 = moyenne des mois affichés
+            $moyenne = array_sum($valeurs) / $n;
             $indices[$serie] = array_map(function ($v) use ($moyenne) { return $moyenne > 0 ? $v / $moyenne * 100 : 100; }, $valeurs);
         }
         $tous = array_merge($indices['electricite'], $indices['eau']);
         $bas = min($tous);
         $haut = max($tous);
         if ($haut - $bas < 1) { $bas -= 1; $haut += 1; }
-        // une petite marge en haut et en bas pour que le trait ne touche pas les bords
         $y = function ($indice) use ($bas, $haut) { return round(90 - ($indice - $bas) / ($haut - $bas) * 80, 2); };
         $x = function ($i) use ($n) { return round($i * 100 / ($n - 1), 2); };
         $trace = function (array $serie) use ($x, $y, $n) {
@@ -215,14 +196,12 @@ if (!function_exists('miniCourbe')) {
         <?php return ob_get_clean();
     }
 
-    // Index de compteur sans zéros inutiles : 200.0000 -> "200", 54.6000 -> "54,6"
     function indexFr($valeur)
     {
         $texte = number_format((float)$valeur, 4, ',', "\u{00A0}");
         return rtrim(rtrim($texte, '0'), ',');
     }
 
-    // Nombre de jours entiers entre une date (AAAA-MM-JJ) et aujourd'hui
     function joursDepuis($date)
     {
         $debut = new DateTimeImmutable(substr((string)$date, 0, 10));
@@ -230,7 +209,6 @@ if (!function_exists('miniCourbe')) {
         return (int)$debut->diff($aujourdhui)->format('%r%a');
     }
 
-    // Âge lisible : "aujourd'hui", "hier", "il y a 3 j", "il y a 2 mois"
     function ilYa($date)
     {
         $jours = joursDepuis($date);
@@ -240,8 +218,6 @@ if (!function_exists('miniCourbe')) {
         return 'il y a '.intdiv($jours, 30).' mois';
     }
 
-    // Statut d'une réclamation : libellé uniforme et couleur du point
-    // (en attente = ambre, en cours = bleu, traitée = vert). La base contient parfois "En Attente".
     function statutReclamation($statut)
     {
         $cle = strtolower(strtr(trim((string)$statut), array('É' => 'e', 'é' => 'e')));
@@ -251,10 +227,8 @@ if (!function_exists('miniCourbe')) {
         return array((string)$statut, '');
     }
 
-    // Délai de paiement d'une facture (jours après sa date) : sert seulement à l'affichage du retard.
     if (!defined('DELAI_PAIEMENT_JOURS')) define('DELAI_PAIEMENT_JOURS', 30);
 
-    // État d'une facture : "Payée", "à régler avant le 19/11" (ambre) ou "en retard de 28 j" (rouge)
     function etatFacture($etat, $dateFacture, $modePaiement = null)
     {
         if ($etat === 'Payée') return array($modePaiement === 'en ligne' ? 'Payée en ligne' : 'Payée', 'ok');
@@ -265,16 +239,9 @@ if (!function_exists('miniCourbe')) {
     }
 }
 
-/**
- * Date et heure de Rabat sous le "Bonjour" des tableaux de bord : « 17 novembre 2026 · 06:10:03 ».
- * Les secondes défilent comme les rouleaux d'un compteur (animées par app.js), dans la même police
- * que le texte. Sans JavaScript, la date et l'heure du serveur s'affichent.
- */
 function horloge(): string
 {
     $mois = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
-    // data-serveur : l'heure de Rabat calculée par PHP (suit le mode démo et le fuseau du Maroc),
-    // pour ne pas dépendre des fuseaux du navigateur
     $rabat = new DateTimeImmutable('now', new DateTimeZone('Africa/Casablanca'));
     return '<span class="horloge" title="Heure de Rabat" data-serveur="'.(($rabat->getTimestamp() + $rabat->getOffset()) * 1000).'">'
         .'<span class="horloge-date">'.(int)date('j').' '.$mois[(int)date('n')].' '.date('Y').'</span> · '
@@ -282,12 +249,6 @@ function horloge(): string
         .'<span class="compteur" aria-hidden="true"></span></span>';
 }
 
-/**
- * Bouton "Payer" d'une facture impayée (client), selon le prestataire choisi dans .env :
- *  - Stripe : envoie à paiement/payer/{id}, qui redirige aussitôt vers la page de paiement Stripe ;
- *  - CMI    : formulaire déjà signé, envoyé directement à la page de paiement de CMI.
- * Rien si le paiement en ligne n'est pas configuré (voir Traitement/paiement.php).
- */
 function boutonPayerEnLigne($idFacture, $montant): string
 {
     if (!function_exists('paiementActif') || !paiementActif()) return '';

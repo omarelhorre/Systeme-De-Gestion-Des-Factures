@@ -1,5 +1,4 @@
 <?php
-// Lire la base existante : aucune nouvelle table n'est nécessaire.
 function gestionReclamationsLire($db, $fournisseur, $id = null, $verrouiller = false)
 {
     $sql = "SELECT r.*, u.nom, u.prenom, u.email, c.adresse,

@@ -1,13 +1,10 @@
 <?php
-// Tableau de bord du consommateur : la déclaration du mois, ses dernières factures et réclamations.
-// $tableau est préparé par redirectToIndexC() (voir BD/tableauConsommateur.php).
 require_once ROOT.'IHM/commun/outils.php';
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
 $impayes = $tableau['impayes'];
 $coqueTitre = 'Tableau de bord';
 $coqueActif = 'tableau';
 $moisLongs = array('', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
-// Même règle que la page des relevés : la déclaration est ouverte du 18 au dernier jour du mois
 $declarationOuverteAujourdhui = (int)date('j') >= 18;
 ?>
 <!DOCTYPE html>
@@ -25,7 +22,6 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
     </header>
 
     <div class="grille">
-        <!-- Widget principal : la déclaration du mois -->
         <section class="carte large">
             <h2 class="titre-carte">Déclaration de <?= $moisLongs[(int)date('n')] ?></h2>
             <p class="chiffre geant" style="margin-top: 0.5rem"><?= $declarationOuverteAujourdhui ? 'Ouverte' : 'Le 18' ?></p>
@@ -43,7 +39,6 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
             </div>
         </section>
 
-        <!-- Sa consommation récente : de quoi comparer avant sa prochaine déclaration -->
         <section class="carte large">
             <h2 class="titre-carte">Consommation</h2>
             <?php $mois = $tableau['consommation']; if ($mois) {
@@ -60,7 +55,6 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
             <?php } ?>
         </section>
 
-        <!-- Ses dernières factures, avec le PDF à portée de clic -->
         <section class="carte large">
             <div class="carte-entete">
                 <div>
@@ -91,7 +85,6 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
             <?php } ?>
         </section>
 
-        <!-- Ses dernières réclamations et leur statut -->
         <section class="carte large">
             <div class="carte-entete">
                 <h2 class="titre-carte">Mes réclamations</h2>

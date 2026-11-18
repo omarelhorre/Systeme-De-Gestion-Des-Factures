@@ -1,19 +1,9 @@
-// Fatourti — petits comportements communs aux pages connectées
-// Tri des colonnes, pagination des listes et tableaux (pas de barre de défilement interne), horloge
 
-// ---------- Tri des colonnes ----------
-// Chaque en-tête d'un tableau paginé devient un bouton : un clic trie A→Z (ou plus ancien → plus récent,
-// plus petit → plus grand), un deuxième clic inverse. Le type de colonne est deviné :
-//  - dates "17/11/2026" (avec l'heure si elle est là) ;
-//  - nombres "N° 12", "1 234,50 DH" ;
-//  - sinon du texte, trié à la française (é = e, sans tenir compte des majuscules).
-// Une cellule peut forcer sa valeur avec data-tri="...". Les en-têtes vides ne trient pas.
 document.querySelectorAll("table.tableau").forEach((table) => {
     const corps = table.tBodies[0];
     if (!corps || !corps.hasAttribute("data-pagine") || corps.rows.length < 2) return;
     const entetes = Array.from(table.tHead ? table.tHead.rows[0].cells : []);
 
-    // valeur d'une cellule : data-tri, sinon son texte
     function texte(cellule) {
         return (cellule && (cellule.dataset.tri ?? cellule.textContent) || "").replace(/\s+/g, " ").trim();
     }
@@ -43,14 +33,13 @@ document.querySelectorAll("table.tableau").forEach((table) => {
             const lignes = Array.from(corps.rows);
             const valeurs = lignes.map((ligne) => texte(ligne.cells[colonne]));
             const remplies = valeurs.filter((v) => v !== "" && v !== "—");
-            // une colonne est "date" ou "nombre" seulement si toutes ses valeurs le sont
             const type = remplies.length && remplies.every((v) => date(v) !== null) ? "date"
                 : remplies.length && remplies.every((v) => nombre(v) !== null) ? "nombre" : "texte";
             const cle = (v) => type === "date" ? date(v) : type === "nombre" ? nombre(v) : v;
 
             const ordre = lignes.map((ligne, i) => ({ ligne, v: valeurs[i] === "—" ? "" : valeurs[i] }));
             ordre.sort((a, b) => {
-                if (a.v === "" || b.v === "") return (a.v === "") - (b.v === "");   // les cases vides toujours à la fin
+                if (a.v === "" || b.v === "") return (a.v === "") - (b.v === "");
                 const x = cle(a.v), y = cle(b.v);
                 const r = type === "texte" ? x.localeCompare(y, "fr", { sensitivity: "base", numeric: true }) : x - y;
                 return croissant ? r : -r;
@@ -64,22 +53,16 @@ document.querySelectorAll("table.tableau").forEach((table) => {
             });
             th.setAttribute("aria-sort", croissant ? "ascending" : "descending");
             icone.className = "fa-solid " + (croissant ? "fa-arrow-up" : "fa-arrow-down");
-            corps.dispatchEvent(new Event("trie"));   // la pagination revient à la page 1
+            corps.dispatchEvent(new Event("trie"));
         });
     });
 });
 
-// ---------- Pagination ----------
-// Sur un <tbody> ou un <ul> : data-pagine="8" = 8 lignes par page au départ.
-// Sous la liste : "1 à 8 sur 23 résultats" à gauche ; à droite le nombre de lignes par page,
-// "Page 1 sur 3" et les flèches (première, précédente, suivante, dernière).
 document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
-    // lignes à paginer : sans la ligne "vide" ni celles écartées par la recherche
     const lire = () => Array.from(liste.children).filter((ligne) => !ligne.classList.contains("vide") && !ligne.classList.contains("exclue"));
     let lignes = lire();
     if (lignes.length === 0) return;
 
-    // le nombre de lignes choisi est retenu pour cette page (si le navigateur le permet)
     const cle = "fatourti-lignes-" + location.pathname + "-" + rang;
     let parPage = Number(liste.dataset.pagine);
     try { parPage = Number(localStorage.getItem(cle)) || parPage; } catch (e) {}
@@ -106,7 +89,6 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
 
     const nbPages = () => Math.max(1, Math.ceil(lignes.length / parPage));
 
-    // flèches : [icône, page visée, nom lu par les lecteurs d'écran]
     const fleches = [
         ["fa-angles-left", () => 1, "Première page"],
         ["fa-angle-left", () => page - 1, "Page précédente"],
@@ -128,11 +110,9 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
     function afficher() {
         if (page > nbPages()) page = nbPages();
         const debut = (page - 1) * parPage;
-        // les lignes écartées par la recherche restent cachées
         liste.querySelectorAll(":scope > .exclue").forEach((ligne) => { ligne.hidden = true; ligne.classList.remove("derniere"); });
         lignes.forEach((ligne, i) => {
             ligne.hidden = i < debut || i >= debut + parPage;
-            // la dernière ligne visible n'a pas de filet : le cadre du tableau ferme
             ligne.classList.toggle("derniere", i === Math.min(debut + parPage, lignes.length) - 1);
         });
         resume.textContent = lignes.length === 0 ? "Aucun résultat"
@@ -149,19 +129,13 @@ document.querySelectorAll("[data-pagine]").forEach((liste, rang) => {
         try { localStorage.setItem(cle, parPage); } catch (e) {}
         afficher();
     });
-    // après un tri (ordre changé) ou une recherche (lignes écartées) : on repart de la page 1
     liste.addEventListener("trie", () => { lignes = lire(); page = 1; afficher(); });
     liste.addEventListener("filtre", () => { lignes = lire(); page = 1; afficher(); });
 
-    // après le tableau entier si la liste est un <tbody>, sinon après la liste
     (liste.closest("table") || liste).after(zone);
     afficher();
 });
 
-// ---------- Recherche dans les listes ----------
-// Au-dessus de chaque tableau de liste (section .liste) : un champ "Rechercher" (loupe, sans libellé)
-// qui garde les lignes contenant tous les mots tapés, sans tenir compte des accents ni des majuscules.
-// Pas ajouté si la page a déjà sa propre barre de recherche (ex. réclamations du fournisseur).
 document.querySelectorAll(".liste > table.tableau").forEach((table) => {
     const corps = table.tBodies[0];
     if (!corps || !corps.hasAttribute("data-pagine") || table.parentElement.querySelector(".barre-outils")) return;
@@ -185,18 +159,13 @@ document.querySelectorAll(".liste > table.tableau").forEach((table) => {
     });
 });
 
-// ---------- Horloge (sous le "Bonjour" des tableaux de bord) ----------
-// Date et heure de Rabat (donnée par le serveur). Les deux chiffres des secondes sont des bandes 0…9 qui défilent
-// vers le haut, comme les rouleaux d'un compteur d'eau ; après 9, la bande continue sur un 0
-// puis revient discrètement au début.
 document.querySelectorAll(".horloge").forEach((horloge) => {
     const format = new Intl.DateTimeFormat("fr-FR", {
-        timeZone: "UTC", day: "numeric", month: "long", year: "numeric",   // data-serveur est déjà à l'heure de Rabat
+        timeZone: "UTC", day: "numeric", month: "long", year: "numeric",
         hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
     });
     const jour = horloge.querySelector(".horloge-date");
     const heure = horloge.querySelector(".horloge-heure");
-    // rouleau des dizaines (0 à 5) et des unités (0 à 9), chacun avec un 0 en plus à la fin
     const rouleaux = [6, 10].map((n) => {
         const fenetre = document.createElement("span");
         fenetre.className = "rouleau";
@@ -214,11 +183,10 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
     function placer(rouleau, chiffre) {
         if (chiffre === rouleau.actuel) return;
         const { bande, n } = rouleau;
-        // passage de 9 à 0 (ou 5 à 0) : on roule jusqu'au 0 du bas, puis on revient en haut sans animation
         const cible = chiffre === 0 && rouleau.actuel === n - 1 ? n : chiffre;
         bande.classList.toggle("sans-transition", rouleau.actuel === -1);
-        void bande.offsetHeight;   // applique le changement de transition avant de bouger
-        bande.style.transform = "translateY(" + (-cible * 1.25) + "em)";   // 1,25em = hauteur d'un chiffre
+        void bande.offsetHeight;
+        bande.style.transform = "translateY(" + (-cible * 1.25) + "em)";
         if (cible === n) {
             setTimeout(() => {
                 bande.classList.add("sans-transition");
@@ -235,22 +203,17 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         placer(rouleaux[0], Number(p.second[0]));
         placer(rouleaux[1], Number(p.second[1]));
     }
-    // l'heure part de celle du serveur (elle suit le mode démo), puis avance avec le navigateur
     const ecart = Number(horloge.dataset.serveur || Date.now()) - Date.now();
     maintenant();
     setInterval(maintenant, 1000);
 });
 
-
-// ---------- Notifications (cloche) ----------
-// La liste vient du serveur en AJAX (notification/all, en JSON) et se rafraîchit toute seule :
-// pas besoin de recharger la page pour voir une nouvelle notification.
 (function () {
     const cloche = document.getElementById("cloche");
     if (!cloche) return;
 
-    const SITE = cloche.dataset.site;            // adresse du site, ex. http://localhost:8080/
-    const RAFRAICHIR_MS = 10000;                 // on redemande la liste toutes les 10 secondes
+    const SITE = cloche.dataset.site;
+    const RAFRAICHIR_MS = 10000;
     const PAR_PAGE = 4;
 
     const fenetre = document.getElementById("notifs");
@@ -265,7 +228,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
     let onglet = "toutes";
     let page = 1;
 
-    // Icône et texte du bouton selon le type de notification
     const TYPES = {
         bienvenue:           { icone: "fa-key",                  action: "Changer mon mot de passe" },
         facture:             { icone: "fa-file-invoice",         action: "Voir la facture" },
@@ -280,7 +242,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         contrat_fin:         { icone: "fa-file-signature",       action: "Déclarer mon relevé final" },
     };
 
-    // Petits outils pour créer des éléments sans jamais insérer de HTML venant des données
     function creer(balise, classe, texte) {
         const element = document.createElement(balise);
         if (classe) element.className = classe;
@@ -291,7 +252,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         return creer("i", "fa-solid " + nom);
     }
 
-    // "il y a 5 min", calculé avec l'heure du serveur
     function depuis(date) {
         const secondes = (new Date(donnees.maintenant.replace(" ", "T")) - new Date(date.replace(" ", "T"))) / 1000;
         if (secondes < 60) return "à l'instant";
@@ -300,7 +260,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         return date.slice(8, 10) + "/" + date.slice(5, 7);
     }
 
-    // Une demande "à traiter" reste dans cet onglet tant qu'elle n'est pas résolue
     function attend(n) { return n.aTraiter == 1 && !n.dateResolution; }
 
     function filtrees() {
@@ -309,13 +268,10 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         return donnees.notifications;
     }
 
-    // ----- Affichage -----
     function afficher() {
-        // pastille sur la cloche
         nombre.hidden = donnees.nonLues === 0;
         nombre.textContent = donnees.nonLues > 9 ? "9+" : donnees.nonLues;
 
-        // compteurs des onglets
         const total = donnees.notifications.length;
         const aTraiter = donnees.notifications.filter(attend).length;
         const comptes = { toutes: total, traiter: aTraiter, infos: total - aTraiter };
@@ -324,7 +280,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
             bouton.querySelector("span").textContent = comptes[bouton.dataset.onglet];
         });
 
-        // liste, par pages (pas de barre de défilement)
         const lignes = filtrees();
         const nbPages = Math.max(1, Math.ceil(lignes.length / PAR_PAGE));
         if (page > nbPages) page = nbPages;
@@ -340,7 +295,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         pagination.children[2].disabled = page >= nbPages;
     }
 
-    // Une ligne de la liste
     function ligne(n) {
         const type = TYPES[n.type] || { icone: "fa-bell", action: "Ouvrir" };
         const element = creer("li", "notif" + (n.dateLecture ? "" : " non-lue"));
@@ -353,7 +307,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         texte.appendChild(creer("p", "notif-titre", n.titre));
         if (n.detail) texte.appendChild(creer("p", "notif-detail", n.detail));
 
-        // bouton d'action, sauf si la demande est déjà traitée
         if (!n.dateResolution && n.lien) {
             const bouton = creer("button", "bouton contour petit");
             bouton.type = "button";
@@ -366,7 +319,7 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         const cote = creer("div", "notif-cote");
         cote.appendChild(creer("span", "notif-heure", depuis(n.dateCreation)));
         if (n.dateLecture) {
-            const vu = icone("fa-check-double");     // icône "vu"
+            const vu = icone("fa-check-double");
             vu.title = "Vu";
             cote.appendChild(vu);
         }
@@ -374,17 +327,15 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         return element;
     }
 
-    // ----- Échanges avec le serveur (AJAX, objet XMLHttpRequest comme dans le cours) -----
-    // requeteAjax("GET", "notification/all", null, fonction) ; la réponse du serveur est en JSON.
     function requeteAjax(methode, adresse, parametres, quandFini, siErreur) {
         const objetXHR = new XMLHttpRequest();
-        objetXHR.open(methode, SITE + adresse, true);                 // true : asynchrone
+        objetXHR.open(methode, SITE + adresse, true);
         objetXHR.onreadystatechange = function () {
-            if (objetXHR.readyState === 4) {                          // 4 : les données sont arrivées
+            if (objetXHR.readyState === 4) {
                 if (objetXHR.status === 200) {
-                    quandFini(JSON.parse(objetXHR.responseText));      // texte JSON -> objet JavaScript
+                    quandFini(JSON.parse(objetXHR.responseText));
                 } else if (siErreur) {
-                    siErreur(objetXHR.status);                         // session expirée, réseau coupé… : on réessaiera au prochain tour
+                    siErreur(objetXHR.status);
                 }
             }
         };
@@ -394,7 +345,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         objetXHR.send(parametres);
     }
 
-    // Lire les notifications (GET notification/all)
     function charger() {
         requeteAjax("GET", "notification/all", null, function (reponse) {
             donnees = reponse;
@@ -402,8 +352,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         });
     }
 
-    // Marquer lue une notification ou tout marquer (POST notification/lire/{id} ou notification/toutLire)
-    // Renvoie une promesse pour pouvoir attendre la fin avant d'ouvrir le lien de la notification.
     function envoyer(action) {
         return new Promise(function (fini) {
             requeteAjax("POST", "notification/" + action, "csrf=" + encodeURIComponent(donnees.csrf), function (reponse) {
@@ -414,7 +362,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         });
     }
 
-    // Clic sur le bouton d'une notification : elle est marquée vue, puis on agit
     async function agir(n) {
         if (!n.dateLecture) await envoyer("lire/" + n.id);
         if (n.type === "reclamation_nouvelle" && donnees.csrfReclamations) {
@@ -424,7 +371,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         }
     }
 
-    // Répondre à une réclamation dans la fenêtre : le formulaire est envoyé à la page de traitement existante
     function ouvrirReponse(n) {
         formulaire.action = SITE + "reclamation/traiter/" + n.idObjet;
         formulaire.elements.csrf.value = donnees.csrfReclamations;
@@ -440,7 +386,6 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         vueListe.hidden = false;
     }
 
-    // ----- Ouverture et fermeture de la fenêtre -----
     function ouvrir(etat) {
         fenetre.hidden = !etat;
         cloche.setAttribute("aria-expanded", etat ? "true" : "false");
@@ -461,18 +406,12 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
     document.getElementById("notifs-tout-lire").addEventListener("click", () => envoyer("toutLire"));
     document.getElementById("notifs-retour").addEventListener("click", fermerReponse);
 
-    // Premier chargement, puis rafraîchissement régulier (en pause quand l'onglet du navigateur est caché,
-    // et pendant qu'on écrit une réponse pour ne pas perdre le texte)
     charger();
     setInterval(() => {
         if (!document.hidden && formulaire.hidden) charger();
     }, RAFRAICHIR_MS);
 })();
 
-// ---------- Graphique de consommation : survol ----------
-// Un trait vertical suit le pointeur et se cale sur le mois le plus proche ;
-// l'infobulle donne les vraies valeurs (kWh et m³) des deux services pour ce mois.
-// Au clavier : les flèches gauche / droite font la même chose.
 document.querySelectorAll(".graphe").forEach((graphe) => {
     const mois = JSON.parse(graphe.dataset.graphe);
     const zone = graphe.querySelector(".graphe-zone");
@@ -482,7 +421,6 @@ document.querySelectorAll(".graphe").forEach((graphe) => {
     const bulle = zone.querySelector(".graphe-bulle");
     let actif = -1;
 
-    // une ligne de l'infobulle : trait de couleur, valeur en gras, nom du service
     function ligne(classe, valeur, nom) {
         const div = document.createElement("div");
         div.className = "bulle-ligne";
@@ -510,7 +448,6 @@ document.querySelectorAll(".graphe").forEach((graphe) => {
         titre.textContent = m.mois;
         bulle.replaceChildren(titre, ligne("elec", m.kwh, "Électricité"), ligne("eau", m.m3, "Eau"));
 
-        // l'infobulle se place du côté où il reste de la place
         const aDroite = m.x < 60;
         bulle.style.left = aDroite ? "calc(" + m.x + "% + 0.75rem)" : "auto";
         bulle.style.right = aDroite ? "auto" : "calc(" + (100 - m.x) + "% + 0.75rem)";
@@ -523,7 +460,6 @@ document.querySelectorAll(".graphe").forEach((graphe) => {
         guide.hidden = pointElec.hidden = pointEau.hidden = bulle.hidden = true;
     }
 
-    // le mois le plus proche de la position du pointeur
     function plusProche(clientX) {
         const cadre = zone.getBoundingClientRect();
         const x = (clientX - cadre.left) / cadre.width * 100;
@@ -543,9 +479,6 @@ document.querySelectorAll(".graphe").forEach((graphe) => {
     });
 });
 
-
-// ---------- Déclarer ma consommation : consommation calculée, nom de la photo, visionneuse ----------
-// Consommation = nouvel index - dernier index, mise à jour pendant la saisie ; en rouge si l'index baisse.
 document.querySelectorAll(".saisie-index input").forEach((champ) => {
     const cellule = champ.closest("tr").querySelector(".consommation-calculee");
     const lire = (v) => Number(String(v).replace(",", "."));
@@ -562,8 +495,6 @@ document.querySelectorAll(".saisie-index input").forEach((champ) => {
         cellule.className = "consommation-calculee " + (ecart < 0 ? "negative" : "positive");
     });
 });
-// "Joindre la photo" / "Choisir le fichier" : affiche le nom du fichier choisi ;
-// dans le tableau de relevé, la nouvelle photo apparaît aussi en vignette (cliquable pour l'agrandir)
 document.querySelectorAll(".fichier input").forEach((champ) => {
     const etiquette = champ.closest(".fichier");
     const texteDepart = etiquette.querySelector("span").textContent;
@@ -583,9 +514,7 @@ document.querySelectorAll(".fichier input").forEach((champ) => {
         }
     });
 });
-// "voir la photo" : la photo du dernier relevé dans une fenêtre
 document.querySelectorAll(".lien-photo").forEach((bouton) => {
-    // (la vignette de la nouvelle photo reçoit son adresse au moment du choix du fichier)
     bouton.addEventListener("click", () => {
         const fenetre = document.getElementById("visionneuse");
         document.getElementById("visionneuse-image").src = bouton.dataset.photo;

@@ -1,9 +1,4 @@
 <?php
-// Liste des clients du fournisseur.
-// Variables fournies par afficherClients() :
-//   $data   : [id, nom, prénom, adresse]
-//   $resume : par client, email, CIN, téléphone, compteurs, contrats actifs, impayé
-//   $series : par client, consommation des 6 derniers mois avec relevé
 require_once ROOT.'IHM/commun/outils.php';
 $coqueTitre = 'Clients';
 $coqueActif = 'clients';

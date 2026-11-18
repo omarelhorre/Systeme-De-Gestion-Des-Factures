@@ -1,10 +1,6 @@
 <?php
-    // Notifications : création (notifier), envoi par email, et routes AJAX appelées par la cloche.
     include_once(ROOT."BD/notification.php");
 
-    // Créer une notification pour un utilisateur.
-    // $options : 'aTraiter' (demande une action), 'idObjet' (déclaration, facture, réclamation), 'email' (envoyer aussi par email).
-    // Ne lance jamais d'erreur : un problème de notification ne doit pas bloquer l'action principale.
     function notifier($idUtilisateur, $type, $titre, $detail, $lien, $options = array())
     {
         try {
@@ -19,7 +15,6 @@
         }
     }
 
-    // Marquer comme traitée une notification "à traiter". Ne lance jamais d'erreur.
     function resoudreNotification($idUtilisateur, $type, $idObjet = null)
     {
         try {
@@ -29,7 +24,6 @@
         }
     }
 
-    // Même compte SMTP que le reste du projet. Sans mot de passe SMTP, aucun email n'est envoyé.
     function envoyerEmailNotification($idUtilisateur, $titre, $detail, $lien)
     {
         $destinataire = notificationDestinataire($idUtilisateur);
@@ -60,7 +54,6 @@
         }
     }
 
-    // Message de bienvenue, une seule fois par utilisateur, à la première connexion.
     function accueillirUtilisateur($idUtilisateur)
     {
         try {
@@ -73,8 +66,6 @@
             'utilisateur/profil', array('aTraiter' => true, 'email' => true));
     }
 
-    // Routes AJAX : notification/all (GET), notification/lire/{id} et notification/toutLire (POST).
-    // Toutes répondent en JSON.
     function notifications($action, $id = null)
     {
         header('Content-Type: application/json; charset=UTF-8');
@@ -107,8 +98,6 @@
                 return;
             }
 
-        // Le fournisseur peut répondre à une réclamation depuis la cloche :
-        // on lui donne le jeton du formulaire de traitement (créé ici s'il n'existe pas encore).
         $jetonReclamations = null;
         if (checkFournisseur($idUtilisateur)) {
             if (empty($_SESSION['csrf_gestion_reclamations'])) {
@@ -122,7 +111,7 @@
             'nonLues' => notificationsNonLues($idUtilisateur),
             'csrf' => $_SESSION['csrf_notifications'],
             'csrfReclamations' => $jetonReclamations,
-            'maintenant' => notificationMaintenant(),   // heure de la base, pour afficher "il y a 5 min"
+            'maintenant' => notificationMaintenant(),
         ));
     }
 ?>

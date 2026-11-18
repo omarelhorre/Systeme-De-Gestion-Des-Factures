@@ -1,8 +1,6 @@
 <?php
-// Page "Mon compte". Variables fournies par profil() :
-// $utilisateur, $role ('fournisseur', 'consommateur' ou 'agent'), $consommateur, $infosCompte, $message, $erreur.
 require_once ROOT.'IHM/commun/outils.php';
-require_once ROOT.'Traitement/consommateur/reglesConsommation.php';   // grille tarifaire affichée au fournisseur
+require_once ROOT.'Traitement/consommateur/reglesConsommation.php';
 $jour = function ($date) { return $date ? date('d/m/Y', strtotime($date)) : '—'; };
 $coqueTitre = 'Mon compte';
 $coqueActif = 'profil';
@@ -26,7 +24,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
     <?php if ($erreur) { ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?= $e($erreur) ?></span></p><?php } ?>
 
     <div class="grille">
-        <!-- Identité : affichée en gris, non modifiable par l'utilisateur -->
         <section class="carte" style="grid-column: 1 / -1">
             <div class="compte-ligne">
             <div class="identite">
@@ -62,7 +59,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
             $factures = $infosCompte['factures'];
             $reclamations = $infosCompte['reclamations'];
             $fournisseurClient = $infosCompte['fournisseur']; ?>
-            <!-- Consommateur : factures, réclamations, fournisseur, puis ses compteurs -->
             <section class="carte">
                 <div class="carte-entete">
                     <h2 class="titre-carte">Impayé</h2>
@@ -120,7 +116,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
             </section>
 
         <?php } else if ($role === 'fournisseur') { ?>
-            <!-- Fournisseur : les chiffres de son activité -->
             <section class="carte">
                 <h2 class="titre-carte">Clients</h2>
                 <p class="chiffre" style="margin-top: 0.75rem"><?= (int)$infosCompte['clients'] ?></p>
@@ -142,7 +137,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
                 <p class="legende"><?= (int)$infosCompte['reclamationsOuvertes'] ?> réclamation<?= $infosCompte['reclamationsOuvertes'] > 1 ? 's' : '' ?> · <?= (int)$infosCompte['anomalies'] ?> anomalie<?= $infosCompte['anomalies'] > 1 ? 's' : '' ?></p>
             </section>
 
-            <!-- Seuils d'anomalie : au-delà, la déclaration devient une anomalie au lieu d'une facture -->
             <section class="carte large">
                 <h2 class="titre-carte">Seuils d'anomalie</h2>
                 <form class="formulaire" style="margin-top: 1rem" method="post" action="<?= link ?>utilisateur/modifierSeuils">
@@ -159,7 +153,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
                 </form>
             </section>
 
-            <!-- Grille tarifaire du sujet, lue dans les règles de facturation (aucune saisie) -->
             <section class="carte large">
                 <h2 class="titre-carte" style="margin-bottom: 0.25rem">Grille tarifaire</h2>
                 <table class="tableau">
@@ -180,7 +173,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
             </section>
 
         <?php } else { ?>
-            <!-- Agent : ses importations annuelles -->
             <section class="carte" style="grid-column: 1 / -1">
                 <div class="carte-entete">
                     <h2 class="titre-carte">Importations annuelles</h2>

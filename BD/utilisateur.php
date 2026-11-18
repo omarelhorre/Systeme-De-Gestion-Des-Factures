@@ -4,7 +4,6 @@
     function checkcredentials($email)
     {
         global $link;
-        // Valeurs protégées avant d'entrer dans la requête : un email comme  ' OR '1'='1  reste du texte
         $sql = "SELECT * FROM utilisateur
                 WHERE email='".mysqli_real_escape_string($link,$email)."'";
         return mysqli_fetch_array(mysqli_query($link,$sql));
@@ -28,9 +27,6 @@
             return mysqli_query($link,$sql);
         }
 
-    // ----- Page "Mon compte" -----
-
-    // Lire un utilisateur par son identifiant (avec son mot de passe haché, pour le vérifier)
     function selectUtilisateur($id)
         {
             global $link;
@@ -40,7 +36,6 @@
             return mysqli_fetch_assoc(mysqli_stmt_get_result($q));
         }
 
-    // Vrai si un AUTRE utilisateur a déjà cet email
     function emailDejaUtilise($email,$id)
         {
             global $link;

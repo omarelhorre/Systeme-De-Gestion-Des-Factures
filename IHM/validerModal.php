@@ -1,16 +1,10 @@
 <?php
-// Résilier des contrats d'un client, en deux temps.
-// Variables fournies par resilier() : $client, $contratsActifs, $contratsEnResiliation, $erreur.
-//  - Contrats actifs : cochés puis "Lancer la résiliation" -> le client doit déclarer son relevé final.
-//  - Contrats en résiliation : en attente du relevé final ; "Clôturer sans relevé final" les ferme tout de suite.
 $coqueTitre = 'Résilier des contrats';
 $coqueActif = 'clients';
 $e = function ($texte) { return htmlspecialchars((string)$texte, ENT_QUOTES, 'UTF-8'); };
-// Les cases déjà cochées sont conservées si le formulaire revient avec une erreur
 $coches = is_array($_POST['contrats'] ?? null) ? array_map('intval', $_POST['contrats']) : array();
 $ligneContrat = function ($ligne, $etiquette, $classe) use ($e, $coches) { ?>
     <li>
-        <!-- toute la ligne est cliquable : c'est le libellé de la case -->
         <label class="ligne choix">
             <input type="checkbox" name="contrats[]" value="<?= (int)$ligne['id'] ?>" <?= in_array((int)$ligne['id'], $coches, true) ? 'checked' : '' ?>>
             <span class="ligne-texte">

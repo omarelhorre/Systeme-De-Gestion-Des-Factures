@@ -34,14 +34,12 @@
         extendedchars=true, literate={é}{{\'e}}1 {è}{{\`e}}1 {à}{{\`a}}1 {ê}{{\^e}}1 {ç}{{\c c}}1 {°}{{\textdegree}}1}
 
 \newcommand{\capture}[2]{\begin{center}\includegraphics[width=0.92\linewidth]{images/#1}\captionof{figure}{#2}\end{center}}
-% deux captures côte à côte, à leur place dans le texte (pas de flottant)
 \newcommand{\deuxcaptures}[4]{\par\noindent
   \begin{minipage}[t]{0.49\linewidth}\centering\includegraphics[width=\linewidth]{images/#1}\captionof{figure}{#2}\end{minipage}\hfill
   \begin{minipage}[t]{0.49\linewidth}\centering\includegraphics[width=\linewidth]{images/#3}\captionof{figure}{#4}\end{minipage}\par\medskip}
 
 \begin{document}
 
-% ---------------------------------------------------------------- Page de titre
 \begin{center}
 Génie Informatique 2\\[0.3em]
 Année universitaire 2026/2027\\[2.5em]
@@ -65,7 +63,6 @@ Depuis la version alpha, l'application couvre tout le cahier des charges et les 
 (table \texttt{quartier}, plusieurs contrats par client). Elle propose aussi le paiement en ligne, des
 notifications par e-mail et en AJAX, et une nouvelle interface pensée comme un service public marocain.
 
-% ---------------------------------------------------------------- Conformité
 \section{Conformité au cahier des charges}
 \begin{center}\small
 \begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{6.2cm}X}
@@ -95,7 +92,6 @@ Table \texttt{quartier} (nom, type d'activité) ; chaque compteur est dans un qu
 \end{tabularx}
 \end{center}
 
-% ---------------------------------------------------------------- Ancienne interface
 \section{L'interface de la version alpha}
 La version alpha reposait sur un menu latéral sombre et des pages larges, conçues pour un écran de 1920 pixels.
 Les formulaires ne demandaient que l'essentiel (nom, prénom, une adresse, e-mail) et chaque client n'avait
@@ -104,10 +100,9 @@ qu'une seule adresse.
 \deuxcaptures{ancien-connexion.jpg}{Connexion}{ancien-clients.jpg}{Liste des clients}
 \deuxcaptures{ancien-ajout-client.jpg}{Ajout d'un client : une seule adresse}{ancien-releves-client.jpg}{Déclaration et historique du client}
 
-% ---------------------------------------------------------------- Base de données
 \section{Évolution de la base de données}
-La base passe de 14 tables (50 colonnes) à 19 tables (91 colonnes). Aucune table ni colonne n'a été retirée :
-les scripts de \texttt{migrations/} font passer une base existante d'une version à l'autre.
+Oui, la base de données a changé : elle passe de 14 tables (50 colonnes) à 19 tables (91 colonnes), sans rien retirer.
+Voici ce qui a été ajouté.
 
 \subsection*{Tables ajoutées}
 \begin{center}\small
@@ -173,7 +168,6 @@ Les tables ajoutées sont en vert.
 \captionof{figure}{Principales tables et clés étrangères (la flèche va vers la table référencée). Les sous-types de réclamation (fuite interne, externe, facture, autre) ne sont pas représentés.}
 \end{center}
 
-% ---------------------------------------------------------------- Architecture et routage
 \section{Organisation et routage}
 Le code garde l'organisation MVC du cours : \textbf{IHM} (pages), \textbf{Traitement} (contrôle et règles),
 \textbf{BD} (accès aux données). \texttt{index.php} est l'\textbf{unique point d'entrée} : le fichier
@@ -202,7 +196,6 @@ Toutes les adresses suivent la forme \texttt{table/action/id}, sans paramètre a
 Les filtres sont dans le chemin (\texttt{facture/all/impayees}) ; la recherche des réclamations est envoyée en
 POST sur la même adresse.
 
-% ---------------------------------------------------------------- Nouvelle interface
 \section{La nouvelle interface}
 L'identité visuelle est celle d'un service public : fond « papier », vert du drapeau pour l'action principale
 et ce qui est payé ou validé, rouge pour les retards et les anomalies. Les listes partagent un même tableau :
@@ -222,9 +215,8 @@ recherche, tri par colonne et pagination.
 \deuxcaptures{nouveau-mon-compte.jpg}{Mon compte : compteurs, quartiers, contrats}{nouveau-404.jpg}{Toute adresse inconnue : un grand 404, et le lien de retour}
 
 \subsection*{Espace agent}
-\capture{nouveau-agent.jpg}{Agent : import du fichier annuel et liste des clients (identifiant, compteurs, déclaré dans l'année, relevé de la tournée).}
+\capture{nouveau-agent.jpg}{Agent : fichier annuel importé et liste des clients (identifiant, compteurs, déclaré dans l'année, relevé de la tournée).}
 
-% ---------------------------------------------------------------- Cas particuliers
 \section{Cas particuliers traités}
 \begin{itemize}
 \item \textbf{Un relevé par compteur et par mois}, du 18 à la fin du mois. Le relevé de départ (index initial
@@ -251,7 +243,6 @@ recherche, tri par colonne et pagination.
   (PHP et MySQL) pour montrer la période du 18, le passage au mois suivant ou la fin d'année.
 \end{itemize}
 
-% ---------------------------------------------------------------- Conformité au cours
 \section{Lien avec le cours}
 \begin{itemize}
 \item \textbf{PHP et formulaires} : méthodes GET et POST, superglobales \texttt{\$\_GET}, \texttt{\$\_POST},
@@ -278,11 +269,9 @@ function requeteAjax(methode, adresse, parametres, quandFini, siErreur) {
 }
 \end{lstlisting}
 
-% ---------------------------------------------------------------- Conclusion
 \section*{Conclusion}
 La version finale de Fatourti couvre l'ensemble du cahier des charges et des consignes ajoutées en cours,
 avec une base de données enrichie (cinq tables, sept colonnes), un routage unique en \texttt{table/action/id}
-et une interface entièrement revue. L'application tourne avec Docker ; la base complète peut être importée
-avec le fichier \texttt{databaseTEST.sql}.
+et une interface entièrement revue.
 
 \end{document}

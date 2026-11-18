@@ -1,5 +1,4 @@
 <?php
-// Requêtes de la déclaration : toutes les données variables passent par mysqli_prepare.
 function clientConnecte($db, $id)
 {
     $sql = 'SELECT c.id, c.idFournisseur, c.adresse, u.nom, u.prenom, u.email FROM consommateur c JOIN utilisateur u ON u.id=c.id WHERE c.id=?';
@@ -29,8 +28,6 @@ function verrouillerClient($db, $id)
     return $row !== null;
 }
 
-// Relevé ENVOYÉ PAR LE CLIENT sur ce compteur pendant le mois.
-// Le relevé de départ créé par le fournisseur avec le compteur ("Référence initiale") ne compte pas.
 function releveClientDuMois($db, $idAdresseCompteur, $premierJour, $jourSuivant)
 {
     $q = mysqli_prepare($db, "SELECT id FROM declaration WHERE idAdresseCompteur=? AND dateSaisie>=? AND dateSaisie<? AND statut<>'Référence initiale' LIMIT 1");
@@ -41,7 +38,6 @@ function releveClientDuMois($db, $idAdresseCompteur, $premierJour, $jourSuivant)
     return $row !== null;
 }
 
-// Relevé de ce compteur en anomalie, pas encore corrigé par le fournisseur (une correction le passe en "Validée")
 function anomalieEnAttente($db, $idAdresseCompteur)
 {
     $q = mysqli_prepare($db, "SELECT id FROM declaration WHERE idAdresseCompteur=? AND statut LIKE 'Anomalie%' LIMIT 1");
@@ -64,7 +60,6 @@ function declarationDuMois($db, $idAdresseCompteur, $premierJour, $jourSuivant)
 
 function derniereDeclarationValide($db, $idAdresseCompteur)
 {
-    // Les chemins des photos servent à les afficher au client pendant sa nouvelle saisie.
     $q = mysqli_prepare($db, "SELECT id, indexEau, indexElectricite, dateSaisie, cheminCompteurEauImg, cheminCompteurElectriciteImg FROM declaration WHERE idAdresseCompteur=? AND statut IN ('Référence initiale','Validée') ORDER BY dateSaisie DESC, id DESC LIMIT 1");
     mysqli_stmt_bind_param($q, 'i', $idAdresseCompteur);
     mysqli_stmt_execute($q);
@@ -73,7 +68,6 @@ function derniereDeclarationValide($db, $idAdresseCompteur)
     return $row ?: null;
 }
 
-// Seuils d'anomalie choisis par un fournisseur : ['eau' => m³, 'electricite' => kWh]
 function seuilsFournisseur($db, $idFournisseur)
 {
     $q = mysqli_prepare($db, "SELECT seuilEau, seuilElectricite FROM fournisseur WHERE id=?");
@@ -94,7 +88,6 @@ function enregistrerDeclaration($db, $fournisseur, $client, $idAdresseCompteur, 
     mysqli_stmt_close($q);
     return $id;
 }
-
 
 function enregistrerFacture($db, $declaration, $chemin, $date)
 {
