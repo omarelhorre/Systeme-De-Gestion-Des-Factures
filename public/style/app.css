@@ -1329,3 +1329,22 @@ a.compte:hover .compte-avatar { color: var(--texte); }
 .tableau { background: var(--cadre); }
 /* mode démo : de la place sous le contenu pour que la barre flottante ne cache pas la pagination */
 body:has(.demo) .contenu { padding-bottom: 5rem; }
+
+/* ---------- Page 404 : un grand 404 au milieu, rien d'autre ---------- */
+.page-404 {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+}
+.code-404 {
+    font-family: var(--titre);
+    font-weight: 700;
+    font-size: clamp(8rem, 26vw, 18rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--texte);
+}

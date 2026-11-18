@@ -1,5 +1,5 @@
 <?php
-// Page introuvable.
+// Page introuvable : un grand 404 au milieu, et le lien pour repartir.
 $coqueTitre = 'Page introuvable';
 ?>
 <!DOCTYPE html>
@@ -8,15 +8,10 @@ $coqueTitre = 'Page introuvable';
 <?php include ROOT.'IHM/commun/tete.php'; ?>
 </head>
 <body>
-<main class="page-seule entree">
-    <section class="carte">
-        <p class="marque">Fatourti</p>
-        <p class="chiffre geant" style="margin-top: 1rem">404</p>
-        <p class="legende">Cette page n'existe pas ou a été déplacée.</p>
-        <div class="actions" style="margin-top: 0.75rem">
-            <a class="bouton accent" href="<?= link ?>utilisateur/authentification">Retour à la connexion <i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-    </section>
+<main class="page-404 entree">
+    <h1 class="code-404">404</h1>
+    <p class="legende">Cette page n'existe pas.</p>
+    <a class="lien-retour" href="<?= link ?>utilisateur/authentification">Retour à l'accueil</a>
 </main>
 </body>
 </html>

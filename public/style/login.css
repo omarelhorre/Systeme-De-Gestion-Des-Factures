@@ -155,25 +155,15 @@
     display: block;
 }
 
+/* icônes Font Awesome dans les champs */
 .auth-icone {
     position: absolute;
     top: 50%;
     left: 1rem;
-    width: 1rem;
-    height: 1rem;
     transform: translateY(-50%);
     color: var(--gris);
+    font-size: 0.875rem;
     pointer-events: none;
-}
-
-.auth-icone,
-.auth-oeil svg,
-.auth-valider svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
 }
 
 .auth-champ input {
@@ -212,8 +202,8 @@
 .auth-oeil:hover,
 .auth-oeil.visible { color: var(--texte); }
 
-.auth-oeil svg,
-.auth-valider svg { width: 1rem; height: 1rem; }
+.auth-oeil i { font-size: 0.875rem; }
+.auth-valider i { font-size: 0.8125rem; }
 
 .auth-valider {
     height: 2.75rem;
@@ -230,7 +220,6 @@
     font-weight: 600;
     cursor: pointer;
 }
-.auth-valider svg { stroke-width: 2.2; }
 .auth-valider:hover { opacity: 0.85; }
 
 .aide {
