@@ -59,8 +59,8 @@ CREATE TABLE quartier
 );
 
 INSERT INTO quartier (nom, typeActivite) VALUES
-    ('Médina', 'Commercial'), ('Centre-ville', 'Commercial'),
-    ('Hay El Farah', 'Résidentiel économique'), ('Touabel', 'Résidentiel économique'),
+   ('Centre-ville', 'Commercial'),
+    ('Hay El Farah', 'Résidentiel économique'),
     ('Mhannech', 'Résidentiel standard'), ('Sania Ramel', 'Résidentiel standard'), ('Martil', 'Résidentiel standard'),
     ('Cabo Negro', 'Résidentiel haut standing'), ('Tetouan Park', 'Industriel');
 
@@ -216,5 +216,5 @@ CREATE TABLE notification
     INDEX idx_notification_utilisateur (idUtilisateur, id)
 );
 
-INSERT INTO utilisateur (id, nom, prenom, email, pass) VALUES (1, 'Fatourti', 'Admin', 'admin@fatourti.local', '$2y$10$RafL1ygM55DWYU844p/r6uNCikqMgvMvRNBXVB28uZdX0vwttgWzC');
-INSERT INTO fournisseur (id) VALUES (1);
+INSERT INTO utilisateur (id, nom, prenom, email, pass) VALUES (1, 'Admin', 'Fatourti', 'admin@fatourti.local', '$2y$10$St9FP7PrGHZLMuZ5KwWt8.yGswdFsZZHNzAx7EU0c6ZErqLolvfY2');
+INSERT INTO fournisseur (id, seuilEau, seuilElectricite) VALUES (1, 100.00, 1000.00);
