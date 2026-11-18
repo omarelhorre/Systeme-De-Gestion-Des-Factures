@@ -72,7 +72,7 @@ foreach ($contrats as $ligneContrat) {
                     <li class="ligne">
                         <div class="ligne-texte">
                             <p class="ligne-nom"><?= $e($point['adresse']) ?></p>
-                            <p class="ligne-detail">Compteur N° <?= (int)$point['id'] ?> · <?= $e($point['categorie']) ?></p>
+                            <p class="ligne-detail">Compteur N° <?= (int)$point['id'] ?> · <?= $e(($point['quartier'] ?? 'Sans quartier').' · '.$point['categorie']) ?></p>
                         </div>
                         <?php $contratAdresse = $contratParAdresse[(int)$point['id']] ?? null; ?>
                         <?php if ($contratAdresse === null) { ?>
@@ -90,13 +90,11 @@ foreach ($contrats as $ligneContrat) {
                 <label class="champ entier"><span class="libelle">Adresse</span>
                     <input type="text" name="adresse" required>
                 </label>
-                <label class="champ entier"><span class="libelle">Catégorie</span>
-                    <select name="categorie">
-                        <option value="Résidentiel économique">Résidentiel économique</option>
-                        <option value="Résidentiel standard">Résidentiel standard</option>
-                        <option value="Résidentiel haut standing">Résidentiel haut standing</option>
-                        <option value="Commercial">Commercial</option>
-                        <option value="Industriel">Industriel</option>
+                <label class="champ entier"><span class="libelle">Quartier (type d'activité)</span>
+                    <select name="quartier" required>
+                        <?php foreach (quartiers() as $q): ?>
+                        <option value="<?= (int)$q['id'] ?>"><?= htmlspecialchars($q['nom'].' — '.$q['typeActivite'], ENT_QUOTES, 'UTF-8') ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </label>
                 <label class="champ"><span class="libelle">Index initial eau (m³)</span>

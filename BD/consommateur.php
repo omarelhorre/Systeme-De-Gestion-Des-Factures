@@ -5,7 +5,7 @@
     {
         global $link;
         $sql = "SELECT * FROM consommateur
-                WHERE id='".$ID."'";
+                WHERE id=".(int)$ID;
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
     // Les clients d'UN fournisseur (chaque fournisseur ne voit que les siens)
@@ -20,18 +20,31 @@
     {
         global $link;
         $sql = "INSERT INTO consommateur(id,idFournisseur,adresse,cin,telephone)
-                VALUES ('".$lastUser."','".$idFournisseur."','".$adresse."','".mysqli_real_escape_string($link,$cin)."','".mysqli_real_escape_string($link,$telephone)."')";
+                VALUES (".(int)$lastUser.",".(int)$idFournisseur.",'".mysqli_real_escape_string($link,$adresse)."','".mysqli_real_escape_string($link,$cin)."','".mysqli_real_escape_string($link,$telephone)."')";
         mysqli_query($link,$sql);
     }
-    function insertAdresseCompteur($idConsommateur,$idFournisseur,$adresse,$categorie,$idxEau,$idxElec)
+    // Les quartiers (table quartier) : chacun a un type d'activité
+    function quartiers()
     {
         global $link;
-        $sql = "INSERT INTO adresseCompteur(idConsommateur,adresse,categorie)
-                VALUES ('".$idConsommateur."','".$adresse."','".$categorie."')";
+        return mysqli_fetch_all(mysqli_query($link, "SELECT id, nom, typeActivite FROM quartier ORDER BY nom"), MYSQLI_ASSOC);
+    }
+    function quartierParId($id)
+    {
+        global $link;
+        return mysqli_fetch_assoc(mysqli_query($link, "SELECT id, nom, typeActivite FROM quartier WHERE id=".(int)$id));
+    }
+
+    // $categorie : le type d'activité du quartier choisi ; $idQuartier : le quartier de ce compteur
+    function insertAdresseCompteur($idConsommateur,$idFournisseur,$adresse,$categorie,$idxEau,$idxElec,$idQuartier=null)
+    {
+        global $link;
+        $sql = "INSERT INTO adresseCompteur(idConsommateur,adresse,categorie,idQuartier)
+                VALUES (".(int)$idConsommateur.",'".mysqli_real_escape_string($link,$adresse)."','".mysqli_real_escape_string($link,$categorie)."',".($idQuartier === null ? "NULL" : (int)$idQuartier).")";
         mysqli_query($link,$sql);
         $idAdresseCompteur = mysqli_insert_id($link);
         $sql = "INSERT INTO declaration(idConsommateur,idFournisseur,idAdresseCompteur,indexEau,indexElectricite,statut)
-                VALUES (".$idConsommateur.",".$idFournisseur.",".$idAdresseCompteur.",".$idxEau.",".$idxElec.",'Référence initiale')";
+                VALUES (".(int)$idConsommateur.",".(int)$idFournisseur.",".(int)$idAdresseCompteur.",".(float)$idxEau.",".(float)$idxElec.",'Référence initiale')";
         mysqli_query($link,$sql);
         // Renvoie l'identifiant de la nouvelle adresse : le contrat de ce compteur y est rattaché.
         return $idAdresseCompteur;
@@ -41,27 +54,28 @@
         {
             global $link;
             $sql = "SELECT * FROM consommateur NATURAL JOIN utilisateur
-                    WHERE id=".$id;
+                    WHERE id=".(int)$id;
 
             return mysqli_fetch_array(mysqli_query($link,$sql));
         }
        function adressesCompteurDuClient($id)
        {
            global $link;
-           $sql = "SELECT * FROM adresseCompteur WHERE idConsommateur=".$id." ORDER BY id";
+           $sql = "SELECT a.*, q.nom AS quartier FROM adresseCompteur a LEFT JOIN quartier q ON q.id = a.idQuartier
+                   WHERE a.idConsommateur=".(int)$id." ORDER BY a.id";
            return mysqli_query($link,$sql);
        }
        function modifyConsommateur($id,$adresse,$cin='',$telephone='')
         {
             global $link;
             $sql = "UPDATE consommateur
-                    SET adresse='".$adresse."',
+                    SET adresse='".mysqli_real_escape_string($link,$adresse)."',
                         cin='".mysqli_real_escape_string($link,$cin)."',
                         telephone='".mysqli_real_escape_string($link,$telephone)."'
-                    WHERE id=".$id;
+                    WHERE id=".(int)$id;
             mysqli_query($link,$sql);
-            $sql = "UPDATE adresseCompteur SET adresse='".$adresse."'
-                    WHERE idConsommateur=".$id." ORDER BY id LIMIT 1";
+            $sql = "UPDATE adresseCompteur SET adresse='".mysqli_real_escape_string($link,$adresse)."'
+                    WHERE idConsommateur=".(int)$id." ORDER BY id LIMIT 1";
             return mysqli_query($link,$sql);
         }
 

@@ -24,7 +24,7 @@
             </section>
 
             <section class="auth-cote">
-                <form class="auth-formulaire" action="./authentification" method="post">
+                <form class="auth-formulaire" action="<?= link ?>utilisateur/authentification" method="post">
                     <h1 class="auth-titre"><span>Ea<span class="lettre-eau">u</span> et <span class="lettre-elec">é</span>lectricité,</span><span class="gris">une seule facture.</span></h1>
                     <p class="auth-accroche">Connectez-vous pour déclarer vos index, télécharger vos factures et suivre vos réclamations.</p>
                     <p class="auth-sous-titre">Pas encore d'espace ? Votre fournisseur le crée à la signature du contrat.</p>

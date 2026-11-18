@@ -14,7 +14,7 @@
     {
         global $link;
         $sql = "INSERT INTO contrat(cheminGeneration,idConsommateur,idAdresseCompteur,statut)
-        VALUES('".$cheminGeneration."',".(int)$id.",".($idAdresseCompteur === null ? "NULL" : (int)$idAdresseCompteur).",'actif')";
+        VALUES('".mysqli_real_escape_string($link,$cheminGeneration)."',".(int)$id.",".($idAdresseCompteur === null ? "NULL" : (int)$idAdresseCompteur).",'actif')";
         return mysqli_query($link,$sql);
     }
 
@@ -33,7 +33,7 @@
         global $link;
         $sql= "UPDATE contrat
                 SET statut ='resilié'
-                WHERE contrat.id = ".$id;
+                WHERE contrat.id = ".(int)$id;
                 return mysqli_query($link,$sql);
     }
 

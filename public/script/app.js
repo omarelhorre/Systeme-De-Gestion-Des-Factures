@@ -374,25 +374,44 @@ document.querySelectorAll(".horloge").forEach((horloge) => {
         return element;
     }
 
-    // ----- Échanges avec le serveur (AJAX) -----
-    async function charger() {
-        try {
-            const reponse = await fetch(SITE + "notification/all", { credentials: "same-origin" });
-            if (!reponse.ok) return;
-            donnees = await reponse.json();
-            afficher();
-        } catch (erreur) {
-            // réseau coupé : on réessaiera au prochain tour
+    // ----- Échanges avec le serveur (AJAX, objet XMLHttpRequest comme dans le cours) -----
+    // requeteAjax("GET", "notification/all", null, fonction) ; la réponse du serveur est en JSON.
+    function requeteAjax(methode, adresse, parametres, quandFini, siErreur) {
+        const objetXHR = new XMLHttpRequest();
+        objetXHR.open(methode, SITE + adresse, true);                 // true : asynchrone
+        objetXHR.onreadystatechange = function () {
+            if (objetXHR.readyState === 4) {                          // 4 : les données sont arrivées
+                if (objetXHR.status === 200) {
+                    quandFini(JSON.parse(objetXHR.responseText));      // texte JSON -> objet JavaScript
+                } else if (siErreur) {
+                    siErreur(objetXHR.status);                         // session expirée, réseau coupé… : on réessaiera au prochain tour
+                }
+            }
+        };
+        if (methode === "POST") {
+            objetXHR.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         }
+        objetXHR.send(parametres);
     }
 
-    async function envoyer(action) {
-        const corps = new URLSearchParams({ csrf: donnees.csrf });
-        const reponse = await fetch(SITE + "notification/" + action, { method: "POST", body: corps, credentials: "same-origin" });
-        if (reponse.ok) {
-            donnees = await reponse.json();
+    // Lire les notifications (GET notification/all)
+    function charger() {
+        requeteAjax("GET", "notification/all", null, function (reponse) {
+            donnees = reponse;
             afficher();
-        }
+        });
+    }
+
+    // Marquer lue une notification ou tout marquer (POST notification/lire/{id} ou notification/toutLire)
+    // Renvoie une promesse pour pouvoir attendre la fin avant d'ouvrir le lien de la notification.
+    function envoyer(action) {
+        return new Promise(function (fini) {
+            requeteAjax("POST", "notification/" + action, "csrf=" + encodeURIComponent(donnees.csrf), function (reponse) {
+                donnees = reponse;
+                afficher();
+                fini();
+            }, fini);
+        });
     }
 
     // Clic sur le bouton d'une notification : elle est marquée vue, puis on agit

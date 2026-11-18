@@ -101,13 +101,13 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
                 <?php if ($infosCompte['compteurs']) { ?>
                     <table class="tableau">
                         <thead>
-                            <tr><th>Adresse</th><th class="secondaire">Catégorie</th><th>Contrat</th><th class="secondaire">Dernier relevé</th><th class="fin cache-mobile">Index eau</th><th class="fin cache-mobile">Index électricité</th></tr>
+                            <tr><th>Adresse</th><th class="secondaire">Quartier</th><th>Contrat</th><th class="secondaire">Dernier relevé</th><th class="fin cache-mobile">Index eau</th><th class="fin cache-mobile">Index électricité</th></tr>
                         </thead>
                         <tbody data-pagine="5">
                             <?php foreach ($infosCompte['compteurs'] as $compteur) { ?>
                                 <tr>
                                     <td><div class="tronque fort"><?= $e($compteur['adresse']) ?></div><small>Compteur N° <?= (int)$compteur['id'] ?></small></td>
-                                    <td class="secondaire"><span class="tag"><?= $e($compteur['categorie']) ?></span></td>
+                                    <td class="secondaire"><span class="tag"><?= $e($compteur['quartier'] ?? $compteur['categorie']) ?></span></td>
                                     <?php $etatContrat = $compteur['contrat'] === null ? array('Sans contrat', '') : ($compteur['contrat'] === 'actif' ? array('Actif', 'ok') : ($compteur['contrat'] === 'en résiliation' ? array('En résiliation', 'attente') : array('Résilié', ''))); ?>
                                     <td><span class="etat <?= $etatContrat[1] ?>"><?= $etatContrat[0] ?></span></td>
                                     <td class="secondaire nombre"><?= $jour($compteur['dateSaisie']) ?></td>

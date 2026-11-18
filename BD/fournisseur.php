@@ -5,7 +5,7 @@
     {
         global $link;
         $sql = "SELECT * FROM fournisseur
-                WHERE id='".$ID."'";
+                WHERE id=".(int)$ID;
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
 ?>

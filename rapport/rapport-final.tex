@@ -1,0 +1,285 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.multipart}
+\usepackage[hidelinks]{hyperref}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Fatourti}
+\fancyhead[R]{Programmation web avancée}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\captionsetup{font=small,labelformat=empty}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+\definecolor{nouveau}{HTML}{006233}
+\definecolor{gris}{HTML}{6B6F76}
+\lstset{basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single, rulecolor=\color{gris!50},
+        columns=fullflexible, keepspaces=true, showstringspaces=false, inputencoding=utf8,
+        extendedchars=true, literate={é}{{\'e}}1 {è}{{\`e}}1 {à}{{\`a}}1 {ê}{{\^e}}1 {ç}{{\c c}}1 {°}{{\textdegree}}1}
+
+\newcommand{\capture}[2]{\begin{center}\includegraphics[width=0.92\linewidth]{images/#1}\captionof{figure}{#2}\end{center}}
+% deux captures côte à côte, à leur place dans le texte (pas de flottant)
+\newcommand{\deuxcaptures}[4]{\par\noindent
+  \begin{minipage}[t]{0.49\linewidth}\centering\includegraphics[width=\linewidth]{images/#1}\captionof{figure}{#2}\end{minipage}\hfill
+  \begin{minipage}[t]{0.49\linewidth}\centering\includegraphics[width=\linewidth]{images/#3}\captionof{figure}{#4}\end{minipage}\par\medskip}
+
+\begin{document}
+
+% ---------------------------------------------------------------- Page de titre
+\begin{center}
+Génie Informatique 2\\[0.3em]
+Année universitaire 2026/2027\\[2.5em]
+{\Huge Mini projet}\\[0.8em]
+{\Large Application de gestion des factures}\\[0.2em]
+{\large d'eau et d'électricité}\\[2em]
+{\Large Rapport final}\\[2.5em]
+\textbf{Module :} Programmation web avancée\\[0.4em]
+\textbf{Encadrant :} Mohammed Al Achhab\\[2.5em]
+\textbf{Réalisé par :}\\[0.4em]
+Omar El Horre\\ Othmane Farhane\\ Ilyass Garhani
+\end{center}
+
+\section*{Présentation}
+Fatourti permet à un fournisseur d'eau et d'électricité de gérer ses clients, leurs compteurs et leurs contrats.
+Chaque mois, le client déclare les index de ses compteurs avec une photo de chacun ; la facture est calculée
+automatiquement, ou bloquée en anomalie jusqu'à sa vérification par le fournisseur. Un agent dépose une fois
+par an le relevé de sa tournée, comparé aux déclarations du client.
+
+Depuis la version alpha, l'application couvre tout le cahier des charges et les consignes ajoutées en cours
+(table \texttt{quartier}, plusieurs contrats par client). Elle propose aussi le paiement en ligne, des
+notifications par e-mail et en AJAX, et une nouvelle interface pensée comme un service public marocain.
+
+% ---------------------------------------------------------------- Conformité
+\section{Conformité au cahier des charges}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{6.2cm}X}
+\toprule
+\textbf{Exigence} & \textbf{Réalisation} \\
+\midrule
+Le client consulte ses factures & Page \textit{Mes relevés} : chaque facture (PDF), son état et son échéance. \\
+Saisie mensuelle avec photos des compteurs & Formulaire \textit{Déclarer ma consommation} (deux index, deux photos JPEG de 3 Mo max). \\
+Index et photo du mois précédent affichés & Affichés au-dessus du formulaire, pour comparer avant de saisir. \\
+Facture générée automatiquement sans anomalie & Calcul par tranches + TVA 18 \%, PDF créé à l'enregistrement. \\
+Anomalie : index inférieur ou seuil dépassé & Seuils réglables par chaque fournisseur (\textit{Mon compte}). \\
+Facture : numéro, date, période, client, consommations, HT, TVA, TTC, photos & PDF de facture avec le détail par tranche. \\
+Réclamation : fuite externe, fuite interne, facture, autre & Formulaire et suivi côté client ; traitement et réponse côté fournisseur. \\
+Le fournisseur gère ses clients & Ajouter, modifier, supprimer ; plusieurs adresses (compteurs) par client. \\
+Saisie ouverte du 18 à la fin du mois & Vérifiée côté serveur, rappelée dans l'interface. \\
+Correction d'une anomalie avant la facture & Page de correction avec les photos, puis génération de la facture. \\
+Traiter les réclamations et notifier le client & Réponse enregistrée, notification dans l'application et par e-mail. \\
+TVA 18 \% ; tranches électricité (0,82 / 0,92 / 1,10) et eau (2,37 / 7,39 / 10,98 / 11,03) & Constantes \texttt{TRANCHES\_ELECTRICITE} et \texttt{TRANCHES\_EAU}, appliquées progressivement. \\
+Fichier annuel \texttt{Consommation\_Annuelle.txt} & Import par l'agent, contrôle de chaque ligne (agent, année, date, client). \\
+Tableau de bord & Impayés, évolution mensuelle (courbe), anomalies, réclamations, dernières factures. \\
+Vérification annuelle par le fournisseur & \textit{Bilan annuel} : déclaré / relevé par l'agent / reste à payer, rappels. \\
+Enregistrement du paiement & Paiement en espèces par le fournisseur, ou en ligne par le client. \\
+\midrule
+\textit{Consignes ajoutées en cours :} table quartier ; plusieurs contrats dans des quartiers différents ; un quartier a un type d'activité &
+Table \texttt{quartier} (nom, type d'activité) ; chaque compteur est dans un quartier et a son propre contrat. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ---------------------------------------------------------------- Ancienne interface
+\section{L'interface de la version alpha}
+La version alpha reposait sur un menu latéral sombre et des pages larges, conçues pour un écran de 1920 pixels.
+Les formulaires ne demandaient que l'essentiel (nom, prénom, une adresse, e-mail) et chaque client n'avait
+qu'une seule adresse.
+
+\deuxcaptures{ancien-connexion.jpg}{Connexion}{ancien-clients.jpg}{Liste des clients}
+\deuxcaptures{ancien-ajout-client.jpg}{Ajout d'un client : une seule adresse}{ancien-releves-client.jpg}{Déclaration et historique du client}
+
+% ---------------------------------------------------------------- Base de données
+\section{Évolution de la base de données}
+La base passe de 14 tables (50 colonnes) à 19 tables (91 colonnes). Aucune table ni colonne n'a été retirée :
+les scripts de \texttt{migrations/} font passer une base existante d'une version à l'autre.
+
+\subsection*{Tables ajoutées}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Table} & \textbf{Rôle et colonnes} \\
+\midrule
+\texttt{quartier} & Un quartier et son type d'activité (résidentiel, commercial, industriel) : \texttt{id, nom, typeActivite}. \\
+\texttt{adresseCompteur} & Un compteur à une adresse ; un client peut en avoir plusieurs, dans des quartiers différents :
+\texttt{id, idConsommateur, adresse, categorie, idQuartier}. \\
+\texttt{contrat} & Un contrat par compteur, avec son PDF et son statut (actif, en résiliation, résilié) :
+\texttt{id, dateDebut, cheminGeneration, idConsommateur, idAdresseCompteur, statut}. \\
+\texttt{notification} & Notifications persistantes (lues, à traiter, résolues) :
+\texttt{id, idUtilisateur, type, titre, detail, lien, aTraiter, idObjet, dateCreation, dateLecture, dateResolution}. \\
+\texttt{regularisationAnnuelle} & Écart entre le relevé de l'agent et les déclarations, montant estimé, échéance et rappels :
+\texttt{id, idConsommationAnuelle, differenceEau, differenceElectricite, montantEstime, dateLimite, dateDernierEnvoi, nombreEnvois, dateReglement}. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection*{Colonnes ajoutées aux tables existantes}
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Table} & \textbf{Colonnes} & \textbf{Pour} \\
+\midrule
+\texttt{consommateur} & \texttt{cin, telephone} & Numéro d'identité et téléphone du client \\
+\texttt{declaration} & \texttt{idAdresseCompteur} & Le relevé porte sur un compteur précis \\
+\texttt{facture} & \texttt{modePaiement, referencePaiement} & Espèces ou en ligne, numéro de transaction \\
+\texttt{fournisseur} & \texttt{seuilEau, seuilElectricite} & Seuils d'anomalie définis par le fournisseur \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Schéma des relations}
+Les tables ajoutées sont en vert.
+\begin{center}
+\begin{tikzpicture}[
+  table/.style={draw, rounded corners=2pt, minimum width=3.1cm, minimum height=0.75cm, font=\small\ttfamily, fill=white},
+  ajout/.style={table, draw=nouveau, fill=nouveau!8, text=nouveau!80!black, line width=0.9pt},
+  lien/.style={->, >=stealth, gray}]
+  \node[table] (util) at (0,0) {utilisateur};
+  \node[table] (four) at (-4.2,-1.6) {fournisseur};
+  \node[table] (cons) at (0,-1.6) {consommateur};
+  \node[table] (agent) at (4.2,-1.6) {agent};
+  \node[ajout] (notif) at (4.2,0) {notification};
+  \node[ajout] (adr) at (-2.2,-3.3) {adresseCompteur};
+  \node[ajout] (quart) at (-6.2,-3.3) {quartier};
+  \node[ajout] (contrat) at (-4.2,-5) {contrat};
+  \node[table] (decl) at (0,-5) {declaration};
+  \node[table] (fact) at (0,-6.7) {facture};
+  \node[table] (recl) at (4.2,-3.3) {reclamation};
+  \node[table] (annu) at (4.2,-5) {ConsommationAnuelle};
+  \node[ajout] (regul) at (4.2,-6.7) {regularisationAnnuelle};
+  \draw[lien] (four) -- (util); \draw[lien] (cons) -- (util); \draw[lien] (agent) -- (util);
+  \draw[lien] (notif) -- (util); \draw[lien] (cons) -- (four);
+  \draw[lien] (adr) -- (cons); \draw[lien] (adr) -- (quart);
+  \draw[lien] (contrat) -- (adr); \draw[lien] (contrat.north) -- ++(0,0.4) -| (cons.south west);
+  \draw[lien] (decl) -- (adr); \draw[lien] (decl) -- (cons);
+  \draw[lien] (fact) -- (decl); \draw[lien] (recl) -- (cons);
+  \draw[lien] (annu) -- (cons); \draw[lien] (regul) -- (annu);
+\end{tikzpicture}
+\captionof{figure}{Principales tables et clés étrangères (la flèche va vers la table référencée). Les sous-types de réclamation (fuite interne, externe, facture, autre) ne sont pas représentés.}
+\end{center}
+
+% ---------------------------------------------------------------- Architecture et routage
+\section{Organisation et routage}
+Le code garde l'organisation MVC du cours : \textbf{IHM} (pages), \textbf{Traitement} (contrôle et règles),
+\textbf{BD} (accès aux données). \texttt{index.php} est l'\textbf{unique point d'entrée} : le fichier
+\texttt{.htaccess} lui envoie toutes les adresses sauf les fichiers statiques de \texttt{public/} (CSS, JS).
+Un fichier PHP appelé directement (\texttt{IHM/login.php}, \texttt{BD/connexion.php}\ldots) répond 404, comme
+toute adresse inconnue.
+
+Toutes les adresses suivent la forme \texttt{table/action/id}, sans paramètre après un « ? » :
+\begin{center}\footnotesize
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{4.4cm}}
+\toprule
+\textbf{Adresse} & \textbf{Page} \\
+\midrule
+\texttt{utilisateur/authentification}, \texttt{utilisateur/profil} & Connexion, Mon compte \\
+\texttt{consommateur/all}, \texttt{consommateur/ajouter}, \texttt{consommateur/modifier/9107} & Clients \\
+\texttt{contrat/resilier/9107} & Résiliation d'un contrat (en deux temps) \\
+\texttt{declaration/all}, \texttt{declaration/ajouter/9613}, \texttt{declaration/corriger/9140} & Relevés, déclaration, correction \\
+\texttt{facture/all/impayees}, \texttt{facture/detail/9112}, \texttt{facture/telecharger/9112} & Factures \\
+\texttt{reclamation/all/attente}, \texttt{reclamation/detail/9108} & Réclamations \\
+\texttt{annuelle/all/2026}, \texttt{agent/importer} & Bilan annuel, import de l'agent \\
+\texttt{notification/all}, \texttt{notification/lire/97} & Notifications (AJAX, JSON) \\
+\texttt{paiement/payer/9112}, \texttt{paiement/retour/9112} & Paiement en ligne \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Les filtres sont dans le chemin (\texttt{facture/all/impayees}) ; la recherche des réclamations est envoyée en
+POST sur la même adresse.
+
+% ---------------------------------------------------------------- Nouvelle interface
+\section{La nouvelle interface}
+L'identité visuelle est celle d'un service public : fond « papier », vert du drapeau pour l'action principale
+et ce qui est payé ou validé, rouge pour les retards et les anomalies. Les listes partagent un même tableau :
+recherche, tri par colonne et pagination.
+
+\subsection*{Espace fournisseur}
+\capture{nouveau-tableau-fournisseur.jpg}{Tableau de bord : montant à encaisser, clients, anomalies, consommation mensuelle, réclamations ouvertes.}
+\deuxcaptures{nouveau-clients.jpg}{Clients : compteurs, consommation des six derniers mois, impayés}{nouveau-ajout-client.jpg}{Ajout d'un client : plusieurs adresses, chacune dans un quartier}
+\deuxcaptures{nouveau-modifier-client.jpg}{Modification : compteurs et contrats du client}{nouveau-resiliation.jpg}{Résiliation : choix du contrat, relevé final}
+\deuxcaptures{nouveau-factures.jpg}{Factures : filtre, recherche, tri}{nouveau-facture-detail.jpg}{Détail d'une facture et paiement en espèces}
+\deuxcaptures{nouveau-reclamations-fournisseur.jpg}{Réclamations : statut, type, recherche}{nouveau-bilan-annuel.jpg}{Bilan annuel : déclaré, relevé par l'agent, reste à payer}
+\deuxcaptures{nouveau-notifications.jpg}{Notifications chargées en AJAX}{nouveau-anomalies.jpg}{Relevés en anomalie à corriger}
+
+\subsection*{Espace client}
+\deuxcaptures{nouveau-tableau-client.jpg}{Tableau de bord du client}{nouveau-releves-client.jpg}{Mes relevés : factures, photos, paiement}
+\deuxcaptures{nouveau-declarer.jpg}{Déclaration : dernier relevé et photos affichés}{nouveau-reclamations-client.jpg}{Mes réclamations et leurs réponses}
+\deuxcaptures{nouveau-mon-compte.jpg}{Mon compte : compteurs, quartiers, contrats}{nouveau-404.jpg}{Toute adresse inconnue mène à la page 404}
+
+% ---------------------------------------------------------------- Cas particuliers
+\section{Cas particuliers traités}
+\begin{itemize}
+\item \textbf{Un relevé par compteur et par mois}, du 18 à la fin du mois. Le relevé de départ (index initial
+  saisi par le fournisseur) ne compte pas.
+\item \textbf{Mois oublié.} Le relevé suivant est facturé depuis le dernier index validé ; le seuil d'anomalie
+  est multiplié par le nombre de mois couverts, pour ne pas signaler une fausse anomalie.
+\item \textbf{Client qui ne déclare jamais.} À la fin de l'année, il paie tout ce que l'agent a relevé :
+  ses déclarations comptent pour zéro dans le bilan annuel.
+\item \textbf{Résiliation en deux temps.} Le client est prévenu et fait un relevé final, même hors période
+  et même s'il a déjà déclaré ce mois-ci ; ce relevé crée la facture finale et clôt le contrat.
+  Si ce relevé est en anomalie, le contrat attend sa correction. Un compteur résilié ne reçoit plus de relevé.
+\item \textbf{Compteur repris par un nouveau client.} Les contrats sont par compteur : l'ancien client règle
+  sa facture finale, le nouveau commence avec son propre relevé de départ.
+\item \textbf{Suppression d'un client avec un historique.} Le fournisseur est averti (relevés, factures,
+  réclamations) et peut résilier plutôt que supprimer ; la suppression se fait dans une transaction.
+\item \textbf{Facture en retard.} Après 30 jours, elle apparaît « en retard de N jours ».
+\item \textbf{Paiement en ligne.} Au retour, le serveur redemande le paiement au prestataire et vérifie le
+  montant, la devise et le numéro de facture ; un retour forgé ou un montant modifié est refusé ;
+  une facture déjà payée ne peut pas l'être deux fois.
+\item \textbf{Saisies piégées.} Un e-mail comme \texttt{' OR '1'='1} ou un identifiant modifié dans l'adresse
+  reste une simple valeur (injection SQL) ; une adresse avec une apostrophe (« Rue de l'Oued ») s'enregistre
+  normalement ; les textes affichés sont échappés (XSS) ; les formulaires sensibles ont un jeton CSRF.
+\item \textbf{Date de démonstration.} En mode démo, une barre change la date de toute l'application
+  (PHP et MySQL) pour montrer la période du 18, le passage au mois suivant ou la fin d'année.
+\end{itemize}
+
+% ---------------------------------------------------------------- Conformité au cours
+\section{Lien avec le cours}
+\begin{itemize}
+\item \textbf{PHP et formulaires} : méthodes GET et POST, superglobales \texttt{\$\_GET}, \texttt{\$\_POST},
+  \texttt{\$\_FILES}, \texttt{\$\_SESSION}, contrôle avec \texttt{isset} et \texttt{empty}, inclusion de fichiers.
+\item \textbf{Bases de données} : PHP/MySQL avec \texttt{mysqli} ; requêtes préparées ou valeurs protégées.
+\item \textbf{MVC} : séparation IHM / Traitement / BD et un routeur unique \texttt{index.php}.
+\item \textbf{AJAX} : la cloche des notifications utilise l'objet \texttt{XMLHttpRequest} comme dans le cours ;
+  le serveur répond en JSON (\texttt{json\_encode}, en-tête \texttt{application/json}) et la page est mise à jour
+  par le DOM (\texttt{createElement}, \texttt{appendChild}, \texttt{replaceChildren}) sans rechargement.
+\end{itemize}
+\begin{lstlisting}
+function requeteAjax(methode, adresse, parametres, quandFini, siErreur) {
+    const objetXHR = new XMLHttpRequest();
+    objetXHR.open(methode, SITE + adresse, true);              // asynchrone
+    objetXHR.onreadystatechange = function () {
+        if (objetXHR.readyState === 4) {                       // données arrivées
+            if (objetXHR.status === 200) quandFini(JSON.parse(objetXHR.responseText));
+            else if (siErreur) siErreur(objetXHR.status);
+        }
+    };
+    if (methode === "POST")
+        objetXHR.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    objetXHR.send(parametres);
+}
+\end{lstlisting}
+
+% ---------------------------------------------------------------- Conclusion
+\section*{Conclusion}
+La version finale de Fatourti couvre l'ensemble du cahier des charges et des consignes ajoutées en cours,
+avec une base de données enrichie (cinq tables, sept colonnes), un routage unique en \texttt{table/action/id}
+et une interface entièrement revue. L'application tourne avec Docker ; la base complète peut être importée
+avec le fichier \texttt{databaseTEST.sql}.
+
+\end{document}

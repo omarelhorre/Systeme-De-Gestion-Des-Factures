@@ -13,7 +13,7 @@ function clientConnecte($db, $id)
 
 function adressesDuClient($db, $id)
 {
-    $q = mysqli_prepare($db, 'SELECT id, adresse, categorie FROM adresseCompteur WHERE idConsommateur=? ORDER BY id');
+    $q = mysqli_prepare($db, 'SELECT a.id, a.adresse, a.categorie, q.nom AS quartier FROM adresseCompteur a LEFT JOIN quartier q ON q.id=a.idQuartier WHERE a.idConsommateur=? ORDER BY a.id');
     mysqli_stmt_bind_param($q, 'i', $id);
     mysqli_stmt_execute($q);
     return mysqli_fetch_all(mysqli_stmt_get_result($q), MYSQLI_ASSOC);

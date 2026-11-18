@@ -4,8 +4,9 @@
     function checkcredentials($email)
     {
         global $link;
+        // Valeurs protégées avant d'entrer dans la requête : un email comme  ' OR '1'='1  reste du texte
         $sql = "SELECT * FROM utilisateur
-                WHERE email='".$email."'";
+                WHERE email='".mysqli_real_escape_string($link,$email)."'";
         return mysqli_fetch_array(mysqli_query($link,$sql));
     }
 
@@ -13,7 +14,7 @@
     {
         global $link;
         $sql = "INSERT INTO utilisateur (nom,prenom,email,pass)  VALUES(
-        '".$nom."','".$prenom."','".$email."','".$password."'
+        '".mysqli_real_escape_string($link,$nom)."','".mysqli_real_escape_string($link,$prenom)."','".mysqli_real_escape_string($link,$email)."','".mysqli_real_escape_string($link,$password)."'
         )";
         mysqli_query($link,$sql);
         return mysqli_insert_id($link);
@@ -22,8 +23,8 @@
         {
             global $link;
             $sql = "UPDATE utilisateur
-                    SET nom='".$nom."',prenom='".$prenom."',email='".$email."'
-                    WHERE id=".$id;
+                    SET nom='".mysqli_real_escape_string($link,$nom)."',prenom='".mysqli_real_escape_string($link,$prenom)."',email='".mysqli_real_escape_string($link,$email)."'
+                    WHERE id=".(int)$id;
             return mysqli_query($link,$sql);
         }
 

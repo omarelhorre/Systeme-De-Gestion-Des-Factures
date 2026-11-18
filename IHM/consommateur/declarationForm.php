@@ -53,7 +53,7 @@ else $bloque = '';
             <label class="champ entier"><span class="libelle">Compteur</span>
                 <select onchange="window.location.href='<?= $url ?>ajouter/' + this.value">
                     <?php foreach ($adresses as $adresse): ?>
-                    <option value="<?=h($adresse['id'])?>" <?=((int)$adresse['id'] === $idAdresseCompteur ? 'selected' : '')?>><?=h($adresse['adresse'].' — '.$adresse['categorie'])?></option>
+                    <option value="<?=h($adresse['id'])?>" <?=((int)$adresse['id'] === $idAdresseCompteur ? 'selected' : '')?>><?=h($adresse['adresse'].' — '.($adresse['quartier'] ?? $adresse['categorie']))?></option>
                     <?php endforeach; ?>
                 </select>
             </label>

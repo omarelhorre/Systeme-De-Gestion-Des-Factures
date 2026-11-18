@@ -31,13 +31,29 @@ CREATE TABLE consommateur
     FOREIGN KEY (id) REFERENCES utilisateur(id)
 );
 
+-- Un quartier est associé à un type d'activité ; un client peut avoir des compteurs (contrats) dans plusieurs quartiers
+CREATE TABLE quartier
+(
+    id int primary key AUTO_INCREMENT,
+    nom varchar(100) NOT NULL UNIQUE,
+    typeActivite varchar(50) NOT NULL
+);
+
+INSERT INTO quartier (nom, typeActivite) VALUES
+    ('Médina', 'Commercial'), ('Centre-ville', 'Commercial'),
+    ('Hay El Farah', 'Résidentiel économique'), ('Touabel', 'Résidentiel économique'),
+    ('Mhannech', 'Résidentiel standard'), ('Sania Ramel', 'Résidentiel standard'), ('Martil', 'Résidentiel standard'),
+    ('Cabo Negro', 'Résidentiel haut standing'), ('Tetouan Park', 'Industriel');
+
 CREATE TABLE adresseCompteur
 (
     id int primary key AUTO_INCREMENT,
     idConsommateur int NOT NULL,
     adresse varchar(255) NOT NULL,
-    categorie varchar(50) NOT NULL,
-    FOREIGN KEY (idConsommateur) REFERENCES consommateur(id)
+    categorie varchar(50) NOT NULL,       -- copie du type d'activité du quartier
+    idQuartier int,
+    FOREIGN KEY (idConsommateur) REFERENCES consommateur(id),
+    FOREIGN KEY (idQuartier) REFERENCES quartier(id)
 );
 
 CREATE TABLE contrat

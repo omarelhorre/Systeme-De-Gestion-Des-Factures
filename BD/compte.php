@@ -16,7 +16,7 @@
     function compteConsommateur($id)
     {
         $compteurs = compteLignes(
-            "SELECT a.id, a.adresse, a.categorie,
+            "SELECT a.id, a.adresse, a.categorie, (SELECT q.nom FROM quartier q WHERE q.id=a.idQuartier) AS quartier,
                     (SELECT k.statut FROM contrat k WHERE k.idAdresseCompteur=a.id ORDER BY k.statut='actif' DESC, k.statut='en résiliation' DESC, k.id DESC LIMIT 1) AS contrat,
                     d.dateSaisie, d.indexEau, d.indexElectricite
              FROM adresseCompteur a

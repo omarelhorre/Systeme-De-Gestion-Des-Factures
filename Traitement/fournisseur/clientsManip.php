@@ -46,11 +46,11 @@
             }
             if ($role === 'consommateur') {
                 $adresses = $_POST['adresse'] ?? [];
-                $categories = $_POST['categorie'] ?? [];
+                // Chaque compteur est dans un quartier ; le type d'activité vient du quartier
+                $quartiersChoisis = $_POST['quartier'] ?? [];
                 $eaux = $_POST['indexPrecendentEau'] ?? [];
                 $elects = $_POST['indexPrecendentElec'] ?? [];
-                $categoriesPermises = ['Résidentiel économique', 'Résidentiel standard', 'Résidentiel haut standing', 'Commercial', 'Industriel'];
-                if (!is_array($adresses) || !$adresses || count($adresses) !== count($categories)
+                if (!is_array($adresses) || !$adresses || !is_array($quartiersChoisis) || count($adresses) !== count($quartiersChoisis)
                     || count($adresses) !== count($eaux) || count($adresses) !== count($elects)) {
                     http_response_code(400); echo 'Adresses et compteurs invalides.'; return;
                 }
@@ -58,12 +58,13 @@
                 foreach ($adresses as $i => $adresse) {
                     $idxEau = str_replace(',', '.', trim($eaux[$i]));
                     $idxElec = str_replace(',', '.', trim($elects[$i]));
-                    if (trim($adresse) === '' || !in_array($categories[$i], $categoriesPermises, true)
+                    $quartier = quartierParId($quartiersChoisis[$i]);
+                    if (trim($adresse) === '' || !$quartier
                         || !preg_match('/^\d{1,11}(?:\.\d{1,4})?$/', $idxEau)
                         || !preg_match('/^\d{1,11}(?:\.\d{1,4})?$/', $idxElec)) {
-                        http_response_code(400); echo 'Adresse, catégorie ou index invalide.'; return;
+                        http_response_code(400); echo 'Adresse, quartier ou index invalide.'; return;
                     }
-                    $points[] = [$adresse, $categories[$i], (float)$idxEau, (float)$idxElec];
+                    $points[] = [$adresse, $quartier['typeActivite'], (float)$idxEau, (float)$idxElec, (int)$quartier['id']];
                 }
                 // Numéro d'identité (ex. BL175578) et téléphone (ex. 0612345678 ou +212612345678)
                 $cin = strtoupper(trim($_POST['cin'] ?? ''));
@@ -83,7 +84,7 @@
                     insertConsommateur($lastUser,$_SESSION["user"]["id"],$points[0][0],$cin,$telephone);
                     $idsAdresses = [];
                     foreach ($points as $point) {
-                        $idsAdresses[] = insertAdresseCompteur($lastUser,$_SESSION["user"]["id"],$point[0],$point[1],$point[2],$point[3]);
+                        $idsAdresses[] = insertAdresseCompteur($lastUser,$_SESSION["user"]["id"],$point[0],$point[1],$point[2],$point[3],$point[4]);
                     }
                 }
                 mysqli_commit($link);
@@ -170,16 +171,15 @@
             http_response_code(403); echo 'Client non autorisé.'; return;
         }
         $adresse = trim($_POST['adresse'] ?? '');
-        $categorie = $_POST['categorie'] ?? '';
-        $categories = ['Résidentiel économique', 'Résidentiel standard', 'Résidentiel haut standing', 'Commercial', 'Industriel'];
+        $quartier = quartierParId($_POST['quartier'] ?? 0);
         $eau = str_replace(',', '.', trim($_POST['indexPrecendentEau'] ?? ''));
         $electricite = str_replace(',', '.', trim($_POST['indexPrecendentElec'] ?? ''));
-        if ($adresse === '' || !in_array($categorie, $categories, true)
+        if ($adresse === '' || !$quartier
             || !preg_match('/^\d{1,11}(?:\.\d{1,4})?$/', $eau)
             || !preg_match('/^\d{1,11}(?:\.\d{1,4})?$/', $electricite)) {
-            http_response_code(400); echo 'Adresse, catégorie ou index invalide.'; return;
+            http_response_code(400); echo 'Adresse, quartier ou index invalide.'; return;
         }
-        $idAdresse = insertAdresseCompteur($id, $_SESSION['user']['id'], $adresse, $categorie, (float)$eau, (float)$electricite);
+        $idAdresse = insertAdresseCompteur($id, $_SESSION['user']['id'], $adresse, $quartier['typeActivite'], (float)$eau, (float)$electricite, (int)$quartier['id']);
         // La nouvelle adresse reçoit son propre contrat (PDF enregistré comme les autres).
         include_once(ROOT."/Traitement/domPDFTraitement.php");
         $pdf = genererPdfContrat(["nom" => $client["nom"], "prenom" => $client["prenom"], "adresse" => $adresse]);
