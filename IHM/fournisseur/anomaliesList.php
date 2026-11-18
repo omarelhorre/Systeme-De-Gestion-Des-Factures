@@ -23,7 +23,6 @@ $jourAnomalie = function ($date) { return $date ? date('d/m/Y', strtotime($date)
     <?php else: ?>
         <header class="entete">
             <h1 class="titre">Anomalies</h1>
-            <p class="sous-titre">Consultez les photos avant de corriger les index.</p>
         </header>
 
         <section class="liste">

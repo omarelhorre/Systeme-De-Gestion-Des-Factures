@@ -20,7 +20,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
 <main class="contenu entree">
     <header class="entete">
         <h1 class="titre">Mon compte</h1>
-        <p class="sous-titre">Modifiez votre email ou votre mot de passe.</p>
     </header>
 
     <?php if ($message) { ?><p class="message" role="status"><i class="fa-solid fa-circle-check"></i><span><?= $e($message) ?></span></p><?php } ?>
@@ -56,7 +55,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
             </div>
             </div>
             <?php if ($role === 'consommateur') { ?>
-                <p class="note" style="margin-top: 1rem">Ces informations sont gérées par votre fournisseur. Contactez-le pour les corriger.</p>
             <?php } ?>
         </section>
 
@@ -92,7 +90,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
                         <dt>Nom</dt><dd><?= $e($fournisseurClient['prenom'].' '.$fournisseurClient['nom']) ?></dd>
                         <dt>Email</dt><dd><a href="mailto:<?= $e($fournisseurClient['email']) ?>"><?= $e($fournisseurClient['email']) ?></a></dd>
                     </dl>
-                    <p class="note" style="margin-top: 1rem">Pour corriger votre identité, votre téléphone ou une adresse, contactez-le.</p>
                 <?php } ?>
             </section>
 
@@ -148,7 +145,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
             <!-- Seuils d'anomalie : au-delà, la déclaration devient une anomalie au lieu d'une facture -->
             <section class="carte large">
                 <h2 class="titre-carte">Seuils d'anomalie</h2>
-                <p class="legende">Une déclaration qui dépasse ces consommations mensuelles devient une anomalie à corriger, sans facture.</p>
                 <form class="formulaire" style="margin-top: 1rem" method="post" action="<?= link ?>utilisateur/modifierSeuils">
                     <input type="hidden" name="csrf" value="<?= $e($_SESSION['csrf_profil']) ?>">
                     <label class="champ"><span class="libelle"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Eau (m³ par mois)</span>
@@ -166,7 +162,6 @@ $ouNonRenseigne = function ($texte) use ($e) { return trim((string)$texte) === '
             <!-- Grille tarifaire du sujet, lue dans les règles de facturation (aucune saisie) -->
             <section class="carte large">
                 <h2 class="titre-carte" style="margin-bottom: 0.25rem">Grille tarifaire</h2>
-                <p class="legende" style="margin-bottom: 0.75rem">Chaque tranche est facturée à son prix, puis TVA de <?= (int)round(TVA_CONSOMMATION * 100) ?> %.</p>
                 <table class="tableau">
                     <thead><tr><th>Électricité</th><th class="fin">DH / kWh</th><th>Eau</th><th class="fin">DH / m³</th></tr></thead>
                     <tbody>

@@ -29,7 +29,6 @@ $coqueActif = 'reclamations';
     <a class="lien-retour" href="<?= link ?>reclamation/all"><i class="fa-solid fa-arrow-left"></i> Retour à mes réclamations</a>
     <header class="entete">
         <h1 class="titre">Nouvelle réclamation</h1>
-        <p class="sous-titre">Votre fournisseur est prévenu et vous répond ici et par email.</p>
     </header>
 
     <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?= texteReclamation($erreur) ?></span></p><?php endif; ?>
@@ -54,7 +53,7 @@ $coqueActif = 'reclamations';
                 </select>
             </label>
             <label class="champ entier"><span class="libelle">Description</span>
-                <textarea name="description" rows="5" maxlength="1000" required placeholder="Décrivez le problème : où, depuis quand, ce que vous constatez."><?= texteReclamation($valeurs['description']) ?></textarea>
+                <textarea name="description" rows="5" maxlength="1000" required ><?= texteReclamation($valeurs['description']) ?></textarea>
             </label>
             <div class="entier actions fin">
                 <a class="bouton contour" href="<?= link ?>reclamation/all">Annuler</a>

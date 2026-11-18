@@ -1415,3 +1415,5 @@ body:has(.demo) .contenu { padding-bottom: 5rem; }
 .message,
 .erreur-bloc { box-shadow: var(--ombre); }
 .carte .liste > .tableau { box-shadow: none; }   /* tableau déjà dans un widget : pas d'ombre en double */
+
+.code-format { margin-top: 1rem; border-radius: 0.75rem; white-space: pre; overflow-x: auto; }

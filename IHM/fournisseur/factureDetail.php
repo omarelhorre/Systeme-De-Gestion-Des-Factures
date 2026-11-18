@@ -41,7 +41,6 @@
             <form class="pile" style="margin-top: 1rem; gap: 0.75rem" method="post" action="<?= link ?>facture/payer/<?= (int)$facture['id'] ?>">
                 <input type="hidden" name="csrf" value="<?= texteFacture($_SESSION['csrf_factures']) ?>">
                 <label class="case"><input type="checkbox" name="confirmation" value="oui" required> <span>Je confirme avoir reçu le montant de cette facture en espèces.</span></label>
-                <p class="note">La date du paiement sera enregistrée aujourd’hui. Cette confirmation est définitive.</p>
                 <div class="actions fin">
                     <button class="bouton accent" type="submit"><i class="fa-solid fa-check"></i> Marquer comme payée</button>
                 </div>

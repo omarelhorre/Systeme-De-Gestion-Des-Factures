@@ -51,7 +51,7 @@ jobs:
               env:
                 MYSQL_PWD: temppass
               run:
-                mysql -h 127.0.0.1 -u root fatourti < database.sql
+                mysql -h 127.0.0.1 -u root fatourti < base_de_donnees/database.sql
             - name: Database Insertion Test
               env:
                 MYSQL_PWD: temppass

@@ -21,19 +21,14 @@ $coqueMenu = array(
 <main class="contenu entree">
     <header class="entete">
         <h1 class="titre">Consommation annuelle <?=$annee?></h1>
-        <p class="sous-titre">Déposez le fichier texte relevé lors de la tournée annuelle.</p>
+        <?php if ($fichierImporte): ?><p class="sous-titre"><span class="etat ok">Fichier <?=$annee?> importé</span></p><?php endif; ?>
     </header>
 
     <?php if ($message): ?><p class="message" role="status"><i class="fa-solid fa-circle-check"></i><span><?=htmlspecialchars($message, ENT_QUOTES, 'UTF-8')?></span></p><?php endif; ?>
     <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?=htmlspecialchars($erreur, ENT_QUOTES, 'UTF-8')?></span></p><?php endif; ?>
 
     <div class="grille">
-        <?php if ($fichierImporte): ?>
-            <section class="carte large">
-                <h2 class="titre-carte">Fichier importé pour <?=$annee?></h2>
-                <p class="legende"><i class="fa-solid fa-circle-check" style="color: var(--vert)"></i> Votre fichier annuel a déjà été enregistré. Un second dépôt pour cette année n'est pas nécessaire.</p>
-            </section>
-        <?php else: ?>
+        <?php if (!$fichierImporte): ?>
             <section class="carte large">
                 <h2 class="titre-carte">Importer le fichier</h2>
                 <form class="pile" style="margin-top: 1rem" method="post" action="<?=link?>agent/importer" enctype="multipart/form-data">
@@ -42,19 +37,17 @@ $coqueMenu = array(
                         <input type="file" name="fichier" accept=".txt,text/plain" required>
                     </label>
                     <div class="actions fin">
-                        <button class="bouton accent" type="submit"><i class="fa-solid fa-file-arrow-up"></i> Importer le fichier</button>
+                        <button class="bouton accent" type="submit"><i class="fa-solid fa-file-arrow-up"></i> Importer</button>
                     </div>
                 </form>
             </section>
-        <?php endif; ?>
 
-        <section class="carte large">
-            <h2 class="titre-carte">Format attendu</h2>
-            <p class="legende" style="margin-bottom: 0.75rem">Une ligne par client, six champs séparés par des espaces :</p>
-            <pre class="code">ID_Client ID_Agent ConsommationEau ConsommationElect Annee Date_Saisie
+            <section class="carte large">
+                <h2 class="titre-carte">Format</h2>
+                <pre class="code code-format">ID_Client ID_Agent Eau Électricité Année Date
 <?= $clientsAgent ? (int)$clientsAgent[0]['id'] : 17 ?> <?=$agent?> 120.0000 850.0000 <?=$annee?> <?=$annee?>-12-31</pre>
-            <p class="note" style="margin-top: 0.75rem">L'identifiant de chaque client est dans le tableau ci-dessous. Les consommations sont les totaux annuels, en m³ et en kWh.</p>
-        </section>
+            </section>
+        <?php endif; ?>
 
         <!-- Widget large : les clients, leur identifiant pour le fichier, et de quoi vérifier la tournée -->
         <section class="carte" style="grid-column: 1 / -1">

@@ -44,7 +44,6 @@ $ligneContrat = function ($ligne, $etiquette, $classe) use ($e, $coches) { ?>
     <div class="pile">
         <section class="carte">
             <h2 class="titre-carte">Contrats actifs</h2>
-            <p class="legende" style="margin-bottom: 1rem">Le client est prévenu par notification et par email : il déclare son relevé final, sa facture finale est créée, puis le contrat se ferme.</p>
             <?php if ($contratsActifs) { ?>
                 <form method="post" action="<?= link ?>contrat/resilier/<?= (int)$client['id'] ?>">
                     <input type="hidden" name="csrf" value="<?= $e($_SESSION['csrf_resiliation']) ?>">
@@ -65,7 +64,6 @@ $ligneContrat = function ($ligne, $etiquette, $classe) use ($e, $coches) { ?>
         <?php if ($contratsEnResiliation) { ?>
         <section class="carte">
             <h2 class="titre-carte">En attente du relevé final</h2>
-            <p class="legende" style="margin-bottom: 1rem">Le contrat se fermera dès que le client aura déclaré son dernier relevé. S'il ne le fait pas, vous pouvez le clôturer sans relevé final : aucune facture finale ne sera créée.</p>
             <form method="post" action="<?= link ?>contrat/resilier/<?= (int)$client['id'] ?>">
                 <input type="hidden" name="csrf" value="<?= $e($_SESSION['csrf_resiliation']) ?>">
                 <input type="hidden" name="action" value="cloturer">

@@ -24,7 +24,6 @@ $iconeElec = '<i class="fa-solid fa-bolt" style="color: var(--elec)"></i>';
     <header class="entete ligne">
         <div>
             <h1 class="titre">Bilan annuel <?=$annee?></h1>
-            <p class="sous-titre">Consommations mensuelles validées comparées au relevé annuel de l'agent.</p>
         </div>
         <nav class="filtres" aria-label="Changer d'année">
             <a href="<?=link?>annuelle/all/<?=max(2000,$annee-1)?>"><i class="fa-solid fa-arrow-left"></i>&nbsp; <?=max(2000,$annee-1)?></a>
@@ -78,7 +77,6 @@ $iconeElec = '<i class="fa-solid fa-bolt" style="color: var(--elec)"></i>';
         <?php endif; ?>
     </section>
 
-    <p class="note" style="margin-top: 1rem">Estimation : tranches mensuelles du sujet appliquées à la moyenne annuelle, puis TVA de 18 %. Le fournisseur confirme le montant final.</p>
 </main>
 </body>
 </html>

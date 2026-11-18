@@ -23,7 +23,6 @@ $jourFacture = function ($date) { return $date ? date('d/m/Y', strtotime($date))
     <header class="entete ligne">
         <div>
             <h1 class="titre">Factures</h1>
-            <p class="sous-titre">Consultez les factures et enregistrez les paiements reçus en espèces.</p>
         </div>
         <nav class="filtres" aria-label="Filtrer les factures">
             <?php foreach (['' => ['Toutes', ''], 'Payée' => ['Payées', '/payees'], 'Impayée' => ['Impayées', '/impayees']] as $valeur => list($libelle, $chemin)) { ?>

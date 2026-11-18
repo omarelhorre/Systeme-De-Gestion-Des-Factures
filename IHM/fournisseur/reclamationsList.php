@@ -16,7 +16,6 @@ $coqueActif = 'reclamations';
 <main class="contenu entree">
     <header class="entete">
         <h1 class="titre">Réclamations</h1>
-        <p class="sous-titre">Consultez les réclamations de vos clients.</p>
     </header>
 
     <section class="carte">

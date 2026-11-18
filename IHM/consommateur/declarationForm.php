@@ -40,9 +40,6 @@ else $bloque = '';
     <a class="lien-retour" href="<?= $url ?>all"><i class="fa-solid fa-arrow-left"></i> Retour à mes relevés</a>
     <header class="entete">
         <h1 class="titre"><?= $enResiliation ? 'Relevé final' : 'Déclarer ma consommation' ?></h1>
-        <p class="sous-titre"><?= $enResiliation
-            ? 'Ce relevé crée votre facture finale et clôt le contrat de ce compteur.'
-            : 'Saisissez les index de vos compteurs et joignez une photo de chacun.' ?></p>
     </header>
 
     <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?=h($erreur)?></span></p><?php endif; ?>
@@ -119,8 +116,7 @@ else $bloque = '';
             <p class="note" style="margin-top: 1rem"><?= h($bloque) ?></p>
         <?php else: ?>
             <div class="pied-releve">
-                <p class="note"><?= $precedente ? 'Photos en JPEG, 3 Mo maximum.' : 'Premier relevé : il servira de référence et ne donnera pas lieu à une facture.' ?>
-                    <?php if ($enResiliation && $releveDuMois): ?> Le relevé de ce mois est déjà envoyé : ce relevé final s'y ajoute pour clore le contrat.<?php endif; ?></p>
+                <span></span>
                 <div class="actions">
                     <a class="bouton contour" href="<?= $url ?>all">Annuler</a>
                     <button class="bouton accent" type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>

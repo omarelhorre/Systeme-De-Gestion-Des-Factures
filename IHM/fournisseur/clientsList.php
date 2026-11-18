@@ -102,7 +102,7 @@ $totalImpaye = array_sum(array_map(function ($r) { return (float)$r['impaye']; }
                 </tbody>
             </table>
         <?php } else { ?>
-            <p class="vide">Aucun client pour le moment. Ajoutez le premier avec le bouton ci-dessus.</p>
+            <p class="vide">Aucun client.</p>
         <?php } ?>
     </section>
 </main>

@@ -38,10 +38,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
             </p>
 
             <div class="carte-pied">
-                <p class="legende">
-                    <i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Index d'eau &nbsp;
-                    <i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Index d'électricité
-                </p>
+                <span></span>
                 <a class="bouton accent" href="<?= link ?>declaration/ajouter">Déclarer ma consommation <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </section>
@@ -59,7 +56,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                     <?= graphiqueConsommation($points, '7rem') ?>
                 </div>
             <?php } else { ?>
-                <p class="vide">Vos courbes apparaîtront après deux relevés facturés.</p>
+                <p class="vide">Pas encore assez de relevés.</p>
             <?php } ?>
         </section>
 
@@ -113,7 +110,7 @@ $declarationOuverteAujourdhui = (int)date('j') >= 18;
                     <?php } ?>
                 </ul>
             <?php } else { ?>
-                <p class="vide">Aucune réclamation. Signalez une fuite ou un problème de facture depuis la page Réclamations.</p>
+                <p class="vide">Aucune réclamation.</p>
             <?php } ?>
         </section>
     </div>

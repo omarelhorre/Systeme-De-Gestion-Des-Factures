@@ -25,7 +25,6 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
 <?php if ($action === 'all') { ?>
     <header class="entete">
         <h1 class="titre">Réclamations</h1>
-        <p class="sous-titre">Consultez et traitez les réclamations de vos clients.</p>
     </header>
 
     <div class="grille" aria-label="Statistiques de toutes vos réclamations">
@@ -118,9 +117,8 @@ require_once ROOT.'IHM/commun/outils.php';   // statutReclamation() et ilYa()
                     </select>
                 </label>
                 <label class="champ entier"><span class="libelle">Traitement effectué / réponse au client</span>
-                    <textarea name="reponse" rows="6" maxlength="1000" required placeholder="Décrivez les actions effectuées et votre réponse au client."><?= gestionReclamationsTexte($reclamation['reponse']) ?></textarea>
+                    <textarea name="reponse" rows="6" maxlength="1000" required ><?= gestionReclamationsTexte($reclamation['reponse']) ?></textarea>
                 </label>
-                <p class="note entier">1 à 1000 caractères. Après chaque modification enregistrée, cette réponse est envoyée par e-mail au client. Un échec d’envoi sera signalé.</p>
                 <div class="entier actions fin">
                     <button class="bouton accent" type="submit"><i class="fa-solid fa-paper-plane"></i> Enregistrer et notifier le client</button>
                 </div>

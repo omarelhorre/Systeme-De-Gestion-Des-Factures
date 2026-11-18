@@ -15,7 +15,6 @@ $coqueActif = 'clients';
     <a class="lien-retour" href="<?= link ?>consommateur/all"><i class="fa-solid fa-arrow-left"></i> Retour aux clients</a>
     <header class="entete">
         <h1 class="titre">Ajouter un client</h1>
-        <p class="sous-titre">Son mot de passe lui est envoyé par e-mail.</p>
     </header>
 
     <section class="carte">
@@ -72,7 +71,7 @@ $coqueActif = 'clients';
 
             <div class="client-field entier actions">
                 <button class="bouton contour petit" type="button" onclick="ajouterAdresse()"><i class="fa-solid fa-plus"></i> Ajouter une autre adresse</button>
-                <span class="note">Chaque adresse commence avec ses propres index de référence.</span>
+               
             </div>
 
             <div class="entier actions fin">

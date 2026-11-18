@@ -114,7 +114,6 @@ if (!function_exists('miniCourbe')) {
             <figcaption class="graphe-legende">
                 <span><span class="cle elec"></span>Électricité</span>
                 <span><span class="cle eau"></span>Eau</span>
-                <span class="note">Indice 100 = moyenne de chaque service sur les mois affichés</span>
             </figcaption>
             <div class="graphe-corps">
                 <div class="graphe-axe" aria-hidden="true">

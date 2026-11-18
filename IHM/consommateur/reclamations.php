@@ -38,7 +38,7 @@ $coqueActif = 'reclamations';
 
     <section class="liste">
         <?php if (!$reclamations): ?>
-            <p class="vide">Aucune réclamation. Signalez une fuite ou un problème de facture avec le bouton ci-dessus.</p>
+            <p class="vide">Aucune réclamation.</p>
         <?php else: ?>
             <table class="tableau">
                 <thead>

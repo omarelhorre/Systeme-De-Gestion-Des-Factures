@@ -29,7 +29,6 @@ $contratActif = $contrat && ($contrat['statut'] ?? '') === 'actif';
                 </p>
                 <p class="legende">S'il a simplement cessé d'être client, résiliez plutôt son contrat : son historique est conservé.</p>
             <?php } else { ?>
-                <p class="legende">Son compte, ses adresses et son contrat seront supprimés.</p>
             <?php } ?>
             <p class="legende">Cette opération ne peut pas être annulée.</p>
 

@@ -82,7 +82,7 @@ if ($afficherCourbes) {
             <?php if ($afficherCourbes) { ?>
                 <?= graphiqueConsommation($consommation, '15rem') ?>
             <?php } else { ?>
-                <p class="vide">Les courbes apparaîtront après deux mois de relevés validés.</p>
+                <p class="vide">Pas encore assez de relevés.</p>
             <?php } ?>
         </section>
 
