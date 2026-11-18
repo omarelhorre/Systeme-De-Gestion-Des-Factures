@@ -13,6 +13,26 @@ function clientsAnnuels($db)
     return array_column(mysqli_fetch_all($result, MYSQLI_ASSOC), 'id');
 }
 
+// Page de l'agent : chaque client avec ce qu'il faut pour remplir et vérifier le fichier annuel
+// (identifiant, identité, fournisseur, compteurs et quartiers, relevé annuel déjà importé).
+function clientsPourAgent($db, $annee)
+{
+    $q = mysqli_prepare($db, "SELECT c.id, u.nom, u.prenom, c.cin, c.telephone,
+               CONCAT(uf.prenom, ' ', uf.nom) AS fournisseur,
+               (SELECT COUNT(*) FROM adresseCompteur a WHERE a.idConsommateur = c.id) AS compteurs,
+               (SELECT GROUP_CONCAT(DISTINCT qu.nom ORDER BY qu.nom SEPARATOR ', ')
+                  FROM adresseCompteur a JOIN quartier qu ON qu.id = a.idQuartier WHERE a.idConsommateur = c.id) AS quartiers,
+               ca.ConsommationEau AS releveEau, ca.ConsommationElectricite AS releveElectricite
+        FROM consommateur c
+        JOIN utilisateur u ON u.id = c.id
+        JOIN utilisateur uf ON uf.id = c.idFournisseur
+        LEFT JOIN ConsommationAnuelle ca ON ca.idConsommateur = c.id AND ca.annee = ?
+        ORDER BY u.nom, u.prenom");
+    mysqli_stmt_bind_param($q, 'i', $annee);
+    mysqli_stmt_execute($q);
+    return mysqli_fetch_all(mysqli_stmt_get_result($q), MYSQLI_ASSOC);
+}
+
 function declarationsPourCalculAnnuel($db, $annee)
 {
     $fin = ($annee + 1).'-01-01';

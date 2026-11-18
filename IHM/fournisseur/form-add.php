@@ -50,10 +50,13 @@ $coqueActif = 'clients';
                         <label class="champ entier"><span class="libelle">Adresse</span>
                             <input type="text" name="adresse[]" required>
                         </label>
-                        <label class="champ entier"><span class="libelle">Quartier (type d'activité)</span>
+                        <label class="champ entier"><span class="libelle">Catégorie et quartier</span>
                             <select name="quartier[]" required>
-                                <?php foreach (quartiers() as $q): ?>
-                                <option value="<?= (int)$q['id'] ?>"><?= htmlspecialchars($q['nom'].' — '.$q['typeActivite'], ENT_QUOTES, 'UTF-8') ?></option>
+                                <option value="" disabled selected>Choisir un quartier</option>
+                                <?php foreach (quartiersParCategorie() as $categorie => $liste): ?>
+                                <optgroup label="<?= htmlspecialchars($categorie, ENT_QUOTES, 'UTF-8') ?>">
+                                    <?php foreach ($liste as $q): ?><option value="<?= (int)$q['id'] ?>"><?= htmlspecialchars($q['nom'], ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
+                                </optgroup>
                                 <?php endforeach; ?>
                             </select>
                         </label>

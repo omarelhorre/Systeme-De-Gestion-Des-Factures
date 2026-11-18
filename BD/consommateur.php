@@ -27,7 +27,14 @@
     function quartiers()
     {
         global $link;
-        return mysqli_fetch_all(mysqli_query($link, "SELECT id, nom, typeActivite FROM quartier ORDER BY nom"), MYSQLI_ASSOC);
+        return mysqli_fetch_all(mysqli_query($link, "SELECT id, nom, typeActivite FROM quartier ORDER BY typeActivite, nom"), MYSQLI_ASSOC);
+    }
+    // Les quartiers rangés par catégorie (type d'activité), pour les listes déroulantes
+    function quartiersParCategorie()
+    {
+        $groupes = array();
+        foreach (quartiers() as $q) $groupes[$q['typeActivite']][] = $q;
+        return $groupes;
     }
     function quartierParId($id)
     {

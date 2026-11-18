@@ -562,16 +562,30 @@ document.querySelectorAll(".saisie-index input").forEach((champ) => {
         cellule.className = "consommation-calculee " + (ecart < 0 ? "negative" : "positive");
     });
 });
-// le bouton "Joindre la photo" affiche le nom du fichier choisi
+// "Joindre la photo" / "Choisir le fichier" : affiche le nom du fichier choisi ;
+// dans le tableau de relevé, la nouvelle photo apparaît aussi en vignette (cliquable pour l'agrandir)
 document.querySelectorAll(".fichier input").forEach((champ) => {
+    const etiquette = champ.closest(".fichier");
+    const texteDepart = etiquette.querySelector("span").textContent;
     champ.addEventListener("change", () => {
-        const etiquette = champ.closest(".fichier");
-        etiquette.querySelector("span").textContent = champ.files.length ? champ.files[0].name : "Joindre la photo";
-        etiquette.classList.toggle("choisi", champ.files.length > 0);
+        const fichier = champ.files[0];
+        etiquette.querySelector("span").textContent = fichier ? fichier.name : texteDepart;
+        etiquette.classList.toggle("choisi", !!fichier);
+        const vignette = etiquette.parentElement.querySelector(".photo-nouvelle .vignette");
+        if (vignette) {
+            if (vignette.dataset.photo) URL.revokeObjectURL(vignette.dataset.photo);
+            vignette.hidden = !fichier;
+            if (fichier) {
+                vignette.dataset.photo = URL.createObjectURL(fichier);
+                vignette.dataset.titre = "Nouvelle photo — " + fichier.name;
+                vignette.querySelector("img").src = vignette.dataset.photo;
+            }
+        }
     });
 });
 // "voir la photo" : la photo du dernier relevé dans une fenêtre
 document.querySelectorAll(".lien-photo").forEach((bouton) => {
+    // (la vignette de la nouvelle photo reçoit son adresse au moment du choix du fichier)
     bouton.addEventListener("click", () => {
         const fenetre = document.getElementById("visionneuse");
         document.getElementById("visionneuse-image").src = bouton.dataset.photo;

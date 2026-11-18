@@ -76,7 +76,7 @@ else $bloque = '';
         <?php endif; ?>
         <table class="tableau tableau-releve">
             <thead>
-                <tr><th>Compteur</th><th>Dernier index</th><th>Nouvel index</th><th class="fin">Consommation</th><th>Photo du compteur</th></tr>
+                <tr><th>Compteur</th><th>Dernier index</th><th>Dernière photo</th><th>Nouvel index</th><th class="fin">Consommation</th><th>Nouvelle photo</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($services as list($champ, $champPhoto, $libelle, $unite, $icone, $couleur, $dernier, $photo)): ?>
@@ -85,8 +85,14 @@ else $bloque = '';
                     <td class="nombre">
                         <?php if ($dernier !== null): ?>
                             <?= indexFr($dernier) ?> <?= $unite ?>
-                            <small>le <?= $jourReleve($precedente['dateSaisie']) ?><?php if ($photo): ?> · <button type="button" class="lien-photo" data-photo="<?= h($photo) ?>" data-titre="<?= h($libelle.' — relevé du '.$jourReleve($precedente['dateSaisie'])) ?>">voir la photo</button><?php endif; ?></small>
+                            <small>le <?= $jourReleve($precedente['dateSaisie']) ?></small>
                         <?php else: ?><span class="note">Premier relevé</span><?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($photo): ?>
+                            <button type="button" class="vignette lien-photo" data-photo="<?= h($photo) ?>" data-titre="<?= h($libelle.' — relevé du '.$jourReleve($precedente['dateSaisie'])) ?>" aria-label="Agrandir la photo <?= h($libelle) ?> du dernier relevé">
+                                <img src="<?= h($photo) ?>" alt=""></button>
+                        <?php else: ?><span class="note">—</span><?php endif; ?>
                     </td>
                     <td>
                         <?php if ($saisie): ?>
@@ -97,8 +103,11 @@ else $bloque = '';
                     <td class="fin nombre"><span class="consommation-calculee note">—</span></td>
                     <td>
                         <?php if ($saisie): ?>
-                            <label class="fichier"><input type="file" name="<?= $champPhoto ?>" accept="image/jpeg" required>
-                                <i class="fa-solid fa-camera" aria-hidden="true"></i><span>Joindre la photo</span></label>
+                            <div class="photo-nouvelle">
+                                <button type="button" class="vignette lien-photo" hidden aria-label="Agrandir la nouvelle photo <?= h($libelle) ?>"><img alt=""></button>
+                                <label class="fichier"><input type="file" name="<?= $champPhoto ?>" accept="image/jpeg" required>
+                                    <i class="fa-solid fa-camera" aria-hidden="true"></i><span>Joindre la photo</span></label>
+                            </div>
                         <?php else: ?><span class="note">—</span><?php endif; ?>
                     </td>
                 </tr>
