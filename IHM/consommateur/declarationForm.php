@@ -47,61 +47,85 @@ else $bloque = '';
 
     <?php if ($erreur): ?><p class="erreur-bloc" role="alert"><i class="fa-solid fa-circle-exclamation"></i><span><?=h($erreur)?></span></p><?php endif; ?>
 
-    <section class="carte">
-        <div class="formulaire">
-            <!-- Choisir le compteur recharge la page sur ce compteur -->
-            <label class="champ entier"><span class="libelle">Compteur</span>
-                <select onchange="window.location.href='<?= $url ?>ajouter/' + this.value">
-                    <?php foreach ($adresses as $adresse): ?>
-                    <option value="<?=h($adresse['id'])?>" <?=((int)$adresse['id'] === $idAdresseCompteur ? 'selected' : '')?>><?=h($adresse['adresse'].' — '.($adresse['quartier'] ?? $adresse['categorie']))?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
+    <!-- Choisir le compteur recharge la page sur ce compteur -->
+    <div class="barre-outils">
+        <label class="outil outil-large"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            <select aria-label="Compteur" onchange="window.location.href='<?= $url ?>ajouter/' + this.value">
+                <?php foreach ($adresses as $adresse): ?>
+                <option value="<?=h($adresse['id'])?>" <?=((int)$adresse['id'] === $idAdresseCompteur ? 'selected' : '')?>><?=h($adresse['adresse'].' — '.($adresse['quartier'] ?? $adresse['categorie']))?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+    </div>
 
-            <!-- Le dernier relevé : la valeur et la photo de chaque compteur, pour comparer avant de saisir -->
-            <div class="entier">
-                <?php if ($precedente): ?>
-                    <p class="libelle">Dernier relevé, du <?=$jourReleve($precedente['dateSaisie'])?> : <strong style="color: var(--texte)"><?=indexFr($precedente['indexEau'])?> m³</strong> d'eau · <strong style="color: var(--texte)"><?=indexFr($precedente['indexElectricite'])?> kWh</strong> d'électricité</p>
-                    <?php if ($precedente['cheminCompteurEauImg'] || $precedente['cheminCompteurElectriciteImg']): ?>
-                        <div class="photos photos-releve" style="margin-top: 0.75rem">
-                            <figure><img src="<?=$url?>eau/<?=h($precedente['id'])?>" alt="Photo du compteur d'eau au dernier relevé"><figcaption><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Eau</figcaption></figure>
-                            <figure><img src="<?=$url?>electricite/<?=h($precedente['id'])?>" alt="Photo du compteur d'électricité au dernier relevé"><figcaption><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Électricité</figcaption></figure>
-                        </div>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <p class="libelle">Premier relevé : il servira de référence et ne donnera pas lieu à une facture.</p>
-                <?php endif; ?>
-            </div>
-        </div>
+    <?php
+    // Une ligne par service : [champ index, champ photo, libellé, unité, icône, couleur, dernier index, route de la photo]
+    $services = array(
+        array('indexEau', 'photoEau', 'Eau', 'm³', 'fa-droplet', 'var(--eau)',
+              $precedente ? $precedente['indexEau'] : null, $precedente && $precedente['cheminCompteurEauImg'] ? $url.'eau/'.(int)$precedente['id'] : null),
+        array('indexElectricite', 'photoElectricite', 'Électricité', 'kWh', 'fa-bolt', 'var(--elec)',
+              $precedente ? $precedente['indexElectricite'] : null, $precedente && $precedente['cheminCompteurElectriciteImg'] ? $url.'electricite/'.(int)$precedente['id'] : null),
+    );
+    $saisie = $bloque === '';
+    ?>
+    <!-- Le relevé comme une facture : dernier index, nouvel index, consommation calculée pendant la saisie -->
+    <form class="liste" method="post" action="<?=$url?>ajouter" enctype="multipart/form-data">
+        <?php if ($saisie): ?>
+        <input type="hidden" name="csrf" value="<?=h($_SESSION['csrf_consommation'])?>">
+        <input type="hidden" name="idAdresseCompteur" value="<?=h($idAdresseCompteur)?>">
+        <?php endif; ?>
+        <table class="tableau tableau-releve">
+            <thead>
+                <tr><th>Compteur</th><th>Dernier index</th><th>Nouvel index</th><th class="fin">Consommation</th><th>Photo du compteur</th></tr>
+            </thead>
+            <tbody>
+                <?php foreach ($services as list($champ, $champPhoto, $libelle, $unite, $icone, $couleur, $dernier, $photo)): ?>
+                <tr>
+                    <td><span class="fort"><i class="fa-solid <?= $icone ?>" style="color: <?= $couleur ?>" aria-hidden="true"></i> <?= $libelle ?></span></td>
+                    <td class="nombre">
+                        <?php if ($dernier !== null): ?>
+                            <?= indexFr($dernier) ?> <?= $unite ?>
+                            <small>le <?= $jourReleve($precedente['dateSaisie']) ?><?php if ($photo): ?> · <button type="button" class="lien-photo" data-photo="<?= h($photo) ?>" data-titre="<?= h($libelle.' — relevé du '.$jourReleve($precedente['dateSaisie'])) ?>">voir la photo</button><?php endif; ?></small>
+                        <?php else: ?><span class="note">Premier relevé</span><?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($saisie): ?>
+                            <label class="saisie-index"><input type="text" inputmode="decimal" name="<?= $champ ?>" required pattern="[0-9]+([.,][0-9]{1,4})?"
+                                   data-precedent="<?= $dernier !== null ? h($dernier) : '' ?>" data-unite="<?= $unite ?>" aria-label="Nouvel index <?= $libelle ?> (<?= $unite ?>)"><span><?= $unite ?></span></label>
+                        <?php else: ?><span class="note">—</span><?php endif; ?>
+                    </td>
+                    <td class="fin nombre"><span class="consommation-calculee note">—</span></td>
+                    <td>
+                        <?php if ($saisie): ?>
+                            <label class="fichier"><input type="file" name="<?= $champPhoto ?>" accept="image/jpeg" required>
+                                <i class="fa-solid fa-camera" aria-hidden="true"></i><span>Joindre la photo</span></label>
+                        <?php else: ?><span class="note">—</span><?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
-        <?php if ($bloque !== ''): ?>
-            <p class="vide" style="margin-top: 1.5rem"><?= h($bloque) ?></p>
+        <?php if (!$saisie): ?>
+            <p class="note" style="margin-top: 1rem"><?= h($bloque) ?></p>
         <?php else: ?>
-            <form class="formulaire" style="margin-top: 1.25rem" method="post" action="<?=$url?>ajouter" enctype="multipart/form-data">
-                <input type="hidden" name="csrf" value="<?=h($_SESSION['csrf_consommation'])?>">
-                <input type="hidden" name="idAdresseCompteur" value="<?=h($idAdresseCompteur)?>">
-                <label class="champ"><span class="libelle"><i class="fa-solid fa-droplet" style="color: var(--eau)"></i> Index d'eau (m³)</span>
-                    <input type="text" inputmode="decimal" name="indexEau" required pattern="[0-9]+([.,][0-9]{1,4})?">
-                </label>
-                <label class="champ"><span class="libelle"><i class="fa-solid fa-bolt" style="color: var(--elec)"></i> Index d'électricité (kWh)</span>
-                    <input type="text" inputmode="decimal" name="indexElectricite" required pattern="[0-9]+([.,][0-9]{1,4})?">
-                </label>
-                <label class="champ"><span class="libelle">Photo du compteur d'eau (JPEG, 3 Mo max)</span>
-                    <input type="file" name="photoEau" accept="image/jpeg" required>
-                </label>
-                <label class="champ"><span class="libelle">Photo du compteur d'électricité (JPEG, 3 Mo max)</span>
-                    <input type="file" name="photoElectricite" accept="image/jpeg" required>
-                </label>
-                <?php if ($enResiliation && $releveDuMois): ?>
-                    <p class="note entier">Le relevé de ce mois est déjà envoyé : ce relevé final s'y ajoute pour clore le contrat.</p>
-                <?php endif; ?>
-                <div class="entier actions fin">
+            <div class="pied-releve">
+                <p class="note"><?= $precedente ? 'Photos en JPEG, 3 Mo maximum.' : 'Premier relevé : il servira de référence et ne donnera pas lieu à une facture.' ?>
+                    <?php if ($enResiliation && $releveDuMois): ?> Le relevé de ce mois est déjà envoyé : ce relevé final s'y ajoute pour clore le contrat.<?php endif; ?></p>
+                <div class="actions">
                     <a class="bouton contour" href="<?= $url ?>all">Annuler</a>
                     <button class="bouton accent" type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
                 </div>
-            </form>
+            </div>
         <?php endif; ?>
-    </section>
+    </form>
+
+    <!-- Photo d'un relevé précédent, ouverte par "voir la photo" -->
+    <dialog class="visionneuse" id="visionneuse">
+        <div class="visionneuse-entete"><span id="visionneuse-titre"></span>
+            <button type="button" class="bouton-rond" onclick="this.closest('dialog').close()" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
+        <img id="visionneuse-image" alt="">
+    </dialog>
 </main>
 </body>
 </html>

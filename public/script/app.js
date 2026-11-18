@@ -542,3 +542,41 @@ document.querySelectorAll(".graphe").forEach((graphe) => {
         if (evenement.key === "Escape") zone.blur();
     });
 });
+
+
+// ---------- Déclarer ma consommation : consommation calculée, nom de la photo, visionneuse ----------
+// Consommation = nouvel index - dernier index, mise à jour pendant la saisie ; en rouge si l'index baisse.
+document.querySelectorAll(".saisie-index input").forEach((champ) => {
+    const cellule = champ.closest("tr").querySelector(".consommation-calculee");
+    const lire = (v) => Number(String(v).replace(",", "."));
+    champ.addEventListener("input", () => {
+        const precedent = champ.dataset.precedent;
+        if (champ.value.trim() === "" || precedent === "" || isNaN(lire(champ.value))) {
+            cellule.textContent = "—";
+            cellule.className = "consommation-calculee note";
+            return;
+        }
+        const ecart = Math.round((lire(champ.value) - lire(precedent)) * 10000) / 10000;
+        cellule.textContent = ecart < 0 ? "Index inférieur au dernier relevé"
+            : "+ " + ecart.toLocaleString("fr-FR") + " " + champ.dataset.unite;
+        cellule.className = "consommation-calculee " + (ecart < 0 ? "negative" : "positive");
+    });
+});
+// le bouton "Joindre la photo" affiche le nom du fichier choisi
+document.querySelectorAll(".fichier input").forEach((champ) => {
+    champ.addEventListener("change", () => {
+        const etiquette = champ.closest(".fichier");
+        etiquette.querySelector("span").textContent = champ.files.length ? champ.files[0].name : "Joindre la photo";
+        etiquette.classList.toggle("choisi", champ.files.length > 0);
+    });
+});
+// "voir la photo" : la photo du dernier relevé dans une fenêtre
+document.querySelectorAll(".lien-photo").forEach((bouton) => {
+    bouton.addEventListener("click", () => {
+        const fenetre = document.getElementById("visionneuse");
+        document.getElementById("visionneuse-image").src = bouton.dataset.photo;
+        document.getElementById("visionneuse-image").alt = bouton.dataset.titre;
+        document.getElementById("visionneuse-titre").textContent = bouton.dataset.titre;
+        fenetre.showModal();
+    });
+});
